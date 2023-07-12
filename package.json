@@ -1,12 +1,13 @@
 {
-    "name": "AustensWebsite",
+    "name": "TweedTrading",
     "version": "1.0.0",
     "description": "Cool website template",
     "main": "server.js", 
     "scripts": {
       "start": "node server.js",
-      "build": "mkdir -p public && cp index.html styles.css server.js public/"
+      "build": "if not exist publicttb mkdir publicttb & copy index.html publicttb & copy styles.css publicttb & copy server.js publicttb"
     },
+    
     "dependencies": {
       "express": "^4.17.1"
     }
