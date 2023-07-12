@@ -5,7 +5,7 @@
     "main": "server.js", 
     "scripts": {
       "start": "node server.js",
-      "build": "if not exist publicttb mkdir publicttb & copy index.html publicttb & copy styles.css publicttb & copy server.js publicttb"
+      "build": "if not exist publicttb mkdir publicttb && copy index.html publicttb && copy styles.css publicttb && copy server.js publicttb"
     },
     
     "dependencies": {
