@@ -5,8 +5,8 @@
     "main": "server.js", 
     "scripts": {
       "start": "node server.js",
-      "build": "mkdir -p publicttb && (test -d publicttb && echo 'Directory already exists' || (cp index.html publicttb && cp styles.css publicttb && cp server.js publicttb))"
-
+      "build2": "mkdir -p publicttb && (test -d publicttb && echo 'Directory already exists' || (cp index.html publicttb && cp styles.css publicttb && cp server.js publicttb))",
+      "build": "mkdir -p public && cp index.html styles.css server.js public/"
     },
     
     "dependencies": {
