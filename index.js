@@ -1,3 +1,7 @@
+//import emailjs
+const emailjs = require('emailjs');
+
+
 
   // JavaScript
 document.getElementById('contactForm').addEventListener('submit', function (event) {
