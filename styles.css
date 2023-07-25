@@ -276,3 +276,17 @@ iframe {
     padding: 10px;
   }
 }
+
+
+/* General styles for the phone icon container */
+.phone-icon {
+  display: none; /* Hide by default */
+}
+
+/* Media query for mobile devices with a maximum width of 768px (adjust as needed) */
+@media screen and (max-width: 768px) {
+  .phone-icon {
+    display: block; /* Display the phone icon on mobile devices */
+    /* Additional styling for the container if needed */
+  }
+}
