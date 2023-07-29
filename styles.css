@@ -317,3 +317,53 @@ iframe {
   transform: scale(0.5); /* Shrink the size by 50% */
   transform-origin: top left; /* Keep the top-left corner as the origin point */
 }
+/* General styles for the phone icon container */
+.phone-icon {
+  display: none; /* Hide by default */
+}
+
+/* Media query for mobile devices with a maximum width of 768px (adjust as needed) */
+@media screen and (max-width: 768px) {
+  /* Additional styles for the carousel images */
+  .carousel-image {
+    border-radius: 8px; /* Adjust the radius as needed */
+  }
+
+  /* Additional styles for the carousel container */
+  .carousel-container {
+    position: relative;
+    left: 5px; /* Move the carousel 5px to the right */
+    top: 15px; /* Move the carousel 15px down */
+  }
+
+  /* Additional styles for the iframe */
+  .iframe-container {
+    border: 3px solid #fff;
+    border-radius: 10px; /* Adjust the radius as needed */
+    overflow: hidden;
+    transform: scale(0.5); /* Shrink the size by 50% */
+    transform-origin: top left; /* Keep the top-left corner as the origin point */
+  }
+
+  /* Additional styles for the footer */
+  footer {
+    position: fixed; /* Fix the footer to the bottom of the screen */
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #2e7d32; /* Dark green */
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+  }
+
+  /* Additional styles for the phone icon */
+  .phone-icon {
+    display: block; /* Display the phone icon on mobile devices */
+    text-align: center; /* Center the icon */
+  }
+
+  .phone-icon-img {
+    max-width: 100px; /* Set the maximum width for the phone icon */
+  }
+}

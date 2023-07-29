@@ -17,9 +17,10 @@
   </header>
   <div class="phone-icon">
     <a href="tel:+1234567890">
-      <i class="fas fa-phone-alt"></i> Call Us
+      <img src="ph.jpg" alt="Phone Icon" class="phone-icon-img"> Call Us
     </a>
-  </div>  
+  </div>
+  
   <nav>
     <ul>
       <li><a href="index.html">Home</a></li>
@@ -86,8 +87,42 @@
   timberButton.addEventListener('click', () => showCarousel(timberImages));
   tilesButton.addEventListener('click', () => showCarousel(tilesImages));
 
-  // Function to display the carousel for the selected category
   let interval;
+
+  // Add event listeners to the buttons
+  doorsButton.addEventListener('click', (event) => {
+    event.preventDefault(); // Prevent scrolling to the top
+    showCarousel(doorsImages);
+  });
+
+  windowsButton.addEventListener('click', (event) => {
+    event.preventDefault(); // Prevent scrolling to the top
+    showCarousel(windowsImages);
+  });
+
+  handlesButton.addEventListener('click', (event) => {
+    event.preventDefault(); // Prevent scrolling to the top
+    showCarousel(handlesImages);
+  });
+
+  electricalButton.addEventListener('click', (event) => {
+    event.preventDefault(); // Prevent scrolling to the top
+    showCarousel(electricalImages);
+  });
+
+  tilesButton.addEventListener('click', (event) => {
+    event.preventDefault(); // Prevent scrolling to the top
+    showCarousel(tilesImages);
+  });
+
+  timberButton.addEventListener('click', (event) => {
+    event.preventDefault(); // Prevent scrolling to the top
+    showCarousel(timberImages);
+  });
+
+  // Function to display the carousel for the selected category
+
+
   function showCarousel(images) {
     let index = 0;
     carouselImage.src = images[index];
@@ -101,6 +136,7 @@
       carouselImage.src = images[index];
     }, 3000); // Change the image every 3 seconds, for example
   }
+
 </script>
 
 <!-- Your HTML code remains unchanged -->
