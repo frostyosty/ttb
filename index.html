@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="styles.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Your+Bubbly+Font&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
   <title>Tweed Trading</title>
 </head>
 <body>
   <header>
-    <h1>Tweed Trading</h1>
+    <img src="quick_logo.png" alt="Tweed Trading">
+    <h1></h1>
     <p>Recycled Building Materials</p>
   </header>
   <div class="phone-icon">
@@ -26,29 +30,83 @@
   <main>
     <div class="about-us-container">
       <h3 class="about-us-header">About Us</h3>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sagittis, nisl ac ultrices hendrerit, tortor turpis pulvinar odio, id pulvinar magna magna et risus. Phasellus ultrices rutrum nulla, id aliquam urna faucibus vitae. Integer id lectus ultricies, ultrices nulla ut, consectetur quam. Suspendisse potenti. Nullam maximus tellus quis mi congue iaculis. Nullam eget mi eu lacus dapibus hendrerit. Ut viverra, mi ac fringilla elementum, ex risus dignissim elit, et ullamcorper ipsum mauris sit amet neque. Morbi venenatis enim justo, nec mattis eros condimentum sit amet. Aenean gravida magna eget commodo elementum. Aliquam efficitur risus urna, ut lobortis nulla elementum et. Curabitur in felis non lectus pulvinar bibendum id id tortor.</p>
-      <p>Sed euismod lacus at eleifend efficitur. Nulla ultricies aliquet arcu, ac laoreet nunc pellentesque vitae. Vestibulum ac sapien tristique, convallis arcu nec, ultricies odio. Mauris dignissim elit et lectus consequat, at iaculis erat tristique. Phasellus sagittis dolor ut mi cursus, vel fermentum risus viverra. Proin quis odio et mauris fringilla volutpat. Fusce sodales, nisl eu ullamcorper eleifend, ipsum metus interdum ex, nec eleifend nisi est eu mi. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Sed iaculis mollis mi, in laoreet leo dignissim eu. Donec eleifend justo non libero gravida, eu bibendum ipsum aliquam. Mauris cursus rhoncus eros ac semper.</p>
+      <p>At Tweed Trading, we offer an extensive collection of recycled building materials. Embrace sustainable design with reclaimed wood, salvaged metal, refurbished tiles, and repurposed concrete. Each piece adds unique charm and authenticity to your project.</p>
+        <p>Building green has never been easier. Opt for recycled materials to reduce your carbon footprint and promote a circular economy. Our team vets our materials to ensure that they inspire confidence and guarantee longevity.</p>
+        <p>Create your dream space with tailored solutions for every project.</p>
     </div>
-  
-    <!-- Location iframe -->
-    
     <div class="location-container">
       <h3 class="locations-heading">Location</h3>
+      <div class="iframe-container"></div>
       <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3807.8742754005966!2d176.14208587676032!3d-37.71683830148812!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6d6dda452fcab65d%3A0x1f1b293584d1e986!2s40%20Courtney%20Road%2C%20Gate%20Pa%2C%20Tauranga%203112!5e0!3m2!1sen!2snz!4v1690029493073!5m2!1sen!2snz" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
-  
-    <!-- Sample sites section -->
-    <div class="sample-sites-container">
-      <h3 class="sample-sites-header">Sample Sites</h3>
-      <p>If you or your company are interested in a similar landing page to this one for only $2 dollars a week, contact me at admin@flashwebsites.com</p>
-      <div class="sample-sites-links">
-        <a href="#" class="sample-site-link">Example 1</a>
-        <a href="#" class="sample-site-link">Example 2</a>
-        <a href="#" class="sample-site-link">Example 3</a>
-      </div>
     </div>
+    <div class="sample-sites-container">
+      <h3 class="sample-sites-header">Examples</h3>
+      <p></p>
+      <div class="sample-sites-links">
+        <a href="#" class="sample-site-link" id="doorsButton">Doors</a>
+        <a href="#" class="sample-site-link" id="windowsButton">Windows</a>
+        <a href="#" class="sample-site-link" id="handlesButton">Handles</a>
+        <a href="#" class="sample-site-link" id="electricalButton">Electrical</a>
+        <a href="#" class="sample-site-link" id="tilesButton">Tiles</a>
+        <a href="#" class="sample-site-link" id="timberButton">Timber</a>
+      </div>       
+      <div class="carousel-container">
+        <img src="ttb.jpg" alt="Default Image" class="carousel-image" id="carouselImage">  
+      </div>
+    </div>    
   </main>
-  
+<!-- Your HTML code remains unchanged -->
+
+<script>
+  // Get references to the buttons and the carousel image
+  const doorsButton = document.getElementById('doorsButton');
+  const windowsButton = document.getElementById('windowsButton');
+  const handlesButton = document.getElementById('handlesButton');
+  const electricalButton = document.getElementById('electricalButton');
+  const tilesButton = document.getElementById('tilesButton');
+  const timberButton = document.getElementById('timberButton');
+  const carouselImage = document.getElementById('carouselImage');
+
+  // Set the default image
+  carouselImage.src = 'ttb.jpg';
+
+  // Define the image paths for each category
+  const doorsImages = ['door1.jpg', 'door2.jpg', 'door3.jpg', 'door4.jpg'];
+  const windowsImages = ['window1.jpg', 'window2.jpg', 'window3.jpg', 'window4.jpg'];
+  const handlesImages = ['handles1.jpg', 'handles2.jpg'];
+  const electricalImages = ['elec1.jpg', 'elec2.jpg', 'elec3.jpg', 'elec4.jpg'];
+  const tilesImages = ['tiles1.jpg', 'tiles2.jpg', 'tiles3.jpg', 'tiles4.jpg'];
+  const timberImages = ['timber1.jpg', 'timber2.jpg', 'timber3.jpg', 'timber4.jpg'];
+
+  // Add event listeners to the buttons
+  doorsButton.addEventListener('click', () => showCarousel(doorsImages));
+  windowsButton.addEventListener('click', () => showCarousel(windowsImages));
+  handlesButton.addEventListener('click', () => showCarousel(handlesImages));
+  electricalButton.addEventListener('click', () => showCarousel(electricalImages));
+  timberButton.addEventListener('click', () => showCarousel(timberImages));
+  tilesButton.addEventListener('click', () => showCarousel(tilesImages));
+
+  // Function to display the carousel for the selected category
+  let interval;
+  function showCarousel(images) {
+    let index = 0;
+    carouselImage.src = images[index];
+
+    // Clear any existing interval
+    clearInterval(interval);
+
+    // Set an interval to change the image every few seconds (you can adjust the duration)
+    interval = setInterval(() => {
+      index = (index + 1) % images.length;
+      carouselImage.src = images[index];
+    }, 3000); // Change the image every 3 seconds, for example
+  }
+</script>
+
+<!-- Your HTML code remains unchanged -->
+
+
   <footer>
     <p>All rights reserved &copy; Tweed Trading</p>
   </footer>

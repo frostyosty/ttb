@@ -17,18 +17,20 @@ body {
 /* Header and Footer styles */
 header,
 footer {
-  background-color: #222;
+  font-family: 'Roboto', sans-serif;
+  background-color: #2e7d32; /* Dark green */
   color: #fff;
   padding: 20px;
   text-align: center;
 }
 
+/* Update main header styles */
 header {
   border-bottom: 1px solid #fff;
-}
-
-footer {
-  border-top: 1px solid #fff;
+  background-color: #000000; /* Red */
+  color: #fff; /* White text color */
+  font-family: 'Shadows Into Light', cursive; /* Example bubbly font */
+  padding: 20px 50px; /* White padding on top and bottom, wider padding on left and right */
 }
 
 h1,
@@ -42,18 +44,22 @@ h4 {
 
 h1 {
   font-size: 36px;
+  color: #388e3c; /* Dark green */
 }
 
 h2 {
   font-size: 24px;
+  color: #4caf50; /* Green */
 }
 
 h3 {
   font-size: 18px;
+  color: #689f38; /* Light green */
 }
 
 h4 {
   font-size: 18px;
+  color: #2e7d32; /* Dark green */
 }
 
 /* Nav section styles */
@@ -125,9 +131,8 @@ iframe {
   margin: 0;
   position: absolute;
   bottom: 480px;
-  left: 850px;
+  right: 245px;
 }
-
 
 @media (max-width: 600px) {
   /* Styles for screens up to 600px wide */
@@ -138,7 +143,6 @@ iframe {
     left: 850px;
   }
 }
-
 
 /* Sample sites section styles */
 .sample-sites-container {
@@ -153,10 +157,12 @@ iframe {
   font-size: 24px;
   text-transform: uppercase;
   margin-bottom: 10px;
+  color: #2e7d32; /* Dark green */
 }
 
 .sample-sites-container p {
   margin-bottom: 20px;
+  color: #4caf50; /* Green */
 }
 
 .sample-sites-links {
@@ -179,7 +185,6 @@ iframe {
   background-color: #ddd;
 }
 
-
 /* About Us, Contact Us, and Products section styles */
 .about-us-container,
 .contact-us-container,
@@ -198,6 +203,7 @@ iframe {
   text-transform: uppercase;
   margin-bottom: 10px;
   letter-spacing: 1px;
+  color: #2e7d32; /* Dark green */
 }
 
 /* Add indentation to paragraphs */
@@ -212,6 +218,7 @@ iframe {
 .products-container h4 {
   font-size: 18px;
   margin-bottom: 10px;
+  color: #4caf50; /* Green */
 }
 
 .products-container ul {
@@ -222,7 +229,6 @@ iframe {
 .products-container li {
   margin-bottom: 5px;
 }
-
 
 /* Contact Form section styles */
 .contact-form-container {
@@ -237,6 +243,7 @@ iframe {
   font-size: 24px;
   text-transform: uppercase;
   margin-bottom: 10px;
+  color: #2e7d32; /* Dark green */
 }
 
 .contact-form {
@@ -277,11 +284,12 @@ iframe {
   }
 }
 
-
 /* General styles for the phone icon container */
 .phone-icon {
   display: none; /* Hide by default */
 }
+
+
 
 /* Media query for mobile devices with a maximum width of 768px (adjust as needed) */
 @media screen and (max-width: 768px) {
@@ -289,4 +297,18 @@ iframe {
     display: block; /* Display the phone icon on mobile devices */
     /* Additional styling for the container if needed */
   }
+}
+
+/* Additional styles for the carousel images */
+.carousel-image {
+  border-radius: 8px; /* Adjust the radius as needed */
+}
+
+/* Additional styles for the iframe */
+.iframe-container {
+  border: 3px solid #fff;
+  border-radius: 10px; /* Adjust the radius as needed */
+  overflow: hidden;
+  transform: scale(0.5); /* Shrink the size by 50% */
+  transform-origin: top left; /* Keep the top-left corner as the origin point */
 }
