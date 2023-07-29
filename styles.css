@@ -303,6 +303,11 @@ iframe {
 .carousel-image {
   border-radius: 8px; /* Adjust the radius as needed */
 }
+.carousel-container {
+  position: relative;
+  left: 5px;
+  top: 15px;
+}
 
 /* Additional styles for the iframe */
 .iframe-container {
