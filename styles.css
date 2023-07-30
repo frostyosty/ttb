@@ -1,4 +1,3 @@
-/* Body styles */
 body {
   font-family: Arial, sans-serif;
   display: flex;
@@ -7,62 +6,27 @@ body {
   background-color: #f5f5f5;
 }
 
-/* Header and Footer styles */
 header,
 footer {
   font-family: 'Roboto', sans-serif;
-  background-color: #2e7d32; /* Dark green */
+  background-color: #2e7d32;
   color: #fff;
   padding: 20px;
   text-align: center;
 }
 
-/* Update main header styles */
 header {
   border-bottom: 1px solid #fff;
-  background-color: #000000; /* Red */
-  color: #fff; /* White text color */
-  font-family: 'Shadows Into Light', cursive; /* Example bubbly font */
-  padding: 20px 50px; /* White padding on top and bottom, wider padding on left and right */
+  background-color: #000000;
+  color: #fff;
+  font-family: 'Shadows Into Light', cursive;
+  padding: 20px 50px;
 }
 
-/* Rescale header image on mobile */
-@media screen and (max-width: 768px) {
-  header img {
-    max-width: 50%; /* Scale the image down to 50% of its original size */
-  }
+header img {
+  max-width: 100%;
 }
 
-h1,
-h2,
-h3,
-h4 {
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-h1 {
-  font-size: 36px;
-  color: #388e3c; /* Dark green */
-}
-
-h2 {
-  font-size: 24px;
-  color: #4caf50; /* Green */
-}
-
-h3 {
-  font-size: 18px;
-  color: #689f38; /* Light green */
-}
-
-h4 {
-  font-size: 18px;
-  color: #2e7d32; /* Dark green */
-}
-
-/* Nav section styles */
 nav {
   background-color: #eee;
   padding: 20px;
@@ -93,16 +57,11 @@ nav a:hover {
   color: #fff;
 }
 
-
-
-/* Main styles */
 main {
   flex-grow: 1;
   padding: 20px;
-  position: relative;
 }
 
-/* Iframe and Location heading styles */
 iframe {
   border: 3px solid #ccc;
   position: absolute;
@@ -117,44 +76,40 @@ iframe {
   padding: 5px 10px;
   margin: 0;
   position: absolute;
-  bottom: 480px;
-  right: 245px;
+  bottom: 30px;
+  right: 30px;
 }
 
-@media (max-width: 600px) {
-  /* Styles for screens up to 600px wide */
-  
-  /* Location heading styles */
-  .locations-heading {
-    bottom: 480px;
-    left: 850px;
-  }
-}
-
-/* Sample sites section styles */
 .sample-sites-container {
   background-color: #f5f5f5;
   padding: 20px;
   margin-top: 30px;
   border: 1px solid #ccc;
   border-radius: 5px;
+  
 }
 
 .sample-sites-header {
   font-size: 24px;
   text-transform: uppercase;
   margin-bottom: 10px;
-  color: #2e7d32; /* Dark green */
+  color: #2e7d32;
 }
 
 .sample-sites-container p {
   margin-bottom: 20px;
-  color: #4caf50; /* Green */
+  color: #4caf50;
+  overflow: hidden;
+  position: relative;
+  justify-content: center; /* Center the images horizontally */
 }
+/* ...Previous CSS code... */
 
+/* Center images in the Sample Sites container */
 .sample-sites-links {
   display: flex;
   flex-wrap: wrap;
+
 }
 
 .sample-site-link {
@@ -172,7 +127,7 @@ iframe {
   background-color: #ddd;
 }
 
-/* About Us, Contact Us, and Products section styles */
+
 .about-us-container,
 .contact-us-container,
 .products-container {
@@ -190,22 +145,23 @@ iframe {
   text-transform: uppercase;
   margin-bottom: 10px;
   letter-spacing: 1px;
-  color: #2e7d32; /* Dark green */
+  color: #2e7d32;
 }
 
-/* Add indentation to paragraphs */
 .about-us-container p,
 .contact-us-container p,
 .products-container p {
   margin-bottom: 20px;
-  text-indent: 15px; /* Adjust the indentation as needed */
+  text-indent: 15px;
+  overflow: hidden;
+  position: relative;
 }
 
 .contact-us-container h4,
 .products-container h4 {
   font-size: 18px;
   margin-bottom: 10px;
-  color: #4caf50; /* Green */
+  color: #4caf50;
 }
 
 .products-container ul {
@@ -217,7 +173,6 @@ iframe {
   margin-bottom: 5px;
 }
 
-/* Contact Form section styles */
 .contact-form-container {
   background-color: #f5f5f5;
   padding: 20px;
@@ -230,7 +185,7 @@ iframe {
   font-size: 24px;
   text-transform: uppercase;
   margin-bottom: 10px;
-  color: #2e7d32; /* Dark green */
+  color: #2e7d32;
 }
 
 .contact-form {
@@ -264,75 +219,48 @@ iframe {
   background-color: #ddd;
 }
 
-/* Styles for responsive layout */
-@media (max-width: 600px) {
-  .contact-form-container {
-    padding: 10px;
-  }
-}
-
-/* Additional styles for the iframe */
 .iframe-container {
   border: 3px solid #fff;
-  border-radius: 10px; /* Adjust the radius as needed */
+  border-radius: 10px;
   overflow: hidden;
-  transform: scale(0.5); /* Shrink the size by 50% */
-  transform-origin: top left; /* Keep the top-left corner as the origin point */
+  transform: scale(0.5);
+  transform-origin: top left;
 }
-/* General styles for the phone icon container */
+
 .phone-icon-container {
-  display: none; /* Hide by default */
+  display: none;
 }
 
-/* Media query for mobile devices with a maximum width of 768px (adjust as needed) */
 @media screen and (max-width: 768px) {
-  /* Additional styles for the carousel images */
   .carousel-image {
-    border-radius: 0px; /* Adjust the radius as needed */
-    scale: 90%;
+    border-radius: 0px;
+    transform: scale(0.9);
   }
 
-  /* Additional styles for the carousel container */
   .carousel-container {
-    position: relative;
-    left: -5px; /* Move the carousel 5px to the right */
-    top: 15px; /* Move the carousel 15px down */
+    position: relative; 
+    justify-content: center; /* Center the images horizontally */
+    left: -5px;
+    top: 15px;
   }
 
-  /* Additional styles for the iframe */
   .iframe-container {
-    border: 3px solid #fff;
-    border-radius: 10px; /* Adjust the radius as needed */
-    overflow: hidden;
-    transform: scale(0.5); /* Shrink the size by 50% */
-    transform-origin: top left; /* Keep the top-left corner as the origin point */
+    transform: scale(0.5);
   }
 
-  /* Additional styles for the footer */
   footer {
-    position: fixed; /* Fix the footer to the bottom of the screen */
+    position: fixed;
     left: 0;
     bottom: 0;
     width: 100%;
-    background-color: #2e7d32; /* Dark green */
+    background-color: #2e7d32;
     color: #fff;
     padding: 20px;
     text-align: center;
   }
-
-  /* Additional styles for the phone icon */
-  .phone-icon {
-    display: block; /* Display the phone icon on mobile devices */
-    text-align: center; /* Center the icon */
-  }
-
-  .phone-icon-img {
-    max-width: 100px; /* Set the maximum width for the phone icon */
-  }
 }
 
 @media (max-width: 600px) {
-  /* Styles for screens up to 600px wide */
   h1 {
     font-size: 20px;
   }
@@ -346,69 +274,55 @@ iframe {
   }
 }
 
-/* Add a flex container for the main content */
 main {
   display: flex;
-  flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+  flex-wrap: wrap;
+  overflow: hidden;
+  position: relative;
 }
 
-/* Styles for Sample Sites container */
-.sample-sites-container {
-  background-color: #f5f5f5;
-  padding: 20px;
-  margin-top: 30px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  flex-basis: calc(50% - 10px); /* Each container occupies 50% width with 10px spacing */
-  margin-right: 10px;
-  margin-bottom: 10px;
-}
-
-/* Styles for Location container */
+.sample-sites-container,
 .location-container {
   background-color: #f5f5f5;
   padding: 20px;
   margin-top: 30px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  flex-basis: calc(50% - 10px); /* Each container occupies 50% width with 10px spacing */
-  margin-left: 10px;
+
+  margin-right: 10px;
   margin-bottom: 10px;
+  overflow: hidden;
+  position: relative;
 }
 
-/* Styles for responsive layout */
-@media (max-width: 768px) {
-  /* Styles for screens up to 768px wide (mobile devices) */
-
-  /* Adjust the order of the flex items */
-  .sample-sites-container,
-  .location-container {
-    flex-basis: 100%; /* Each container occupies 100% width on mobile */
-    margin-right: 0;
-    margin-left: 0;
-  }
-}
-/* Styles for the desktop iframe */
-.iframe-container-desktop {
-  display: block; /* Show on desktop (default) */
+.google-maps {
+  position: relative;
+  padding-bottom: 75%;
+  height: 0;
+  overflow: hidden;
 }
 
-/* Styles for the mobile iframe */
-.iframe-container-mobile {
-  display: none; /* Hide on desktop (default) */
+.google-maps iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
-
-/* Media query for mobile devices with a maximum width of 768px (adjust as needed) */
-@media screen and (max-width: 768px) {
-  /* Styles for screens up to 768px wide (mobile devices) */
-
-  /* Hide desktop iframe */
-  .iframe-container-desktop {
-    display: none;
-  }
-
-  /* Show mobile iframe */
-  .iframe-container-mobile {
-    display: block;
-  }
+.carousel-container {
+  display: flex; /* Add this property to make it a flex container */
+  position: relative; 
+  justify-content: center; /* Center the images horizontally */
+  left: -5px;
+  top: 15px;
+}
+footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: #2e7d32;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
 }
