@@ -271,11 +271,6 @@ iframe {
   }
 }
 
-/* General styles for the phone icon container */
-.phone-icon {
-  display: none; /* Hide by default */
-}
-
 /* Additional styles for the iframe */
 .iframe-container {
   border: 3px solid #fff;
@@ -285,7 +280,7 @@ iframe {
   transform-origin: top left; /* Keep the top-left corner as the origin point */
 }
 /* General styles for the phone icon container */
-.phone-icon {
+.phone-icon-container {
   display: none; /* Hide by default */
 }
 
@@ -331,10 +326,6 @@ iframe {
     text-align: center; /* Center the icon */
   }
 
-  .phone-icon-img {
-    max-width: 100px; /* Set the maximum width for the phone icon */
-  }
-  
   .phone-icon-img {
     max-width: 100px; /* Set the maximum width for the phone icon */
   }
@@ -395,5 +386,29 @@ main {
     flex-basis: 100%; /* Each container occupies 100% width on mobile */
     margin-right: 0;
     margin-left: 0;
+  }
+}
+/* Styles for the desktop iframe */
+.iframe-container-desktop {
+  display: block; /* Show on desktop (default) */
+}
+
+/* Styles for the mobile iframe */
+.iframe-container-mobile {
+  display: none; /* Hide on desktop (default) */
+}
+
+/* Media query for mobile devices with a maximum width of 768px (adjust as needed) */
+@media screen and (max-width: 768px) {
+  /* Styles for screens up to 768px wide (mobile devices) */
+
+  /* Hide desktop iframe */
+  .iframe-container-desktop {
+    display: none;
+  }
+
+  /* Show mobile iframe */
+  .iframe-container-mobile {
+    display: block;
   }
 }
