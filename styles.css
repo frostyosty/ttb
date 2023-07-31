@@ -62,12 +62,7 @@ main {
   padding: 20px;
 }
 
-iframe {
-  border: 3px solid #ccc;
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-}
+
 
 .locations-heading {
   background-color: #ccc;
@@ -76,8 +71,7 @@ iframe {
   padding: 5px 10px;
   margin: 0;
   position: absolute;
-  bottom: 30px;
-  right: 30px;
+  justify-content: center;
 }
 
 .sample-sites-container {
@@ -86,7 +80,6 @@ iframe {
   margin-top: 30px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  
 }
 
 .sample-sites-header {
@@ -109,7 +102,6 @@ iframe {
 .sample-sites-links {
   display: flex;
   flex-wrap: wrap;
-
 }
 
 .sample-site-link {
@@ -130,7 +122,9 @@ iframe {
 
 .about-us-container,
 .contact-us-container,
-.products-container {
+.products-container,
+.location-container,
+.google-maps{
   background-color: #f5f5f5;
   padding: 20px;
   margin-top: 30px;
@@ -155,6 +149,15 @@ iframe {
   text-indent: 15px;
   overflow: hidden;
   position: relative;
+}
+
+.sample-sites-container {
+  background-color: #f5f5f5;
+  padding: 20px;
+  margin-top: 30px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  text-align: center; /* Center the text horizontally */
 }
 
 .contact-us-container h4,
@@ -225,15 +228,20 @@ iframe {
   overflow: hidden;
   transform: scale(0.5);
   transform-origin: top left;
+
 }
 
 .phone-icon-container {
   display: none;
 }
+/* Add rounded corners to the images in the Sample Sites container */
+.carousel-image {
+  border-radius: 7px; /* Adjust the value to control the amount of rounding */
+}
 
 @media screen and (max-width: 768px) {
   .carousel-image {
-    border-radius: 0px;
+    border-radius: 7px;
     transform: scale(0.9);
   }
 
@@ -266,6 +274,7 @@ iframe {
   }
 
   nav {
+    margin-top: 10px;
     padding: 5px;
   }
 
@@ -282,7 +291,10 @@ main {
 }
 
 .sample-sites-container,
-.location-container {
+.location-container,
+.products-container,
+.contact-us-container,
+.about-us-container {
   background-color: #f5f5f5;
   padding: 20px;
   margin-top: 30px;
@@ -297,18 +309,11 @@ main {
 
 .google-maps {
   position: relative;
-  padding-bottom: 75%;
+  padding-bottom: 100%;
   height: 0;
   overflow: hidden;
 }
 
-.google-maps iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
 .carousel-container {
   display: flex; /* Add this property to make it a flex container */
   position: relative; 
@@ -325,4 +330,38 @@ footer {
   color: #fff;
   padding: 20px;
   text-align: center;
+
 }
+.google-maps {
+  position: relative;
+  height: 0;
+  overflow: hidden;
+  padding-top: 10px; /* Add this line to add some padding to the top */
+}
+
+.iframe-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+
+.locations-container {
+  text-align: center; /* Center the text horizontally */
+}
+
+.locations-heading {
+  background-color: #ccc;
+  color: #222;
+  font-size: 18px;
+  padding: 5px 10px;
+  margin: 0;
+  display: inline-block;
+  border-radius: 5px;
+  position: relative;
+  top: 5%; /* Shift the element 50% down from the top */
+  transform: translateY(-50%); /* Center the element vertically using translateY */
+}
+
