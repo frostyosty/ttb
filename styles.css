@@ -396,4 +396,8 @@ footer {
   position: relative;
 }
 
-/* ...Remaining CSS code... */
+@media screen and (max-width: 768px) {
+  .locations-container {
+    margin: 0 auto;
+  }
+}
