@@ -367,3 +367,33 @@ footer {
   transform: translateY(-50%); /* Center the element vertically using translateY */
 }
 
+/* ...Previous CSS code... */
+
+.products-container {
+  background-color: #f5f5f5;
+  padding: 20px;
+  margin-top: 30px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.products-header {
+  font-size: 24px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+  color: #2e7d32;
+}
+
+.products-container p {
+  margin-bottom: 20px;
+  text-indent: 15px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ...Remaining CSS code... */
