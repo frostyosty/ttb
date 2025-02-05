@@ -444,3 +444,18 @@ padding-top: 20px;
   border-radius: 5px;
   z-index: 1000;
 }
+
+
+
+
+/* announcement */
+
+.announcement-container {
+  background-color: #fff8dc; /* Set the background color to a light yellow */
+  padding: 20px; /* Add some padding for better readability */
+  margin-top: 20px; /* Adjust the margin to your preference */
+}
+
+.announcement-header {
+  color: #ff4500; /* Set the header color to orange-red */
+}
