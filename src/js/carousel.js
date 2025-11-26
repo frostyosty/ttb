@@ -10,22 +10,14 @@ const imageMap = {
 let interval;
 
 export function initCarousel() {
-    console.log("Carousel: Initializing..."); // DEBUG LOG
-
     const carouselImage = document.getElementById('carouselImage');
     
-    if (!carouselImage) {
-        console.warn("Carousel: Image element not found on this page."); // DEBUG LOG
-        return; 
-    }
-    
-    console.log("Carousel: Element found, attaching listeners."); // DEBUG LOG
+    // Silent exit if not on Home page (Fixes the console warnings)
+    if (!carouselImage) return; 
 
     const startShow = (category) => {
         const images = imageMap[category];
         if (!images) return;
-
-        console.log(`Carousel: Starting category ${category}`); // DEBUG LOG
 
         let index = 0;
         carouselImage.src = images[0];
@@ -41,7 +33,7 @@ export function initCarousel() {
     const setupBtn = (id, category) => {
         const btn = document.getElementById(id);
         if (btn) {
-            // Remove old listener to prevent duplicates if function runs twice
+            // Clone to remove old listeners (prevents duplicate clicks)
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
             
@@ -49,8 +41,6 @@ export function initCarousel() {
                 e.preventDefault();
                 startShow(category);
             });
-        } else {
-            console.warn(`Carousel: Button ${id} not found.`); // DEBUG LOG
         }
     };
 

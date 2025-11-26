@@ -2,82 +2,76 @@
 import emailjs from '@emailjs/browser';
 import { EMAIL_SERVICE_ID, EMAIL_TEMPLATE_ID, EMAIL_PUBLIC_KEY } from './config.js';
 
-export function initEmailSystem() {
-    emailjs.init(EMAIL_PUBLIC_KEY);
+let isInitialized = false;
 
-    const modal = document.getElementById('email-modal');
-    const form = document.getElementById('email-form');
-    const closeBtn = document.getElementById('close-email');
+// We export this to run ONCE at startup to set keys
+export function initEmailConfig() {
+    if (!isInitialized) {
+        emailjs.init(EMAIL_PUBLIC_KEY);
+        isInitialized = true;
+    }
+}
 
-    // Open Modal Logic
-    window.openContactModal = () => {
-        modal.classList.remove('hidden');
-    };
+// We export this to run AFTER EVERY RENDER to attach listeners to the new form
+export function attachEmailListeners() {
+    const form = document.getElementById('embedded-email-form');
+    
+    // If form isn't on this page (e.g. Home page), just exit
+    if (!form) return;
 
-    closeBtn.addEventListener('click', () => {
-        modal.classList.add('hidden');
-    });
+    // Prevent duplicate listeners
+    if (form.getAttribute('data-listening') === 'true') return;
+    form.setAttribute('data-listening', 'true');
 
-    // --- FORM SUBMISSION LOGIC ---
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
-        // 1. Check LocalStorage (Spam Prevention)
+        // 1. Spam Prevention
         const alreadySubmitted = localStorage.getItem('emailSubmitted');
         if (alreadySubmitted) {
             showPopup('You have already submitted the form. Only one submission is allowed.');
-            modal.classList.add('hidden');
             return;
         }
 
         const btn = form.querySelector('.submit-btn');
+        const originalText = btn.innerText;
         btn.innerText = 'Sending...';
         btn.disabled = true;
 
-        // 2. Prepare Data (Matching your snippet's field names)
-        // Note: We use form.elements to get values cleanly
+        // 2. Prepare Data
         const templateParams = {
             from_name: form.elements['user_name'].value,
             from_email: form.elements['user_email'].value,
-            subject: "Website Inquiry", // Or add a subject field to HTML if needed
+            subject: "Website Inquiry",
             message: form.elements['message'].value
         };
 
-        // 3. Send via EmailJS
+        // 3. Send
         emailjs.send(EMAIL_SERVICE_ID, EMAIL_TEMPLATE_ID, templateParams)
             .then(() => {
                 showPopup('Message successfully sent!');
-                console.log('Email sent successfully!');
-                
-                // Set the lock
                 localStorage.setItem('emailSubmitted', 'true');
-                
                 form.reset();
-                modal.classList.add('hidden');
             })
             .catch((err) => {
                 showPopup('Error sending email. Please try again later.');
                 console.error('Error sending email:', err);
             })
             .finally(() => {
-                btn.innerText = 'Send';
+                btn.innerText = originalText;
                 btn.disabled = false;
             });
     });
 }
 
-// --- POPUP LOGIC ---
 function showPopup(message) {
-    // We'll reuse the "toast" element we already have in index.html, 
-    // or create a new one if you prefer. Here we use the existing one:
     const popup = document.getElementById('toast');
-    
-    // Override styles to look like your request
-    popup.innerText = message;
-    popup.classList.remove('hidden');
-    
-    // Hide after 3 seconds
-    setTimeout(function () {
-        popup.classList.add('hidden');
-    }, 3000);
+    if (popup) {
+        popup.innerText = message;
+        popup.classList.remove('hidden');
+        popup.style.background = '#333'; // Reset color just in case
+        setTimeout(() => popup.classList.add('hidden'), 3000);
+    } else {
+        alert(message);
+    }
 }
