@@ -1,61 +1,71 @@
 /// src/js/main.js
 import { fetchContent } from './db.js';
-import { setItems, setPage } from './state.js'; // Import setPage
+import { setItems, setPage } from './state.js';
 import { render } from './renderer.js';
 import { initEditor } from './editor.js';
 import { initToolbar } from './toolbar.js';
-import { initEmailSystem } from './email.js'; // Import Email
-import { MAINTENANCE_ESTIMATE } from './config.js';
+import { initEmailSystem } from './email.js';
+import { FALLBACK_ITEMS } from './fallbackData.js'; // Import fallback
 
 async function startApp() {
     console.log('Initializing Tweed Trading CMS...');
 
+    let items = [];
+
+    // 1. Attempt to Load Data
     try {
-        const items = await fetchContent();
+        items = await fetchContent();
+        
+        // If DB connects but returns empty (rare), throw error to trigger fallback
+        if (!items || items.length === 0) throw new Error("Database Empty");
+        
+    } catch (error) {
+        console.warn("SUPABASE FAILED. Switching to Fallback Mode.", error);
+        items = FALLBACK_ITEMS; // Load the hardcoded data
+        
+        // Optional: Disable the "Save" button visually since saving won't work
+        const saveBtn = document.getElementById('btn-save');
+        if(saveBtn) {
+            saveBtn.style.opacity = '0.5';
+            saveBtn.innerText = 'Offline (Read Only)';
+        }
+    }
+
+    // 2. Continue Loading App (Whether Live or Fallback)
+    try {
         setItems(items);
-        render();
+        render(); // This will render whatever data we have
 
         initEditor();
         initToolbar();
-        initEmailSystem(); // Start Email Listener
+        initEmailSystem();
 
-        // --- NAVIGATION LOGIC ---
+        // Navigation Logic
         const navBtns = document.querySelectorAll('.nav-btn');
         navBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                // 1. Update UI
                 navBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-
-                // 2. Update State & Render
-                const page = btn.getAttribute('data-page');
-                setPage(page);
+                setPage(btn.getAttribute('data-page'));
                 render();
             });
         });
 
+        // Ensure maintenance screen is hidden
         document.getElementById('maintenance-view').classList.add('hidden');
 
-    } catch (error) {
-        console.error("CRITICAL APP FAILURE:", error);
-        triggerMaintenanceMode(); // (Existing logic)
+    } catch (criticalError) {
+        // If even the Renderer fails, THEN show the Hammer
+        console.error("CRITICAL APP FAILURE:", criticalError);
+        triggerMaintenanceMode();
     }
 }
 
-startApp();
-
 function triggerMaintenanceMode() {
-    // 1. Hide the App container
     document.getElementById('app-container').style.display = 'none';
     document.getElementById('super-header').style.display = 'none';
-
-    // 2. Show Maintenance Screen
-    const maint = document.getElementById('maintenance-view');
-    maint.classList.remove('hidden');
-    maint.style.display = 'flex'; // Force flex for centering
-
-    // 3. Set the time
-    document.getElementById('maintenance-time').innerText = MAINTENANCE_ESTIMATE;
+    document.getElementById('maintenance-view').classList.remove('hidden');
+    document.getElementById('maintenance-view').style.display = 'flex';
 }
 
 startApp();
