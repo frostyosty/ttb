@@ -10,7 +10,7 @@ export function initEditor() {
     header.addEventListener('click', () => {
         state.clickCount++;
         
-        if (state.clickCount === 3) {
+        if (state.clickCount === 10) {
             const isActive = toggleDevMode();
             state.clickCount = 0;
 
