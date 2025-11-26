@@ -1,17 +1,17 @@
 /// src/js/main.js
 import { fetchContent } from './db.js';
-import { setItems, setPage } from './state.js';
+// 👇 ADDED 'state' TO THIS IMPORT
+import { setItems, setPage, state } from './state.js';
 import { render } from './renderer.js';
 import { initEditor } from './editor.js';
 import { initToolbar } from './toolbar.js';
-import { initEmailConfig, attachEmailListeners } from './email.js'; // Updated Imports
+import { initEmailConfig, attachEmailListeners } from './email.js';
 import { FALLBACK_ITEMS } from './fallbackData.js';
 import { initCarousel } from './carousel.js';
 
 async function startApp() {
     console.log('Initializing Tweed Trading CMS...');
 
-    // 1. Setup Email Keys Once
     initEmailConfig();
 
     let items = [];
@@ -25,11 +25,12 @@ async function startApp() {
 
     try {
         setItems(items);
+        
+        // This function uses 'state', so the import above is required
         setupNavigation();
         
-        // 2. Initial Render & Attachments
         render(); 
-        attachEmailListeners(); // <--- Attach form listeners
+        attachEmailListeners(); 
         initCarousel(); 
 
         initEditor();
@@ -47,21 +48,26 @@ function setupNavigation() {
     const navContainer = document.querySelector('.main-nav');
     if(!navContainer) return;
     
-    // Calculate pages...
+    // 1. Find all unique page names from the database items
     const pages = new Set(state.items.map(i => i.page || 'home'));
+    
+    // Ensure standard order
     const orderedPages = ['home', 'products', 'contact'];
+    // Add any custom pages the user created to the list
     pages.forEach(p => {
         if (!orderedPages.includes(p)) orderedPages.push(p);
     });
 
+    // 2. Clear hardcoded HTML
     navContainer.innerHTML = '';
 
+    // 3. Build Buttons
     orderedPages.forEach(pageName => {
         const btn = document.createElement('button');
         btn.className = 'nav-btn';
         if(pageName === 'home') btn.classList.add('active');
         btn.setAttribute('data-page', pageName);
-        btn.innerText = pageName.charAt(0).toUpperCase() + pageName.slice(1);
+        btn.innerText = pageName.charAt(0).toUpperCase() + pageName.slice(1); // Capitalize
         
         btn.addEventListener('click', () => {
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -69,10 +75,9 @@ function setupNavigation() {
             
             setPage(pageName);
             
-            // 3. Re-Attach Listeners on Page Change
             render();
-            attachEmailListeners(); // <--- Check for form on new page
-            initCarousel();         // <--- Check for carousel on new page
+            attachEmailListeners();
+            initCarousel();
         });
         
         navContainer.appendChild(btn);
