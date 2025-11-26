@@ -1,5 +1,5 @@
 /// src/js/main.js
-import { fetchContent, saveContent } from './db.js'; // Import saveContent
+import { fetchContent, saveContent } from './db.js';
 import { setItems, setPage, state } from './state.js';
 import { render } from './renderer.js';
 import { initEditor } from './editor.js';
@@ -12,9 +12,12 @@ let saveTimer; // Timer for Auto-Save
 
 async function startApp() {
     console.log('Initializing Tweed Trading CMS...');
+    
+    // 1. Record Start Time (For smooth loading animation)
+    const startTime = Date.now();
+    const MIN_LOAD_TIME = 1000; // 1 second minimum
 
-    // --- 1. SETUP DIMMING OBSERVER ---
-    // Watches the #toast element. If class changes, toggle body class.
+    // --- SETUP DIMMING OBSERVER ---
     const toastObserver = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.attributeName === 'class') {
@@ -58,21 +61,37 @@ async function startApp() {
         
         document.getElementById('maintenance-view').classList.add('hidden');
 
+        // --- HIDE LOADING SCREEN (This was missing!) ---
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, MIN_LOAD_TIME - elapsedTime);
+
+        setTimeout(() => {
+            const loader = document.getElementById('loading-view');
+            if (loader) {
+                loader.classList.add('fade-out');
+                // Remove from DOM after fade completes
+                setTimeout(() => loader.style.display = 'none', 500);
+            }
+        }, remainingTime);
+
     } catch (criticalError) {
         console.error("CRITICAL APP FAILURE:", criticalError);
+        // Hide loader so we can see the maintenance screen
+        const loader = document.getElementById('loading-view');
+        if(loader) loader.style.display = 'none';
+
         triggerMaintenanceMode();
     }
 
-    // --- 2. AUTO-SAVE LISTENER ---
-    // Listens for 'app-render-request' which is fired by Toolbar, Renderer, and Text Edits
+    // --- AUTO-SAVE LISTENER ---
     document.addEventListener('app-render-request', () => {
-        // Re-sort and Re-render immediately (Optimistic)
+        // Optimistic Render
         state.items.sort((a, b) => (a.position || 0) - (b.position || 0));
         render();
         initCarousel();
         import('./email.js').then(m => m.attachEmailListeners());
 
-        // Debounce Save (Wait 1 second after last action)
+        // Debounce Save (Wait 1 second)
         clearTimeout(saveTimer);
         saveTimer = setTimeout(() => {
             console.log("Auto-saving changes to database...");
