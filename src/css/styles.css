@@ -359,7 +359,9 @@ button.submit { background: var(--primary); color: white; border: none; padding:
 footer { background: var(--primary); color: white; text-align: center; padding: 20px; margin-top: auto; }
 
 :root { --primary: #2e7d32; --dark: #1b5e20; }
-body { font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 120px; background: #f4f4f4; }
+body { font-family: 'Segoe UI', sans-serif; margin: 0; 
+  /* padding-bottom: 120px;  */
+  background: #f4f4f4; }
 
 .site-header { background: #000; color: #fff; padding: 15px; text-align: center; cursor: pointer; user-select: none; }
 .hidden { display: none !important; }
@@ -473,3 +475,5 @@ body { font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 120px; ba
     font-size: 2.5rem;
     font-family: 'Shadows Into Light', cursive, sans-serif; /* Optional: Matches your original font */
 }
+
+
