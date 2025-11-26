@@ -1,18 +1,15 @@
 {
-    "name": "TweedTrading",
-    "version": "1.0.0",
-    "description": "Cool website template",
-    "main": "server.js",
-    "scripts": {
-        "start": "node server.js",
-        "build2": "mkdir -p publicttb && (test -d publicttb && echo 'Directory already exists' || (cp index.html publicttb && cp styles.css publicttb && cp server.js publicttb))",
-        "build": "mkdir -p public && cp index.html styles.css server.js public/"
-    },
-    "dependencies": {
-        "@supabase/supabase-js": "^2.86.0",
-        "emailjs": "^4.0.2",
-        "express": "^4.21.2",
-        "vite": "^7.2.4",
-        "vite-plugin-pwa": "^1.1.0"
-    }
+  "name": "tweed-trading",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "vite": "^5.0.0",
+    "vite-plugin-pwa": "^0.17.0"
+  }
 }
