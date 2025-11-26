@@ -63,19 +63,30 @@
         </div>
     </div>
 
-
-    <!-- Sections Manager Modal -->
+<!-- Sections Manager Modal -->
 <div id="sections-modal" class="modal hidden">
-    <div class="modal-content" style="max-width: 800px; width: 95%;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+    <div class="modal-content" style="max-width: 900px; width: 95%;">
+        
+        <!-- Header with Actions -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px;">
             <h3 style="margin:0; color:#2e7d32;">Manage Sections</h3>
-            <button id="close-sections" style="background:transparent; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+            
+            <div style="display:flex; gap:10px;">
+                <button id="btn-add-page" style="background:#4caf50; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-size:0.9rem;">
+                    <i class="fas fa-folder-plus"></i> New Page
+                </button>
+                <button id="btn-add-section" style="background:#2e7d32; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-size:0.9rem;">
+                    <i class="fas fa-plus-circle"></i> New Section
+                </button>
+                <button id="close-sections" style="background:transparent; border:none; font-size:1.5rem; cursor:pointer; margin-left:10px; color:#666;">&times;</button>
+            </div>
         </div>
         
-        <div style="overflow-x:auto;">
+        <!-- Table -->
+        <div style="overflow-x:auto; max-height: 60vh; overflow-y:auto;">
             <table id="sections-table" style="width:100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background:#eee; text-align:left;">
+                <thead style="position:sticky; top:0; background:#eee; z-index:1;">
+                    <tr style="text-align:left;">
                         <th style="padding:10px;">Preview</th>
                         <th style="padding:10px;">Page</th>
                         <th style="padding:10px;">Order</th>
@@ -86,9 +97,6 @@
                     <!-- Rows injected by JS -->
                 </tbody>
             </table>
-        </div>
-        <div style="margin-top:10px; font-size:0.8rem; color:#666;">
-            * Changes save automatically
         </div>
     </div>
 </div>
