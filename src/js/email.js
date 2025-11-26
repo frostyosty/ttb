@@ -4,7 +4,6 @@ import { EMAIL_SERVICE_ID, EMAIL_TEMPLATE_ID, EMAIL_PUBLIC_KEY } from './config.
 
 let isInitialized = false;
 
-// We export this to run ONCE at startup to set keys
 export function initEmailConfig() {
     if (!isInitialized) {
         emailjs.init(EMAIL_PUBLIC_KEY);
@@ -12,25 +11,30 @@ export function initEmailConfig() {
     }
 }
 
-// We export this to run AFTER EVERY RENDER to attach listeners to the new form
 export function attachEmailListeners() {
     const form = document.getElementById('embedded-email-form');
     
-    // If form isn't on this page (e.g. Home page), just exit
     if (!form) return;
-
-    // Prevent duplicate listeners
     if (form.getAttribute('data-listening') === 'true') return;
     form.setAttribute('data-listening', 'true');
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
-        // 1. Spam Prevention
-        const alreadySubmitted = localStorage.getItem('emailSubmitted');
-        if (alreadySubmitted) {
-            showPopup('You have already submitted the form. Only one submission is allowed.');
-            return;
+        // --- 1. SPAM PREVENTION (2 Minute Reset) ---
+        const lastSubmit = localStorage.getItem('lastEmailSubmit');
+        const now = Date.now();
+        const COOLDOWN_MS = 2 * 60 * 1000; // 2 Minutes
+
+        if (lastSubmit) {
+            const timeDiff = now - parseInt(lastSubmit);
+            if (timeDiff < COOLDOWN_MS) {
+                // Calculate seconds left
+                const secondsLeft = Math.ceil((COOLDOWN_MS - timeDiff) / 1000);
+                
+                showPopup(`To prevent spam, please wait ${secondsLeft} seconds before sending another message.`);
+                return;
+            }
         }
 
         const btn = form.querySelector('.submit-btn');
@@ -38,7 +42,6 @@ export function attachEmailListeners() {
         btn.innerText = 'Sending...';
         btn.disabled = true;
 
-        // 2. Prepare Data
         const templateParams = {
             from_name: form.elements['user_name'].value,
             from_email: form.elements['user_email'].value,
@@ -46,11 +49,13 @@ export function attachEmailListeners() {
             message: form.elements['message'].value
         };
 
-        // 3. Send
         emailjs.send(EMAIL_SERVICE_ID, EMAIL_TEMPLATE_ID, templateParams)
             .then(() => {
                 showPopup('Message successfully sent!');
-                localStorage.setItem('emailSubmitted', 'true');
+                
+                // Save current time
+                localStorage.setItem('lastEmailSubmit', Date.now().toString());
+                
                 form.reset();
             })
             .catch((err) => {
@@ -69,8 +74,11 @@ function showPopup(message) {
     if (popup) {
         popup.innerText = message;
         popup.classList.remove('hidden');
-        popup.style.background = '#333'; // Reset color just in case
-        setTimeout(() => popup.classList.add('hidden'), 3000);
+        
+        // Reset manual style overrides to ensure CSS class takes over
+        popup.style.background = ''; 
+        
+        setTimeout(() => popup.classList.add('hidden'), 4000);
     } else {
         alert(message);
     }

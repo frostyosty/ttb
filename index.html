@@ -20,13 +20,30 @@
 </div>
 
 <!-- MOVED OUTSIDE: Navigation Tabs -->
-<nav class="main-nav">
-    <button class="nav-btn active" data-page="home">Home</button>
-    <button class="nav-btn" data-page="products">Products</button>
-    <button class="nav-btn" data-page="contact">Contact</button>
-</nav>
+    <!-- 3. NAV -->
+    <nav class="main-nav">
+        <!-- Buttons injected by JS -->
+    </nav>
 
-<div id="app-container">Loading...</div>
+<!-- 1. LOADING OVERLAY (Visible by default) -->
+    <div id="loading-view" class="loading-overlay">
+        <!-- Reusing the Hammer/Wrench SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="loading-icon">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+        </svg>
+    </div>
+
+    <!-- 2. HEADER -->
+    <div id="super-header" class="site-header">
+        <img src="/assets/quick_logo.png" alt="Tweed Trading" class="header-logo"
+             onerror="this.style.display='none'; document.getElementById('fallback-text').style.display='block';">
+        <h1 id="fallback-text" style="display: none;">Tweed Trading</h1>
+    </div>
+
+
+
+    <!-- 4. APP CONTAINER (Empty initially) -->
+    <div id="app-container"></div>
 
 <!-- NEW: Email Modal -->
 <div id="email-modal" class="modal hidden">

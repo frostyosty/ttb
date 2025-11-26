@@ -1,6 +1,5 @@
 /// src/js/main.js
 import { fetchContent } from './db.js';
-// 👇 ADDED 'state' TO THIS IMPORT
 import { setItems, setPage, state } from './state.js';
 import { render } from './renderer.js';
 import { initEditor } from './editor.js';
@@ -11,6 +10,10 @@ import { initCarousel } from './carousel.js';
 
 async function startApp() {
     console.log('Initializing Tweed Trading CMS...');
+
+    // 1. Record Start Time
+    const startTime = Date.now();
+    const MIN_LOAD_TIME = 1000; // 1 second minimum
 
     initEmailConfig();
 
@@ -24,22 +27,37 @@ async function startApp() {
     }
 
     try {
+        // 2. Prepare Data (But don't show yet)
         setItems(items);
-        
-        // This function uses 'state', so the import above is required
         setupNavigation();
-        
         render(); 
         attachEmailListeners(); 
         initCarousel(); 
-
         initEditor();
         initToolbar();
         
         document.getElementById('maintenance-view').classList.add('hidden');
 
+        // 3. Calculate Remaining Time
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, MIN_LOAD_TIME - elapsedTime);
+
+        // 4. Wait (if needed) then Fade Out
+        setTimeout(() => {
+            const loader = document.getElementById('loading-view');
+            if (loader) {
+                loader.classList.add('fade-out');
+                // Remove from DOM after fade completes
+                setTimeout(() => loader.style.display = 'none', 500);
+            }
+        }, remainingTime);
+
     } catch (criticalError) {
         console.error("CRITICAL APP FAILURE:", criticalError);
+        // If critical failure, hide loader immediately so Maintenance view shows
+        const loader = document.getElementById('loading-view');
+        if(loader) loader.style.display = 'none';
+        
         triggerMaintenanceMode();
     }
 }
@@ -48,33 +66,26 @@ function setupNavigation() {
     const navContainer = document.querySelector('.main-nav');
     if(!navContainer) return;
     
-    // 1. Find all unique page names from the database items
     const pages = new Set(state.items.map(i => i.page || 'home'));
-    
-    // Ensure standard order
     const orderedPages = ['home', 'products', 'contact'];
-    // Add any custom pages the user created to the list
     pages.forEach(p => {
         if (!orderedPages.includes(p)) orderedPages.push(p);
     });
 
-    // 2. Clear hardcoded HTML
     navContainer.innerHTML = '';
 
-    // 3. Build Buttons
     orderedPages.forEach(pageName => {
         const btn = document.createElement('button');
         btn.className = 'nav-btn';
         if(pageName === 'home') btn.classList.add('active');
         btn.setAttribute('data-page', pageName);
-        btn.innerText = pageName.charAt(0).toUpperCase() + pageName.slice(1); // Capitalize
+        btn.innerText = pageName.charAt(0).toUpperCase() + pageName.slice(1);
         
         btn.addEventListener('click', () => {
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
             setPage(pageName);
-            
             render();
             attachEmailListeners();
             initCarousel();
