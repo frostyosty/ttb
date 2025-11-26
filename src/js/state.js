@@ -1,13 +1,17 @@
-/// public/js/state.js
+/// src/js/state.js
 export const state = {
-    items: [],       // The array of website elements
+    items: [],
+    currentPage: 'home', // Default page
     isDevMode: false,
     clickCount: 0
 };
 
-// Helper to update items
 export function setItems(newItems) {
     state.items = newItems;
+}
+
+export function setPage(pageName) {
+    state.currentPage = pageName;
 }
 
 export function toggleDevMode() {

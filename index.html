@@ -14,23 +14,37 @@
 
     <!-- Header / Trigger Zone -->
 <div id="super-header" class="site-header">
-    
-    <!-- 1. The Logo (Primary) -->
-    <!-- On Error: Hide this image, Show the text below -->
-    <img src="/assets/quick_logo.png" 
-         alt="Tweed Trading" 
-         class="header-logo"
+    <img src="/assets/quick_logo.png" alt="Tweed Trading" class="header-logo"
          onerror="this.style.display='none'; document.getElementById('fallback-text').style.display='block';">
-
-    <!-- 2. The Text (Fallback) -->
-    <!-- Hidden by default. Only appears if logo fails. -->
     <h1 id="fallback-text" style="display: none;">Tweed Trading</h1>
-
-    <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 5px;"></p>
+    
+    <!-- NEW: Navigation Tabs -->
+    <nav class="main-nav">
+        <button class="nav-btn active" data-page="home">Home</button>
+        <button class="nav-btn" data-page="products">Products</button>
+        <button class="nav-btn" data-page="contact">Contact</button>
+    </nav>
 </div>
 
-    <!-- Main Content Injection Area -->
-    <div id="app-container">Loading content...</div>
+<div id="app-container">Loading...</div>
+
+<!-- NEW: Email Modal -->
+<div id="email-modal" class="modal hidden">
+    <div class="modal-content contact-modal">
+        <h3>Send us a message</h3>
+        <form id="email-form">
+            <input type="text" name="user_name" placeholder="Your Name" required>
+            <input type="email" name="user_email" placeholder="Your Email" required>
+            <textarea name="message" rows="4" placeholder="What are you looking for?" required></textarea>
+            
+            <div class="modal-buttons">
+                <button type="button" id="close-email">Cancel</button>
+                <button type="submit" class="submit-btn">Send</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 
     <!-- UI Components -->
     <div id="toast" class="toast hidden">Dev Mode Active</div>
