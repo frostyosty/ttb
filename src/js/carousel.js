@@ -1,6 +1,6 @@
-// src/js/carousel.js
+/// src/js/carousel.js
 
-// Define image paths (Updated to point to your assets folder)
+// Define image paths
 const imageMap = {
     doors: ['/assets/door2.jpg', '/assets/door3.jpg', '/assets/door4.jpg'],
     windows: ['/assets/window1.jpg', '/assets/window2.jpg'],
@@ -36,7 +36,6 @@ export function initCarousel() {
     };
 
     // Attach Listeners to Buttons
-    // We utilize a helper to keep code dry
     const setupBtn = (id, category) => {
         const btn = document.getElementById(id);
         if (btn) {
