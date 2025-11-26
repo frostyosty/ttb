@@ -9,10 +9,13 @@ export function initEditor() {
 
     let pressTimer;
 
-    // --- ACTIVATION LOGIC ---
     const activate = () => {
         const isActive = toggleDevMode();
         
+        // 1. Toggle Body Class (Fixes Footer overlapping issue)
+        if (isActive) document.body.classList.add('dev-active');
+        else document.body.classList.remove('dev-active');
+
         // Visual Feedback
         toast.innerText = isActive ? "Dev Mode Activated" : "Dev Mode Deactivated";
         toast.classList.remove('hidden');
@@ -22,33 +25,25 @@ export function initEditor() {
         if (isActive) toolbar.classList.remove('hidden');
         else toolbar.classList.add('hidden');
 
-        render(); // Redraw with edit borders
+        render(); 
         
-        // Vibrating feedback for mobile (if supported)
         if (navigator.vibrate) navigator.vibrate(200);
     };
 
-    // --- INPUT HANDLERS ---
-
     const startPress = (e) => {
-        // Prevent default browser long-press menus (like "Copy Image")
-        // e.preventDefault(); 
-        
         pressTimer = setTimeout(() => {
             activate();
-        }, 3000); // 3 Seconds
+        }, 3000); 
     };
 
     const cancelPress = () => {
         clearTimeout(pressTimer);
     };
 
-    // 1. Mouse Events (Desktop)
     header.addEventListener('mousedown', startPress);
     header.addEventListener('mouseup', cancelPress);
     header.addEventListener('mouseleave', cancelPress);
 
-    // 2. Touch Events (Mobile)
     header.addEventListener('touchstart', startPress, { passive: true });
     header.addEventListener('touchend', cancelPress);
     header.addEventListener('touchcancel', cancelPress);

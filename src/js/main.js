@@ -36,6 +36,18 @@ async function startApp() {
         initEditor();
         initToolbar();
         
+// Re-render when renderer asks (from element tools)
+    document.addEventListener('app-render-request', () => {
+        // We re-sort items just in case position changed
+        // (Simple sort logic matching toolbar.js)
+        state.items.sort((a, b) => (a.position || 0) - (b.position || 0));
+        render();
+        // Re-attach listeners for other features
+        initCarousel();
+        // (Email listeners are persistent on form, so less worry there, but good to check)
+        import('./email.js').then(m => m.attachEmailListeners()); 
+    });
+
         document.getElementById('maintenance-view').classList.add('hidden');
 
         // 3. Calculate Remaining Time

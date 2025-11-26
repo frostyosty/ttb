@@ -13,23 +13,26 @@
 <body>
 
     <!-- Header / Trigger Zone -->
-<div id="super-header" class="site-header">
-    <img src="/assets/quick_logo.png" alt="Tweed Trading" class="header-logo"
-         onerror="this.style.display='none'; document.getElementById('fallback-text').style.display='block';">
-    <h1 id="fallback-text" style="display: none;">Tweed Trading</h1>
-</div>
+    <div id="super-header" class="site-header">
+        <img src="/assets/quick_logo.png" alt="Tweed Trading" class="header-logo"
+            onerror="this.style.display='none'; document.getElementById('fallback-text').style.display='block';">
+        <h1 id="fallback-text" style="display: none;">Tweed Trading</h1>
+    </div>
 
-<!-- MOVED OUTSIDE: Navigation Tabs -->
+    <!-- MOVED OUTSIDE: Navigation Tabs -->
     <!-- 3. NAV -->
     <nav class="main-nav">
         <!-- Buttons injected by JS -->
     </nav>
 
-<!-- 1. LOADING OVERLAY (Visible by default) -->
+    <!-- 1. LOADING OVERLAY (Visible by default) -->
     <div id="loading-view" class="loading-overlay">
         <!-- Reusing the Hammer/Wrench SVG -->
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="loading-icon">
-            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="loading-icon">
+            <path
+                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
+            </path>
         </svg>
     </div>
 
@@ -39,22 +42,22 @@
     <!-- 4. APP CONTAINER (Empty initially) -->
     <div id="app-container"></div>
 
-<!-- NEW: Email Modal -->
-<div id="email-modal" class="modal hidden">
-    <div class="modal-content contact-modal">
-        <h3>Send us a message</h3>
-        <form id="email-form">
-            <input type="text" name="user_name" placeholder="Your Name" required>
-            <input type="email" name="user_email" placeholder="Your Email" required>
-            <textarea name="message" rows="4" placeholder="What are you looking for?" required></textarea>
-            
-            <div class="modal-buttons">
-                <button type="button" id="close-email">Cancel</button>
-                <button type="submit" class="submit-btn">Send</button>
-            </div>
-        </form>
+    <!-- NEW: Email Modal -->
+    <div id="email-modal" class="modal hidden">
+        <div class="modal-content contact-modal">
+            <h3>Send us a message</h3>
+            <form id="email-form">
+                <input type="text" name="user_name" placeholder="Your Name" required>
+                <input type="email" name="user_email" placeholder="Your Email" required>
+                <textarea name="message" rows="4" placeholder="What are you looking for?" required></textarea>
+
+                <div class="modal-buttons">
+                    <button type="button" id="close-email">Cancel</button>
+                    <button type="submit" class="submit-btn">Send</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
 
     <!-- UI Components -->
@@ -74,43 +77,47 @@
         </div>
     </div>
 
-<!-- Sections Manager Modal -->
-<div id="sections-modal" class="modal hidden">
-    <div class="modal-content" style="max-width: 900px; width: 95%;">
-        
-        <!-- Header with Actions -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px;">
-            <h3 style="margin:0; color:#2e7d32;">Manage Sections</h3>
-            
-            <div style="display:flex; gap:10px;">
-                <button id="btn-add-page" style="background:#4caf50; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-size:0.9rem;">
-                    <i class="fas fa-folder-plus"></i> New Page
-                </button>
-                <button id="btn-add-section" style="background:#2e7d32; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-size:0.9rem;">
-                    <i class="fas fa-plus-circle"></i> New Section
-                </button>
-                <button id="close-sections" style="background:transparent; border:none; font-size:1.5rem; cursor:pointer; margin-left:10px; color:#666;">&times;</button>
+    <!-- Sections Manager Modal -->
+    <div id="sections-modal" class="modal hidden">
+        <div class="modal-content" style="max-width: 900px; width: 95%;">
+
+            <!-- Header with Actions -->
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px;">
+                <h3 style="margin:0; color:#2e7d32;">Manage Sections</h3>
+
+                <div style="display:flex; gap:10px;">
+                    <button id="btn-add-page"
+                        style="background:#4caf50; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-size:0.9rem;">
+                        <i class="fas fa-folder-plus"></i> New Page
+                    </button>
+                    <button id="btn-add-section"
+                        style="background:#2e7d32; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-size:0.9rem;">
+                        <i class="fas fa-plus-circle"></i> New Section
+                    </button>
+                    <button id="close-sections"
+                        style="background:transparent; border:none; font-size:1.5rem; cursor:pointer; margin-left:10px; color:#666;">&times;</button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div style="overflow-x:auto; max-height: 60vh; overflow-y:auto;">
+                <table id="sections-table" style="width:100%; border-collapse: collapse;">
+                    <thead style="position:sticky; top:0; background:#eee; z-index:1;">
+                        <tr style="text-align:left;">
+                            <th style="padding:10px;">Preview</th>
+                            <th style="padding:10px;">Page</th>
+                            <th style="padding:10px;">Order</th>
+                            <th style="padding:10px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sections-list">
+                        <!-- Rows injected by JS -->
+                    </tbody>
+                </table>
             </div>
         </div>
-        
-        <!-- Table -->
-        <div style="overflow-x:auto; max-height: 60vh; overflow-y:auto;">
-            <table id="sections-table" style="width:100%; border-collapse: collapse;">
-                <thead style="position:sticky; top:0; background:#eee; z-index:1;">
-                    <tr style="text-align:left;">
-                        <th style="padding:10px;">Preview</th>
-                        <th style="padding:10px;">Page</th>
-                        <th style="padding:10px;">Order</th>
-                        <th style="padding:10px;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="sections-list">
-                    <!-- Rows injected by JS -->
-                </tbody>
-            </table>
-        </div>
     </div>
-</div>
 
     <!-- History Modal -->
     <div id="history-modal" class="modal hidden">
