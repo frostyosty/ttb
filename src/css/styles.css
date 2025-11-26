@@ -440,3 +440,36 @@ body { font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 120px; ba
     25% { transform: rotate(-15deg); }
     75% { transform: rotate(15deg); }
 }
+
+
+.site-header { 
+    background: #000000; /* Black Background */
+    color: #fff; 
+    padding: 20px 10px; 
+    text-align: center; 
+    cursor: pointer; 
+    user-select: none; 
+    border-bottom: 1px solid #333;
+}
+
+/* Logo Styling */
+.header-logo {
+    max-width: 100%;
+    width: 350px; /* Adjusts size */
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Fallback Red Text Styling */
+.site-header h1 {
+    color: #ff0000; /* Red */
+    margin: 0;
+    /* White Outline Effect */
+    text-shadow: 2px 0 #fff, -2px 0 #fff, 0 2px #fff, 0 -2px #fff,
+                 1px 1px #fff, -1px -1px #fff, 1px -1px #fff, -1px 1px #fff;
+    font-weight: 800;
+    letter-spacing: 1px;
+    font-size: 2.5rem;
+    font-family: 'Shadows Into Light', cursive, sans-serif; /* Optional: Matches your original font */
+}

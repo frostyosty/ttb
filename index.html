@@ -13,10 +13,21 @@
 <body>
 
     <!-- Header / Trigger Zone -->
-    <div id="super-header" class="site-header">
-        <h1>Tweed Trading</h1>
-        <p style="font-size: 0.8rem; opacity: 0.7;"></p>
-    </div>
+<div id="super-header" class="site-header">
+    
+    <!-- 1. The Logo (Primary) -->
+    <!-- On Error: Hide this image, Show the text below -->
+    <img src="/assets/quick_logo.png" 
+         alt="Tweed Trading" 
+         class="header-logo"
+         onerror="this.style.display='none'; document.getElementById('fallback-text').style.display='block';">
+
+    <!-- 2. The Text (Fallback) -->
+    <!-- Hidden by default. Only appears if logo fails. -->
+    <h1 id="fallback-text" style="display: none;">Tweed Trading</h1>
+
+    <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 5px;"></p>
+</div>
 
     <!-- Main Content Injection Area -->
     <div id="app-container">Loading content...</div>
