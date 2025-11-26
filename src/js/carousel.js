@@ -1,6 +1,4 @@
 /// src/js/carousel.js
-
-// Define image paths
 const imageMap = {
     doors: ['/assets/door2.jpg', '/assets/door3.jpg', '/assets/door4.jpg'],
     windows: ['/assets/window1.jpg', '/assets/window2.jpg'],
@@ -12,37 +10,47 @@ const imageMap = {
 let interval;
 
 export function initCarousel() {
+    console.log("Carousel: Initializing..."); // DEBUG LOG
+
     const carouselImage = document.getElementById('carouselImage');
     
-    // Safety check: If we aren't on the Home page, these elements won't exist.
-    if (!carouselImage) return; 
+    if (!carouselImage) {
+        console.warn("Carousel: Image element not found on this page."); // DEBUG LOG
+        return; 
+    }
+    
+    console.log("Carousel: Element found, attaching listeners."); // DEBUG LOG
 
-    // Helper to run the slideshow
     const startShow = (category) => {
         const images = imageMap[category];
         if (!images) return;
 
+        console.log(`Carousel: Starting category ${category}`); // DEBUG LOG
+
         let index = 0;
         carouselImage.src = images[0];
 
-        // Clear old timer
         if (interval) clearInterval(interval);
 
-        // Start new timer (3 seconds)
         interval = setInterval(() => {
             index = (index + 1) % images.length;
             carouselImage.src = images[index];
         }, 3000);
     };
 
-    // Attach Listeners to Buttons
     const setupBtn = (id, category) => {
         const btn = document.getElementById(id);
         if (btn) {
-            btn.addEventListener('click', (e) => {
+            // Remove old listener to prevent duplicates if function runs twice
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            
+            newBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 startShow(category);
             });
+        } else {
+            console.warn(`Carousel: Button ${id} not found.`); // DEBUG LOG
         }
     };
 
