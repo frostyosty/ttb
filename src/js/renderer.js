@@ -9,7 +9,7 @@ export function render() {
         const el = document.createElement('div');
         
         // Content
-        el.innerText = item.content || '';
+        el.innerHTML = item.content || '';
         
         // Base Styling
         el.className = 'content-block';
