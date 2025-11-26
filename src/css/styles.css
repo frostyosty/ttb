@@ -543,3 +543,61 @@ body { font-family: 'Segoe UI', sans-serif; margin: 0;
 
 #close-email { background: #eee; color: #333; }
 .submit-btn { background: #2e7d32; color: white; }
+
+.filter-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 5px;
+    background-color: #eee;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    background-color: #2e7d32;
+    color: #fff;
+    border-color: #2e7d32;
+}
+
+/* Navigation Bar */
+.main-nav {
+    display: flex;
+    justify-content: center;
+    background-color: #f4f4f4; /* Light grey bar */
+    border-bottom: 2px solid #ddd;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.nav-btn {
+    flex: 1; /* Make buttons even width */
+    max-width: 150px;
+    background: transparent;
+    border: none;
+    color: #666;
+    padding: 15px 0;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    border-bottom: 3px solid transparent;
+}
+
+.nav-btn:hover {
+    color: #2e7d32;
+    background: #e8f5e9;
+}
+
+.nav-btn.active {
+    color: #2e7d32; /* Tweed Green */
+    border-bottom: 3px solid #2e7d32;
+    background: white;
+}

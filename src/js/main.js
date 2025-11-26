@@ -32,13 +32,14 @@ async function startApp() {
     }
 
     // 2. Continue Loading App (Whether Live or Fallback)
-    try {
+     try {
         setItems(items);
-        render(); // This will render whatever data we have
+        render(); // Initial Render
 
         initEditor();
         initToolbar();
         initEmailSystem();
+        initCarousel(); // <--- Run Carousel Init
 
         // Navigation Logic
         const navBtns = document.querySelectorAll('.nav-btn');
@@ -47,15 +48,15 @@ async function startApp() {
                 navBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 setPage(btn.getAttribute('data-page'));
-                render();
+                
+                render(); 
+                initCarousel(); // <--- RE-RUN CAROUSEL on page change
             });
         });
 
-        // Ensure maintenance screen is hidden
         document.getElementById('maintenance-view').classList.add('hidden');
 
     } catch (criticalError) {
-        // If even the Renderer fails, THEN show the Hammer
         console.error("CRITICAL APP FAILURE:", criticalError);
         triggerMaintenanceMode();
     }
