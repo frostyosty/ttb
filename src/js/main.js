@@ -1,55 +1,36 @@
 /// src/js/main.js
 import { fetchContent } from './db.js';
-import { setItems, setPage } from './state.js';
+import { setItems, setPage, state } from './state.js';
 import { render } from './renderer.js';
 import { initEditor } from './editor.js';
 import { initToolbar } from './toolbar.js';
 import { initEmailSystem } from './email.js';
 import { FALLBACK_ITEMS } from './fallbackData.js';
-import { initCarousel } from './carousel.js';  // <--- CRITICAL LINE
+import { initCarousel } from './carousel.js';
 
 async function startApp() {
     console.log('Initializing Tweed Trading CMS...');
 
     let items = [];
-
-    // 1. Attempt to Load Data
     try {
         items = await fetchContent();
         if (!items || items.length === 0) throw new Error("Database Empty");
     } catch (error) {
         console.warn("SUPABASE FAILED. Switching to Fallback Mode.", error);
         items = FALLBACK_ITEMS; 
-        
-        const saveBtn = document.getElementById('btn-save');
-        if(saveBtn) {
-            saveBtn.style.opacity = '0.5';
-            saveBtn.innerText = 'Offline (Read Only)';
-        }
     }
 
-    // 2. Continue Loading App
     try {
         setItems(items);
+        
+        // --- 1. GENERATE DYNAMIC NAVIGATION ---
+        setupNavigation();
+        
         render(); 
-
         initEditor();
         initToolbar();
         initEmailSystem();
-        initCarousel(); // <--- This will crash if line 8 is missing
-
-        // Navigation Logic
-        const navBtns = document.querySelectorAll('.nav-btn');
-        navBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                navBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                setPage(btn.getAttribute('data-page'));
-                
-                render();
-                initCarousel(); // Re-run carousel on tab change
-            });
-        });
+        initCarousel(); 
 
         document.getElementById('maintenance-view').classList.add('hidden');
 
@@ -57,6 +38,44 @@ async function startApp() {
         console.error("CRITICAL APP FAILURE:", criticalError);
         triggerMaintenanceMode();
     }
+}
+
+function setupNavigation() {
+    const navContainer = document.querySelector('.main-nav');
+    if(!navContainer) return;
+    
+    // 1. Find all unique page names from the database items
+    const pages = new Set(state.items.map(i => i.page || 'home'));
+    
+    // Ensure standard order
+    const orderedPages = ['home', 'products', 'contact'];
+    // Add any custom pages the user created to the list
+    pages.forEach(p => {
+        if (!orderedPages.includes(p)) orderedPages.push(p);
+    });
+
+    // 2. Clear hardcoded HTML
+    navContainer.innerHTML = '';
+
+    // 3. Build Buttons
+    orderedPages.forEach(pageName => {
+        const btn = document.createElement('button');
+        btn.className = 'nav-btn';
+        if(pageName === 'home') btn.classList.add('active');
+        btn.setAttribute('data-page', pageName);
+        btn.innerText = pageName.charAt(0).toUpperCase() + pageName.slice(1); // Capitalize
+        
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            setPage(pageName);
+            render();
+            initCarousel();
+        });
+        
+        navContainer.appendChild(btn);
+    });
 }
 
 function triggerMaintenanceMode() {
