@@ -63,6 +63,36 @@
         </div>
     </div>
 
+
+    <!-- Sections Manager Modal -->
+<div id="sections-modal" class="modal hidden">
+    <div class="modal-content" style="max-width: 800px; width: 95%;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0; color:#2e7d32;">Manage Sections</h3>
+            <button id="close-sections" style="background:transparent; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+        </div>
+        
+        <div style="overflow-x:auto;">
+            <table id="sections-table" style="width:100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background:#eee; text-align:left;">
+                        <th style="padding:10px;">Preview</th>
+                        <th style="padding:10px;">Page</th>
+                        <th style="padding:10px;">Order</th>
+                        <th style="padding:10px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="sections-list">
+                    <!-- Rows injected by JS -->
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top:10px; font-size:0.8rem; color:#666;">
+            * Changes save automatically
+        </div>
+    </div>
+</div>
+
     <!-- History Modal -->
     <div id="history-modal" class="modal hidden">
         <div class="modal-content">
