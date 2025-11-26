@@ -233,55 +233,6 @@ function setupHistory() {
         const history = await fetchHistory();
         const list = document.getElementById('history-list');
         list.innerHTML = '';
-        history.forEach(h => {
-             // ... (Keep existing history logic) ...
-            let preview = 'Empty';
-            if (h.snapshot && h.snapshot.length > 0) {
-                const types = h.snapshot.map(i => {
-                    if (i.type === 'header' || i.type === 'section') return 'Text';
-                    return i.type.charAt(0).toUpperCase() + i.type.slice(1);
-                });
-                preview = types.slice(0, 3).join(', ');
-                if (types.length > 3) preview += '...';
-            }
-
-            const li = document.createElement('li');
-            li.style.fontSize = '0.9rem';
-            li.innerHTML = `
-                <div style="display:flex; justify-content:space-between;">
-                    <strong>${new Date(h.created_at).toLocaleString()}</strong>
-                    <span style="color:#666; font-size:0.8rem;">ID: ${h.id}</span>
-                </div>
-                <div style="color:#2e7d32; font-style:italic; margin-top:4px;">
-                    Contains: ${preview}
-                </div>
-            `;
-            li.onclick = async () => {
-                if(confirm('Restore this version?')) {
-                    await restoreSnapshot(h.snapshot);
-                    setItems(h.snapshot);
-                    render();
-                    document.getElementById('history-modal').classList.add('hidden');
-                }
-            };
-            list.appendChild(li);
-        });
-        document.getElementById('history-modal').classList.remove('hidden');
-    });
-
-    document.getElementById('btn-close-modal').addEventListener('click', () => {
-        document.getElementById('history-modal').classList.add('hidden');
-    });
-}
-
-
-
-
-function setupHistory() {
-    document.getElementById('btn-restore').addEventListener('click', async () => {
-        const history = await fetchHistory();
-        const list = document.getElementById('history-list');
-        list.innerHTML = '';
         
         history.forEach(h => {
             // --- 1. GENERATE SUMMARY ---
@@ -326,3 +277,7 @@ function setupHistory() {
         document.getElementById('history-modal').classList.add('hidden');
     });
 }
+
+
+
+
