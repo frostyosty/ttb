@@ -1,4 +1,4 @@
-/// public/js/renderer.js
+/// src/js/renderer.js
 import { state } from './state.js';
 
 export function render() {
@@ -8,7 +8,7 @@ export function render() {
     state.items.forEach((item, index) => {
         const el = document.createElement('div');
         
-        // Content
+        // --- FIX 1: Use innerHTML so <h3> becomes a Header, not text ---
         el.innerHTML = item.content || '';
         
         // Base Styling
@@ -28,9 +28,10 @@ function setupDevFeatures(el, item, index) {
     el.classList.add('editable');
     el.setAttribute('contenteditable', 'true');
 
-    // Update state when text changes
+    // --- FIX 2: Save the HTML tags, not just the text ---
     el.onblur = (e) => {
-        state.items[index].content = e.target.innerText;
+        // We save innerHTML to keep your <b> and <ul> tags when you edit
+        state.items[index].content = e.target.innerHTML;
     };
 
     // Add Handles (Visual only for now)
