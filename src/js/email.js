@@ -74,10 +74,9 @@ function showPopup(message) {
     if (popup) {
         popup.innerText = message;
         popup.classList.remove('hidden');
-        
-        // Reset manual style overrides to ensure CSS class takes over
         popup.style.background = ''; 
         
+        // MATCH CSS DURATION (4000ms)
         setTimeout(() => popup.classList.add('hidden'), 4000);
     } else {
         alert(message);

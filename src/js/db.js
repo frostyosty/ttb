@@ -58,8 +58,10 @@ function showErrorToast(msg) {
     const toast = document.getElementById('toast');
     if(toast) {
         toast.innerText = msg;
-        toast.style.background = 'red';
+        toast.style.background = 'red'; // Keep red for errors
         toast.classList.remove('hidden');
+        
+        // MATCH CSS DURATION (4000ms)
         setTimeout(() => toast.classList.add('hidden'), 4000);
     }
 }

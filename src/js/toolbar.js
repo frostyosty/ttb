@@ -3,28 +3,25 @@ import { state, setItems } from './state.js';
 import { saveContent, fetchHistory, restoreSnapshot } from './db.js';
 import { render } from './renderer.js';
 
+
 export function initToolbar() {
     
-    // 1. ADD "SECTIONS" BUTTON TO TOOLBAR
+    // 1. ADD "SECTIONS" BUTTON
     const actionsDiv = document.querySelector('.toolbar-actions');
-    
     if (!document.getElementById('btn-sections')) {
         const btn = document.createElement('button');
         btn.id = 'btn-sections';
         btn.innerHTML = '<i class="fas fa-list"></i> Sections';
         const historyBtn = document.getElementById('btn-restore');
         actionsDiv.insertBefore(btn, historyBtn);
-        
         btn.addEventListener('click', openSectionsManager);
     }
 
-    // --- STANDARD LISTENERS ---
+    // --- LISTENERS ---
     document.getElementById('btn-save').addEventListener('click', () => saveContent(state.items));
+    document.getElementById('btn-mass').addEventListener('click', () => document.getElementById('mass-panel').classList.toggle('hidden'));
 
-    document.getElementById('btn-mass').addEventListener('click', () => {
-        document.getElementById('mass-panel').classList.toggle('hidden');
-    });
-
+    // Mass Edit Logic
     const padSlider = document.getElementById('global-padding');
     const radSlider = document.getElementById('global-radius');
     const applyMass = () => {
@@ -35,26 +32,14 @@ export function initToolbar() {
         });
         render();
     };
-    if(padSlider) {
-        padSlider.addEventListener('change', () => saveContent(state.items));
-        padSlider.addEventListener('input', applyMass);
-    }
-    if(radSlider) {
-        radSlider.addEventListener('change', () => saveContent(state.items));
-        radSlider.addEventListener('input', applyMass);
-    }
+    if(padSlider) { padSlider.addEventListener('change', () => saveContent(state.items)); padSlider.addEventListener('input', applyMass); }
+    if(radSlider) { radSlider.addEventListener('change', () => saveContent(state.items)); radSlider.addEventListener('input', applyMass); }
 
     setupHistory();
     
-    // --- MODAL LISTENERS ---
-    document.getElementById('close-sections').addEventListener('click', () => {
-        document.getElementById('sections-modal').classList.add('hidden');
-    });
-
-    // NEW: Add Page Listener
+    // Modals
+    document.getElementById('close-sections').addEventListener('click', () => document.getElementById('sections-modal').classList.add('hidden'));
     document.getElementById('btn-add-page').addEventListener('click', addNewPage);
-
-    // NEW: Add Section Listener
     document.getElementById('btn-add-section').addEventListener('click', addNewSection);
 }
 
@@ -231,6 +216,59 @@ function setupHistory() {
         history.forEach(h => {
             const li = document.createElement('li');
             li.innerHTML = `<strong>${new Date(h.created_at).toLocaleTimeString()}</strong> - Ver ID: ${h.id}`;
+            li.onclick = async () => {
+                if(confirm('Restore this version?')) {
+                    await restoreSnapshot(h.snapshot);
+                    setItems(h.snapshot);
+                    render();
+                    document.getElementById('history-modal').classList.add('hidden');
+                }
+            };
+            list.appendChild(li);
+        });
+        document.getElementById('history-modal').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-close-modal').addEventListener('click', () => {
+        document.getElementById('history-modal').classList.add('hidden');
+    });
+}
+
+
+
+
+function setupHistory() {
+    document.getElementById('btn-restore').addEventListener('click', async () => {
+        const history = await fetchHistory();
+        const list = document.getElementById('history-list');
+        list.innerHTML = '';
+        
+        history.forEach(h => {
+            // --- 1. GENERATE SUMMARY ---
+            // Grab the first 3 item types to show as a preview
+            let preview = 'Empty';
+            if (h.snapshot && h.snapshot.length > 0) {
+                const types = h.snapshot.map(i => {
+                    // Use Content snippet if text, otherwise type
+                    if (i.type === 'header' || i.type === 'section') return 'Text';
+                    return i.type.charAt(0).toUpperCase() + i.type.slice(1);
+                });
+                preview = types.slice(0, 3).join(', ');
+                if (types.length > 3) preview += '...';
+            }
+
+            const li = document.createElement('li');
+            li.style.fontSize = '0.9rem';
+            li.innerHTML = `
+                <div style="display:flex; justify-content:space-between;">
+                    <strong>${new Date(h.created_at).toLocaleString()}</strong>
+                    <span style="color:#666; font-size:0.8rem;">ID: ${h.id}</span>
+                </div>
+                <div style="color:#2e7d32; font-style:italic; margin-top:4px;">
+                    Contains: ${preview}
+                </div>
+            `;
+            
             li.onclick = async () => {
                 if(confirm('Restore this version?')) {
                     await restoreSnapshot(h.snapshot);

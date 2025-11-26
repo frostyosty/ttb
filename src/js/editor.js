@@ -16,10 +16,12 @@ export function initEditor() {
         if (isActive) document.body.classList.add('dev-active');
         else document.body.classList.remove('dev-active');
 
-        // Visual Feedback
-        toast.innerText = isActive ? "Dev Mode Activated" : "Dev Mode Deactivated";
-        toast.classList.remove('hidden');
-        setTimeout(() => toast.classList.add('hidden'), 3000);
+// Visual Feedback
+    toast.innerText = isActive ? "Dev Mode Activated" : "Dev Mode Deactivated";
+    toast.classList.remove('hidden');
+    
+    // MATCH CSS DURATION (4000ms)
+    setTimeout(() => toast.classList.add('hidden'), 4000);
 
         // Show/Hide Toolbar
         if (isActive) toolbar.classList.remove('hidden');

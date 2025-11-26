@@ -1,10 +1,10 @@
 /// src/js/renderer.js
 import { state } from './state.js';
-// We need to trigger render after updates, so we import main's trigger function or just re-render locally
-// To keep circular deps low, we'll manually call render() logic or assume 'main' handles triggers.
-// For simplicity, we'll just modify state and the user must click 'Save' or we force a re-render.
-// Actually, let's use a CustomEvent so main.js can listen and re-render.
+
 const triggerRender = () => document.dispatchEvent(new Event('app-render-request'));
+
+// Track what is being dragged
+let dragSrcIndex = null;
 
 export function render() {
     const container = document.getElementById('app-container');
@@ -19,13 +19,12 @@ export function render() {
         container.innerHTML = '<div style="text-align:center; padding:40px;">No content on this page yet.</div>';
     }
 
-    pageItems.forEach((item, index) => {
+    pageItems.forEach((item) => {
         const el = document.createElement('div');
         el.innerHTML = item.content || '';
         el.className = 'content-block';
         Object.assign(el.style, item.styles);
 
-        // Map index to main array
         const originalIndex = state.items.indexOf(item);
 
         if (state.isDevMode) {
@@ -40,21 +39,57 @@ function setupDevFeatures(el, item, index) {
     el.classList.add('editable');
     el.setAttribute('contenteditable', 'true');
 
-    // Save Text on Edit
+    // Save Text Logic
     el.onblur = (e) => {
         state.items[index].content = e.target.innerHTML;
     };
 
-    // --- NEW ELEMENT TOOLBAR ---
+    // --- ELEMENT TOOLBAR ---
     const tools = document.createElement('div');
     tools.className = 'element-tools';
-    tools.contentEditable = "false"; // Prevent tools from being text-edited
+    tools.contentEditable = "false";
 
-    // 1. POSITION (Move)
-    const posBtn = createBtn('fa-arrows-alt', 'tool-pos', () => {
-        const newPos = prompt("Enter new position number (lower = higher up):", item.position || 0);
-        if(newPos !== null) {
-            state.items[index].position = parseInt(newPos);
+    // 1. DRAG HANDLE (Replaces Position Prompt)
+    // We make the whole element draggable, but visually indicated here
+    const dragBtn = createBtn('fa-grip-vertical', 'tool-pos', () => {});
+    dragBtn.style.cursor = 'grab';
+    dragBtn.title = "Drag to Move";
+    
+    // Enable Drag and Drop on the Parent Element
+    el.draggable = true;
+    el.addEventListener('dragstart', (e) => {
+        dragSrcIndex = index;
+        e.dataTransfer.effectAllowed = 'move';
+        el.style.opacity = '0.4'; // Visual feedback
+    });
+    el.addEventListener('dragover', (e) => {
+        e.preventDefault(); // Allow Drop
+        e.dataTransfer.dropEffect = 'move';
+        el.style.borderTop = '3px solid #2e7d32'; // Show drop target line
+    });
+    el.addEventListener('dragleave', () => {
+        el.style.borderTop = ''; // Remove line
+    });
+    el.addEventListener('dragend', () => {
+        el.style.opacity = '1';
+        document.querySelectorAll('.content-block').forEach(b => b.style.borderTop = '');
+    });
+    el.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (dragSrcIndex !== index) {
+            // Reorder Array
+            const movedItem = state.items[dragSrcIndex];
+            state.items.splice(dragSrcIndex, 1); // Remove
+            
+            // Adjust index if we removed an item before this one
+            let targetIndex = index;
+            if (dragSrcIndex < index) targetIndex--; 
+            
+            state.items.splice(targetIndex, 0, movedItem); // Insert
+            
+            // Update position numbers for everyone to keep order persistent
+            state.items.forEach((itm, i) => itm.position = i);
+            
             triggerRender();
         }
     });
@@ -62,64 +97,61 @@ function setupDevFeatures(el, item, index) {
     // 2. RESIZE (Width)
     const sizeBtn = createBtn('fa-expand', 'tool-size', () => {
         const current = item.styles.maxWidth || '1000px';
-        const newVal = prompt("Enter Max Width (e.g. 500px, 100%):", current);
-        if(newVal) {
-            item.styles.maxWidth = newVal;
-            triggerRender();
-        }
+        const newVal = prompt("Max Width (e.g. 100%, 600px):", current);
+        if(newVal) { item.styles.maxWidth = newVal; triggerRender(); }
     });
 
-    // 3. SCALE (Zoom)
-    const scaleBtn = createBtn('fa-search-plus', 'tool-scale', () => {
-        const current = item.styles.transform || 'scale(1)';
-        // Extract number if possible
-        const num = current.replace(/[^0-9.]/g, '') || '1';
-        const newVal = prompt("Enter Scale (0.5 = small, 1 = normal, 1.5 = big):", num);
-        if(newVal) {
-            item.styles.transform = `scale(${newVal})`;
-            triggerRender();
-        }
+    // 3. ZOOM OUT (-)
+    const zoomOutBtn = createBtn('fa-search-minus', 'tool-scale', () => {
+        changeScale(item, -0.1);
     });
 
-    // 4. TEXT COLOR
+    // 4. ZOOM IN (+)
+    const zoomInBtn = createBtn('fa-search-plus', 'tool-scale', () => {
+        changeScale(item, 0.1);
+    });
+
+    // 5. COLORS
     const colorInput = document.createElement('input');
-    colorInput.type = 'color';
-    colorInput.style.display = 'none';
-    colorInput.onchange = (e) => {
-        item.styles.color = e.target.value;
-        triggerRender();
-    };
-    const colorBtn = createBtn('fa-palette', 'tool-color', () => colorInput.click());
+    colorInput.type = 'color'; colorInput.style.display = 'none';
+    colorInput.onchange = (e) => { item.styles.color = e.target.value; triggerRender(); };
+    const colorBtn = createBtn('fa-font', 'tool-color', () => colorInput.click()); // Font Icon
 
-    // 5. BACKGROUND COLOR
     const bgInput = document.createElement('input');
-    bgInput.type = 'color';
-    bgInput.style.display = 'none';
-    bgInput.onchange = (e) => {
-        item.styles.background = e.target.value;
-        triggerRender();
-    };
-    const bgBtn = createBtn('fa-fill-drip', 'tool-color', () => bgInput.click());
+    bgInput.type = 'color'; bgInput.style.display = 'none';
+    bgInput.onchange = (e) => { item.styles.background = e.target.value; triggerRender(); };
+    const bgBtn = createBtn('fa-fill-drip', 'tool-color', () => bgInput.click()); // Paint Bucket
 
-    // Append all
-    tools.appendChild(posBtn);
-    tools.appendChild(sizeBtn);
-    tools.appendChild(scaleBtn);
-    tools.appendChild(colorBtn);
-    tools.appendChild(bgBtn);
+    // Append All
+    tools.appendChild(dragBtn); // Move
+    tools.appendChild(sizeBtn); // Resize
+    tools.appendChild(zoomOutBtn); // -
+    tools.appendChild(zoomInBtn);  // +
+    tools.appendChild(colorBtn);   // Text Color
+    tools.appendChild(bgBtn);      // Bg Color
     tools.appendChild(colorInput);
     tools.appendChild(bgInput);
 
     el.appendChild(tools);
 }
 
-// Helper to create buttons
+function changeScale(item, amount) {
+    const current = item.styles.transform || 'scale(1)';
+    const num = parseFloat(current.replace(/[^0-9.]/g, '')) || 1.0;
+    
+    // Calculate new scale (rounded to 1 decimal)
+    const newScale = Math.max(0.1, num + amount).toFixed(1);
+    
+    item.styles.transform = `scale(${newScale})`;
+    triggerRender();
+}
+
 function createBtn(iconClass, colorClass, onClick) {
     const btn = document.createElement('button');
     btn.className = `tool-btn ${colorClass}`;
     btn.innerHTML = `<i class="fas ${iconClass}"></i>`;
     btn.onclick = (e) => {
-        e.stopPropagation(); // Don't trigger text edit
+        e.stopPropagation(); 
         onClick(e);
     };
     return btn;
