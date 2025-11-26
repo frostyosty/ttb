@@ -823,3 +823,67 @@ body.dev-active {
         opacity: 0;
     }
 }
+
+/* --- TOAST NOTIFICATION --- */
+.toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    
+    /* Deep Green with Red Border */
+    background: #1b5e20;
+    border: 3px solid #ff0000;
+    color: #fff;
+    font-weight: bold;
+    
+    padding: 15px 30px;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    text-align: center;
+    min-width: 300px;
+    z-index: 6000;
+    
+    /* Start off-screen Right */
+    transform: translateX(150vw); 
+    opacity: 0;
+    pointer-events: none; /* Click through when hidden */
+}
+
+/* The Animation */
+.toast:not(.hidden) {
+    pointer-events: auto;
+    /* 4 Seconds Total: Enter, Wait, Exit */
+    animation: slide-fly-through 4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes slide-fly-through {
+    0% {
+        transform: translateX(150vw); /* Far Right */
+        opacity: 0;
+    }
+    10% {
+        transform: translateX(-50%); /* Center Screen */
+        opacity: 1;
+    }
+    85% {
+        transform: translateX(-50%); /* Stay Center */
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-150vw); /* Fly out Left */
+        opacity: 0;
+    }
+}
+
+/* --- HEADER DIMMING --- */
+/* When body has this class, dull the header */
+body.toast-active .site-header,
+body.toast-active .main-nav, 
+body.toast-active #app-container {
+    filter: brightness(0.4) blur(1px); /* Dull and slight blur */
+    transition: filter 0.5s ease;
+}
+
+.site-header, .main-nav, #app-container {
+    transition: filter 0.5s ease;
+}

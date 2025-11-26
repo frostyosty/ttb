@@ -44,6 +44,18 @@ function setupDevFeatures(el, item, index) {
         state.items[index].content = e.target.innerHTML;
     };
 
+    // Save Text on Edit
+    el.onblur = (e) => {
+        const newVal = e.target.innerHTML;
+        // Only trigger if actually changed
+        if (state.items[index].content !== newVal) {
+            state.items[index].content = newVal;
+            
+            // Dispatch event so Auto-Save picks it up
+            document.dispatchEvent(new Event('app-render-request'));
+        }
+    };
+
     // --- ELEMENT TOOLBAR ---
     const tools = document.createElement('div');
     tools.className = 'element-tools';

@@ -1,5 +1,5 @@
 /// src/js/main.js
-import { fetchContent } from './db.js';
+import { fetchContent, saveContent } from './db.js'; // Import saveContent
 import { setItems, setPage, state } from './state.js';
 import { render } from './renderer.js';
 import { initEditor } from './editor.js';
@@ -8,13 +8,32 @@ import { initEmailConfig, attachEmailListeners } from './email.js';
 import { FALLBACK_ITEMS } from './fallbackData.js';
 import { initCarousel } from './carousel.js';
 
+let saveTimer; // Timer for Auto-Save
+
 async function startApp() {
     console.log('Initializing Tweed Trading CMS...');
 
-    // 1. Record Start Time
-    const startTime = Date.now();
-    const MIN_LOAD_TIME = 1000; // 1 second minimum
+    // --- 1. SETUP DIMMING OBSERVER ---
+    // Watches the #toast element. If class changes, toggle body class.
+    const toastObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class') {
+                const toast = document.getElementById('toast');
+                if (toast && !toast.classList.contains('hidden')) {
+                    document.body.classList.add('toast-active');
+                } else {
+                    document.body.classList.remove('toast-active');
+                }
+            }
+        });
+    });
+    
+    const toastEl = document.getElementById('toast');
+    if (toastEl) {
+        toastObserver.observe(toastEl, { attributes: true });
+    }
 
+    // --- APP STARTUP ---
     initEmailConfig();
 
     let items = [];
@@ -27,51 +46,39 @@ async function startApp() {
     }
 
     try {
-        // 2. Prepare Data (But don't show yet)
         setItems(items);
         setupNavigation();
+        
         render(); 
         attachEmailListeners(); 
         initCarousel(); 
+
         initEditor();
         initToolbar();
         
-// Re-render when renderer asks (from element tools)
-    document.addEventListener('app-render-request', () => {
-        // We re-sort items just in case position changed
-        // (Simple sort logic matching toolbar.js)
-        state.items.sort((a, b) => (a.position || 0) - (b.position || 0));
-        render();
-        // Re-attach listeners for other features
-        initCarousel();
-        // (Email listeners are persistent on form, so less worry there, but good to check)
-        import('./email.js').then(m => m.attachEmailListeners()); 
-    });
-
         document.getElementById('maintenance-view').classList.add('hidden');
-
-        // 3. Calculate Remaining Time
-        const elapsedTime = Date.now() - startTime;
-        const remainingTime = Math.max(0, MIN_LOAD_TIME - elapsedTime);
-
-        // 4. Wait (if needed) then Fade Out
-        setTimeout(() => {
-            const loader = document.getElementById('loading-view');
-            if (loader) {
-                loader.classList.add('fade-out');
-                // Remove from DOM after fade completes
-                setTimeout(() => loader.style.display = 'none', 500);
-            }
-        }, remainingTime);
 
     } catch (criticalError) {
         console.error("CRITICAL APP FAILURE:", criticalError);
-        // If critical failure, hide loader immediately so Maintenance view shows
-        const loader = document.getElementById('loading-view');
-        if(loader) loader.style.display = 'none';
-        
         triggerMaintenanceMode();
     }
+
+    // --- 2. AUTO-SAVE LISTENER ---
+    // Listens for 'app-render-request' which is fired by Toolbar, Renderer, and Text Edits
+    document.addEventListener('app-render-request', () => {
+        // Re-sort and Re-render immediately (Optimistic)
+        state.items.sort((a, b) => (a.position || 0) - (b.position || 0));
+        render();
+        initCarousel();
+        import('./email.js').then(m => m.attachEmailListeners());
+
+        // Debounce Save (Wait 1 second after last action)
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => {
+            console.log("Auto-saving changes to database...");
+            saveContent(state.items).catch(err => console.error("Auto-save failed:", err));
+        }, 1000);
+    });
 }
 
 function setupNavigation() {

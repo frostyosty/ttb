@@ -4,10 +4,16 @@ import { saveContent, fetchHistory, restoreSnapshot } from './db.js';
 import { render } from './renderer.js';
 
 
+
 export function initToolbar() {
     
     // 1. ADD "SECTIONS" BUTTON
     const actionsDiv = document.querySelector('.toolbar-actions');
+    
+    // Remove the old Save button if it exists (Auto-save replaces it)
+    const oldSave = document.getElementById('btn-save');
+    if (oldSave) oldSave.remove();
+
     if (!document.getElementById('btn-sections')) {
         const btn = document.createElement('button');
         btn.id = 'btn-sections';
@@ -17,13 +23,18 @@ export function initToolbar() {
         btn.addEventListener('click', openSectionsManager);
     }
 
-    // --- LISTENERS ---
-    document.getElementById('btn-save').addEventListener('click', () => saveContent(state.items));
-    document.getElementById('btn-mass').addEventListener('click', () => document.getElementById('mass-panel').classList.toggle('hidden'));
+    // --- REMOVED MANUAL SAVE LISTENER ---
 
-    // Mass Edit Logic
+    document.getElementById('btn-mass').addEventListener('click', () => {
+        document.getElementById('mass-panel').classList.toggle('hidden');
+    });
+
     const padSlider = document.getElementById('global-padding');
     const radSlider = document.getElementById('global-radius');
+    
+    // For sliders, we trigger a global update request instead of manual save
+    const triggerUpdate = () => document.dispatchEvent(new Event('app-render-request'));
+
     const applyMass = () => {
         state.items.forEach(item => {
             if(!item.styles) item.styles = {};
@@ -32,8 +43,15 @@ export function initToolbar() {
         });
         render();
     };
-    if(padSlider) { padSlider.addEventListener('change', () => saveContent(state.items)); padSlider.addEventListener('input', applyMass); }
-    if(radSlider) { radSlider.addEventListener('change', () => saveContent(state.items)); radSlider.addEventListener('input', applyMass); }
+
+    if(padSlider) { 
+        padSlider.addEventListener('change', triggerUpdate); // Save on release
+        padSlider.addEventListener('input', applyMass); 
+    }
+    if(radSlider) { 
+        radSlider.addEventListener('change', triggerUpdate); 
+        radSlider.addEventListener('input', applyMass); 
+    }
 
     setupHistory();
     
@@ -42,6 +60,7 @@ export function initToolbar() {
     document.getElementById('btn-add-page').addEventListener('click', addNewPage);
     document.getElementById('btn-add-section').addEventListener('click', addNewSection);
 }
+
 
 // --- SECTIONS MANAGER LOGIC ---
 
@@ -205,7 +224,8 @@ function addNewSection() {
 
 function triggerOptimisticUpdate() {
     render(); 
-    saveContent(state.items).catch(console.error);
+    // Dispatch event so Auto-Save handles it instead of direct save
+    document.dispatchEvent(new Event('app-render-request'));
 }
 
 function setupHistory() {
@@ -214,8 +234,28 @@ function setupHistory() {
         const list = document.getElementById('history-list');
         list.innerHTML = '';
         history.forEach(h => {
+             // ... (Keep existing history logic) ...
+            let preview = 'Empty';
+            if (h.snapshot && h.snapshot.length > 0) {
+                const types = h.snapshot.map(i => {
+                    if (i.type === 'header' || i.type === 'section') return 'Text';
+                    return i.type.charAt(0).toUpperCase() + i.type.slice(1);
+                });
+                preview = types.slice(0, 3).join(', ');
+                if (types.length > 3) preview += '...';
+            }
+
             const li = document.createElement('li');
-            li.innerHTML = `<strong>${new Date(h.created_at).toLocaleTimeString()}</strong> - Ver ID: ${h.id}`;
+            li.style.fontSize = '0.9rem';
+            li.innerHTML = `
+                <div style="display:flex; justify-content:space-between;">
+                    <strong>${new Date(h.created_at).toLocaleString()}</strong>
+                    <span style="color:#666; font-size:0.8rem;">ID: ${h.id}</span>
+                </div>
+                <div style="color:#2e7d32; font-style:italic; margin-top:4px;">
+                    Contains: ${preview}
+                </div>
+            `;
             li.onclick = async () => {
                 if(confirm('Restore this version?')) {
                     await restoreSnapshot(h.snapshot);
