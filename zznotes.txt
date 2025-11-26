@@ -1,0 +1,1 @@
+git add . && git commit -m "mammoth rework" && git push origin master
