@@ -32,12 +32,10 @@ async function startApp() {
     const toastEl = document.getElementById('toast');
     if (toastEl) toastObserver.observe(toastEl, { attributes: true });
 
-    // --- STARTUP ---
     initEmailConfig();
+
     let items = [];
-    
     try {
-        // Timeout Race
         const fetchPromise = fetchContent();
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 5000));
         items = await Promise.race([fetchPromise, timeoutPromise]);
@@ -52,6 +50,7 @@ async function startApp() {
     try {
         setItems(items);
         setupNavigation();
+        
         render(); 
         attachEmailListeners(); 
         initCarousel(); 
@@ -60,7 +59,6 @@ async function startApp() {
         
         document.getElementById('maintenance-view').classList.add('hidden');
 
-        // Hide Loader
         const elapsedTime = Date.now() - startTime;
         const remainingTime = Math.max(0, MIN_LOAD_TIME - elapsedTime);
         setTimeout(() => {
@@ -78,28 +76,27 @@ async function startApp() {
         triggerMaintenanceMode();
     }
 
-    // --- AUTO-SAVE LISTENER (UPDATED) ---
+    // --- AUTO-SAVE LISTENER ---
     document.addEventListener('app-render-request', () => {
-        // 1. Optimistic Render
+        // 1. Re-Sort
         state.items.sort((a, b) => (a.position || 0) - (b.position || 0));
+        
+        // 2. Re-Render Everything
         render();
+        setupNavigation(); // <--- FIX FOR ISSUE 1: Rebuild Nav Bar immediately
         initCarousel();
         import('./email.js').then(m => m.attachEmailListeners());
 
-        // 2. Debounce Save
+        // 3. Debounce Save
         clearTimeout(saveTimer);
         saveTimer = setTimeout(async () => {
             console.log("Auto-saving...");
             try {
-                // SAVE and GET FRESH DATA (with new IDs)
                 const freshItems = await saveContent(state.items);
-                
-                // UPDATE LOCAL STATE with the real IDs
                 if (freshItems && freshItems.length > 0) {
-                    // We preserve the current order/sort
                     freshItems.sort((a, b) => (a.position || 0) - (b.position || 0));
                     setItems(freshItems);
-                    console.log("Auto-save synced successfully.");
+                    console.log("Synced.");
                 }
             } catch (err) {
                 console.error("Auto-save failed:", err);
@@ -112,6 +109,7 @@ function setupNavigation() {
     const navContainer = document.querySelector('.main-nav');
     if(!navContainer) return;
     
+    // Find all pages
     const pages = new Set(state.items.map(i => i.page || 'home'));
     const orderedPages = ['home', 'products', 'contact'];
     pages.forEach(p => { if (!orderedPages.includes(p)) orderedPages.push(p); });
@@ -121,7 +119,8 @@ function setupNavigation() {
     orderedPages.forEach(pageName => {
         const btn = document.createElement('button');
         btn.className = 'nav-btn';
-        if(pageName === 'home') btn.classList.add('active');
+        // Check state.currentPage instead of hardcoding 'home'
+        if(pageName === (state.currentPage || 'home')) btn.classList.add('active');
         btn.setAttribute('data-page', pageName);
         btn.innerText = pageName.charAt(0).toUpperCase() + pageName.slice(1);
         

@@ -2,7 +2,7 @@
 import { state, setItems } from './state.js';
 import { saveContent, fetchHistory, restoreSnapshot } from './db.js';
 import { render } from './renderer.js';
-import { ask } from './modal.js'; // <--- NEW IMPORT
+import { ask } from './modal.js';
 
 export function initToolbar() {
     
@@ -105,8 +105,11 @@ function renderSectionsTable() {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = item.content || '';
         let text = tempDiv.innerText.substring(0, 40) + '...';
+        
+        // Nicer Labels for Special Types
         if (item.type === 'carousel') text = '<b>[Carousel]</b>';
         if (item.type === 'map') text = '<b>[Map]</b>';
+        if (item.type === 'notepad') text = '<b>[Notepad]</b>';
         if (item.type === 'alert') text = '<b style="color:orange">[ALERT]</b> ' + text;
         
         const pageSelect = `<input type="text" class="page-input" data-idx="${realIndex}" value="${item.page || 'home'}" style="padding:5px; width:80px;" list="page-options">`;
@@ -117,23 +120,38 @@ function renderSectionsTable() {
         tbody.appendChild(tr);
     });
 
-    if(!document.getElementById('page-options')) {
-        const dl = document.createElement('datalist');
-        dl.id = 'page-options';
-        const pages = [...new Set(state.items.map(i => i.page || 'home'))];
-        pages.forEach(p => { const opt = document.createElement('option'); opt.value = p; dl.appendChild(opt); });
-        document.body.appendChild(dl);
-    }
+    // --- FIX FOR ISSUE 3: Always rebuild Dropdown Options ---
+    // Remove old datalist if exists so we can update it
+    const oldDl = document.getElementById('page-options');
+    if (oldDl) oldDl.remove();
+
+    const dl = document.createElement('datalist');
+    dl.id = 'page-options';
+    const pages = [...new Set(state.items.map(i => i.page || 'home'))];
+    pages.forEach(p => { const opt = document.createElement('option'); opt.value = p; dl.appendChild(opt); });
+    document.body.appendChild(dl);
+
     attachTableListeners();
 }
 
 function attachTableListeners() {
     document.querySelectorAll('.page-input').forEach(el => { el.addEventListener('change', (e) => { const index = e.target.getAttribute('data-idx'); state.items[index].page = e.target.value.toLowerCase().replace(/\s/g, '-'); triggerOptimisticUpdate(); }); });
     document.querySelectorAll('.pos-input').forEach(el => { el.addEventListener('change', (e) => { const index = e.target.getAttribute('data-idx'); state.items[index].position = parseInt(e.target.value); triggerOptimisticUpdate(); }); });
-    document.querySelectorAll('.del-btn').forEach(el => { el.addEventListener('click', (e) => { const btn = e.target.closest('.del-btn'); const index = btn.getAttribute('data-idx'); if(confirm('Delete?')) { state.items.splice(index, 1); renderSectionsTable(); triggerOptimisticUpdate(); } }); });
+    
+    // --- FIX FOR ISSUE 4: No Confirm on Delete ---
+    document.querySelectorAll('.del-btn').forEach(el => { 
+        el.addEventListener('click', (e) => { 
+            const btn = e.target.closest('.del-btn'); 
+            const index = btn.getAttribute('data-idx'); 
+            
+            // Just do it!
+            state.items.splice(index, 1); 
+            renderSectionsTable(); 
+            triggerOptimisticUpdate(); 
+        }); 
+    });
 }
 
-// --- UPDATED TO USE CUSTOM MODAL ---
 async function addNewPage() {
     const name = await ask("Enter Page Name (e.g. Gallery):");
     if (!name) return;
@@ -168,15 +186,37 @@ function setupHistory() {
         const list = document.getElementById('history-list');
         list.innerHTML = '';
         history.forEach(h => {
+            // --- FIX FOR ISSUE 2: Better History Preview ---
             let preview = 'Empty';
             if (h.snapshot && h.snapshot.length > 0) {
-                const types = h.snapshot.map(i => (i.type === 'header' || i.type === 'section') ? 'Text' : i.type.charAt(0).toUpperCase() + i.type.slice(1));
-                preview = types.slice(0, 3).join(', ') + (types.length > 3 ? '...' : '');
+                const types = h.snapshot.map(i => {
+                    if (i.content) {
+                        // Strip HTML tags to get raw text
+                        const div = document.createElement('div');
+                        div.innerHTML = i.content;
+                        const cleanText = div.innerText.substring(0, 15).trim(); // Get first 15 chars
+                        if (cleanText) return cleanText;
+                    }
+                    // Fallback to type name
+                    return i.type.charAt(0).toUpperCase() + i.type.slice(1);
+                });
+                // Show more items (slice 5 instead of 3)
+                preview = types.slice(0, 5).join(', ');
+                if (types.length > 5) preview += '...';
             }
+
             const li = document.createElement('li');
             li.style.fontSize = '0.9rem';
             li.innerHTML = `<div style="display:flex; justify-content:space-between;"><strong>${new Date(h.created_at).toLocaleTimeString()}</strong><span style="color:#666; font-size:0.8rem;">ID: ${h.id}</span></div><div style="color:#2e7d32; font-style:italic;">Contains: ${preview}</div>`;
-            li.onclick = async () => { if(confirm('Restore?')) { await restoreSnapshot(h.snapshot); setItems(h.snapshot); render(); document.getElementById('history-modal').classList.add('hidden'); } };
+            li.onclick = async () => { 
+                // We keep confirm here because restoring is destructive
+                if(confirm('Restore?')) { 
+                    await restoreSnapshot(h.snapshot); 
+                    setItems(h.snapshot); 
+                    render(); 
+                    document.getElementById('history-modal').classList.add('hidden'); 
+                } 
+            };
             list.appendChild(li);
         });
         document.getElementById('history-modal').classList.remove('hidden');
