@@ -382,28 +382,6 @@ body { font-family: 'Segoe UI', sans-serif; margin: 0;
 .mass-panel { background: #333; padding: 15px; margin-top: 10px; display: flex; justify-content: center; gap: 20px; }
 .mass-panel label { display: flex; flex-direction: column; align-items: center; font-size: 12px; }
 
-/* Toast */
-/* Toast Notification */
-.toast {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    
-    /* NEW COLORS */
-    background: #1b5e20; /* Deep Green */
-    border: 3px solid #ff0000; /* Red Border */
-    color: #fff;
-    font-weight: bold;
-    
-    padding: 15px 30px;
-    border-radius: 50px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    z-index: 6000; /* Above the loading screen just in case */
-    animation: fadeIn 0.3s;
-    text-align: center;
-    min-width: 300px;
-}
 
 /* Modal */
 .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; justify-content: center; align-items: center; }
@@ -750,8 +728,6 @@ body.dev-active {
 .estimate-box { background: #e8f5e9; color: #1b5e20; padding: 15px; border-radius: 8px; margin: 20px 0; font-size: 1.1rem; }
 .subtext { font-size: 0.9rem; color: #666; }
 
-/* Toast */
-.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1b5e20; border: 3px solid #ff0000; color: #fff; font-weight: bold; padding: 15px 30px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 6000; animation: fadeIn 0.3s; text-align: center; min-width: 300px; }
 
 /* Toolbar & Modals */
 .dev-toolbar { position: fixed; bottom: 0; left: 0; width: 100%; background: #222; color: #fff; padding: 10px; border-top: 4px solid var(--primary); z-index: 999; }
@@ -775,28 +751,6 @@ body.dev-active {
     cursor: grabbing !important; /* Closed hand when dragging */
 }
 
-/* Toast Notification (Slide Through Animation) */
-.toast {
-    position: fixed;
-    bottom: 100px; /* Near bottom (above toolbar) */
-    left: 50%;
-    
-    /* Visuals */
-    background: #1b5e20; /* Deep Green */
-    border: 3px solid #ff0000; /* Red Border */
-    color: #fff;
-    font-weight: bold;
-    padding: 15px 30px;
-    border-radius: 50px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    text-align: center;
-    min-width: 300px;
-    z-index: 6000;
-    
-    /* Default State (Hidden off-screen right) */
-    transform: translateX(120vw); 
-    opacity: 0;
-}
 
 /* When JS removes the 'hidden' class, this animation runs */
 .toast:not(.hidden) {
@@ -886,4 +840,24 @@ body.toast-active #app-container {
 
 .site-header, .main-nav, #app-container {
     transition: filter 0.5s ease;
+}
+
+/* --- BOTTOM OF styles.css --- */
+
+/* FORCE TOAST TO BE SMALLER & CENTERED */
+.toast {
+    width: auto !important;
+    max-width: 90vw !important; /* Prevent edge touching on phones */
+    white-space: normal !important; /* Wrap long text */
+    left: 50% !important;
+    bottom: 100px !important;
+    transform: translateX(150vw); /* Ensure start position is off-screen */
+}
+
+/* Ensure animation centers it correctly */
+@keyframes slide-fly-through {
+    0% { transform: translateX(150vw); opacity: 0; }
+    10% { transform: translateX(-50%); opacity: 1; } /* -50% centers it based on its own width */
+    85% { transform: translateX(-50%); opacity: 1; }
+    100% { transform: translateX(-150vw); opacity: 0; }
 }

@@ -8,14 +8,13 @@ import { initEmailConfig, attachEmailListeners } from './email.js';
 import { FALLBACK_ITEMS } from './fallbackData.js';
 import { initCarousel } from './carousel.js';
 
-let saveTimer; // Timer for Auto-Save
+let saveTimer;
 
 async function startApp() {
     console.log('Initializing Tweed Trading CMS...');
     
-    // 1. Record Start Time (For smooth loading animation)
     const startTime = Date.now();
-    const MIN_LOAD_TIME = 1000; // 1 second minimum
+    const MIN_LOAD_TIME = 1000; 
 
     // --- SETUP DIMMING OBSERVER ---
     const toastObserver = new MutationObserver((mutations) => {
@@ -30,24 +29,38 @@ async function startApp() {
             }
         });
     });
-    
     const toastEl = document.getElementById('toast');
-    if (toastEl) {
-        toastObserver.observe(toastEl, { attributes: true });
-    }
+    if (toastEl) toastObserver.observe(toastEl, { attributes: true });
 
     // --- APP STARTUP ---
     initEmailConfig();
 
     let items = [];
+    
     try {
-        items = await fetchContent();
+        // --- NEW: FETCH WITH 5 SECOND TIMEOUT ---
+        const fetchPromise = fetchContent();
+        
+        // Create a promise that rejects after 5 seconds
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("Connection Timeout (Slow Mobile Network)")), 5000)
+        );
+
+        // Race them: whichever finishes first wins
+        items = await Promise.race([fetchPromise, timeoutPromise]);
+
         if (!items || items.length === 0) throw new Error("Database Empty");
+
     } catch (error) {
-        console.warn("SUPABASE FAILED. Switching to Fallback Mode.", error);
+        console.warn("SUPABASE FAILED/TIMEOUT. Switching to Fallback Mode.", error);
+        // Force fallback data
         items = FALLBACK_ITEMS; 
+        
+        // Show a small non-intrusive alert that we are offline?
+        // Optional: document.getElementById('fallback-text').style.color = 'orange';
     }
 
+    // --- RENDER LOGIC ---
     try {
         setItems(items);
         setupNavigation();
@@ -61,7 +74,7 @@ async function startApp() {
         
         document.getElementById('maintenance-view').classList.add('hidden');
 
-        // --- HIDE LOADING SCREEN (This was missing!) ---
+        // --- HIDE LOADING SCREEN ---
         const elapsedTime = Date.now() - startTime;
         const remainingTime = Math.max(0, MIN_LOAD_TIME - elapsedTime);
 
@@ -69,32 +82,27 @@ async function startApp() {
             const loader = document.getElementById('loading-view');
             if (loader) {
                 loader.classList.add('fade-out');
-                // Remove from DOM after fade completes
                 setTimeout(() => loader.style.display = 'none', 500);
             }
         }, remainingTime);
 
     } catch (criticalError) {
         console.error("CRITICAL APP FAILURE:", criticalError);
-        // Hide loader so we can see the maintenance screen
         const loader = document.getElementById('loading-view');
         if(loader) loader.style.display = 'none';
 
         triggerMaintenanceMode();
     }
 
-    // --- AUTO-SAVE LISTENER ---
     document.addEventListener('app-render-request', () => {
-        // Optimistic Render
         state.items.sort((a, b) => (a.position || 0) - (b.position || 0));
         render();
         initCarousel();
         import('./email.js').then(m => m.attachEmailListeners());
 
-        // Debounce Save (Wait 1 second)
         clearTimeout(saveTimer);
         saveTimer = setTimeout(() => {
-            console.log("Auto-saving changes to database...");
+            console.log("Auto-saving...");
             saveContent(state.items).catch(err => console.error("Auto-save failed:", err));
         }, 1000);
     });
