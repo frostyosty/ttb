@@ -16,7 +16,7 @@ async function startApp() {
     const startTime = Date.now();
     const MIN_LOAD_TIME = 1000; 
 
-    // --- SETUP DIMMING OBSERVER ---
+    // --- DIMMING OBSERVER ---
     const toastObserver = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.attributeName === 'class') {
@@ -32,52 +32,37 @@ async function startApp() {
     const toastEl = document.getElementById('toast');
     if (toastEl) toastObserver.observe(toastEl, { attributes: true });
 
-    // --- APP STARTUP ---
+    // --- STARTUP ---
     initEmailConfig();
-
     let items = [];
     
     try {
-        // --- NEW: FETCH WITH 5 SECOND TIMEOUT ---
+        // Timeout Race
         const fetchPromise = fetchContent();
-        
-        // Create a promise that rejects after 5 seconds
-        const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("Connection Timeout (Slow Mobile Network)")), 5000)
-        );
-
-        // Race them: whichever finishes first wins
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 5000));
         items = await Promise.race([fetchPromise, timeoutPromise]);
 
         if (!items || items.length === 0) throw new Error("Database Empty");
 
     } catch (error) {
-        console.warn("SUPABASE FAILED/TIMEOUT. Switching to Fallback Mode.", error);
-        // Force fallback data
+        console.warn("Fallback Mode Active", error);
         items = FALLBACK_ITEMS; 
-        
-        // Show a small non-intrusive alert that we are offline?
-        // Optional: document.getElementById('fallback-text').style.color = 'orange';
     }
 
-    // --- RENDER LOGIC ---
     try {
         setItems(items);
         setupNavigation();
-        
         render(); 
         attachEmailListeners(); 
         initCarousel(); 
-
         initEditor();
         initToolbar();
         
         document.getElementById('maintenance-view').classList.add('hidden');
 
-        // --- HIDE LOADING SCREEN ---
+        // Hide Loader
         const elapsedTime = Date.now() - startTime;
         const remainingTime = Math.max(0, MIN_LOAD_TIME - elapsedTime);
-
         setTimeout(() => {
             const loader = document.getElementById('loading-view');
             if (loader) {
@@ -87,23 +72,38 @@ async function startApp() {
         }, remainingTime);
 
     } catch (criticalError) {
-        console.error("CRITICAL APP FAILURE:", criticalError);
+        console.error("CRITICAL FAILURE:", criticalError);
         const loader = document.getElementById('loading-view');
         if(loader) loader.style.display = 'none';
-
         triggerMaintenanceMode();
     }
 
+    // --- AUTO-SAVE LISTENER (UPDATED) ---
     document.addEventListener('app-render-request', () => {
+        // 1. Optimistic Render
         state.items.sort((a, b) => (a.position || 0) - (b.position || 0));
         render();
         initCarousel();
         import('./email.js').then(m => m.attachEmailListeners());
 
+        // 2. Debounce Save
         clearTimeout(saveTimer);
-        saveTimer = setTimeout(() => {
+        saveTimer = setTimeout(async () => {
             console.log("Auto-saving...");
-            saveContent(state.items).catch(err => console.error("Auto-save failed:", err));
+            try {
+                // SAVE and GET FRESH DATA (with new IDs)
+                const freshItems = await saveContent(state.items);
+                
+                // UPDATE LOCAL STATE with the real IDs
+                if (freshItems && freshItems.length > 0) {
+                    // We preserve the current order/sort
+                    freshItems.sort((a, b) => (a.position || 0) - (b.position || 0));
+                    setItems(freshItems);
+                    console.log("Auto-save synced successfully.");
+                }
+            } catch (err) {
+                console.error("Auto-save failed:", err);
+            }
         }, 1000);
     });
 }
@@ -114,9 +114,7 @@ function setupNavigation() {
     
     const pages = new Set(state.items.map(i => i.page || 'home'));
     const orderedPages = ['home', 'products', 'contact'];
-    pages.forEach(p => {
-        if (!orderedPages.includes(p)) orderedPages.push(p);
-    });
+    pages.forEach(p => { if (!orderedPages.includes(p)) orderedPages.push(p); });
 
     navContainer.innerHTML = '';
 
@@ -130,13 +128,11 @@ function setupNavigation() {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
             setPage(pageName);
             render();
             attachEmailListeners();
             initCarousel();
         });
-        
         navContainer.appendChild(btn);
     });
 }

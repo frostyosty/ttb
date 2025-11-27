@@ -20,36 +20,37 @@ export async function fetchContent() {
 }
 
 export async function saveContent(items) {
-    // 1. SANITIZE PAYLOAD (Fixes the "Null ID" crash)
+    // 1. SANITIZE PAYLOAD
+    // We create a clean array to send to Supabase
     const payload = items.map(item => {
-        // Create a copy so we don't mess up the local state
-        const cleanItem = { ...item };
+        // Deep clone to ensure we don't mutate local state unexpectedly
+        const clean = JSON.parse(JSON.stringify(item));
         
-        // If ID is missing, null, or 0, delete the key entirely.
-        // This tells Supabase: "This is a new row, please generate an ID."
-        if (!cleanItem.id) {
-            delete cleanItem.id;
+        // CRITICAL FIX: Explicitly remove ID if it is null, undefined, 0, or "null"
+        if (!clean.id || clean.id === 'null') {
+            delete clean.id; // Let Supabase generate the ID
         }
-        return cleanItem;
+        return clean;
     });
 
-    // 2. Create History (Background)
+    // 2. CREATE HISTORY (Background)
     supabase.from(TABLE_HISTORY).insert({ snapshot: payload }).then(({ error }) => {
         if (error) console.warn('History save warning:', error.message);
     });
 
-    // 3. Upsert Items
+    // 3. UPSERT & RETURN DATA
     const { data, error } = await supabase
         .from(TABLE_CONTENT)
-        .upsert(payload)
-        .select(); // We ask Supabase to return the new data (with IDs)
+        .upsert(payload, { onConflict: 'id' }) 
+        .select(); // <--- IMPORTANT: Get the data back (including new IDs)
 
     if (error) {
         showErrorToast('Save Failed: ' + error.message);
         throw error;
     }
     
-    // Optional: Return the data so we can update local state with real IDs
+    // 4. RETURN FRESH DATA
+    // We return the data so the app can update local state with the new IDs
     return data;
 }
 
@@ -59,15 +60,12 @@ export async function fetchHistory() {
         .select('*')
         .order('created_at', { ascending: false })
         .limit(10);
-    
-    if (error) console.error(error);
     return data || [];
 }
 
 export async function restoreSnapshot(snapshotItems) {
     await supabase.from(TABLE_CONTENT).delete().neq('id', 0); 
     const { error } = await supabase.from(TABLE_CONTENT).insert(snapshotItems);
-    if (error) console.error(error);
     return !error;
 }
 
@@ -75,9 +73,11 @@ function showErrorToast(msg) {
     const toast = document.getElementById('toast');
     if(toast) {
         toast.innerText = msg;
-        toast.style.background = '#d32f2f'; // Red
+        toast.style.background = '#d32f2f';
         toast.style.border = '2px solid white';
         toast.classList.remove('hidden');
         setTimeout(() => toast.classList.add('hidden'), 4000);
+    } else {
+        console.error(msg);
     }
 }
