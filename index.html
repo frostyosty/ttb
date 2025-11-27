@@ -200,6 +200,21 @@
             </div>
         </div>
     </div>
+
+    <!-- Generic Input Modal -->
+<div id="input-modal" class="modal hidden" style="z-index: 9000;">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <h3 id="input-modal-title" style="color:#2e7d32; margin-top:0;">Input</h3>
+        
+        <input type="text" id="input-modal-field" 
+               style="width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;">
+        
+        <div style="display:flex; gap:10px; justify-content:center;">
+            <button id="input-modal-cancel" style="background:#eee; color:#333; border:none; padding:10px 20px; border-radius:4px; cursor:pointer;">Cancel</button>
+            <button id="input-modal-confirm" style="background:#2e7d32; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold;">OK</button>
+        </div>
+    </div>
+</div>
     <!-- Entry Point Module -->
     <script type="module" src="/src/js/main.js"></script>
 </body>

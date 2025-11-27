@@ -1,5 +1,6 @@
 /// src/js/renderer.js
 import { state } from './state.js';
+import { ask } from './modal.js'; // <--- NEW IMPORT
 
 const triggerRender = () => document.dispatchEvent(new Event('app-render-request'));
 let dragSrcIndex = null;
@@ -20,15 +21,14 @@ export function render() {
     pageItems.forEach((item) => {
         const el = document.createElement('div');
         
-        // --- TYPE HANDLING ---
         if (item.type === 'notepad') {
-            el.className = 'content-block'; // Standard wrapper
+            el.className = 'content-block'; 
             renderNotepad(el);
         } else if (item.type === 'alert') {
-            el.className = 'content-block alert-box'; // Special Orange Style
+            el.className = 'content-block alert-box'; 
             el.innerHTML = item.content || '';
         } else {
-            el.className = 'content-block'; // Standard
+            el.className = 'content-block';
             el.innerHTML = item.content || '';
         }
 
@@ -43,7 +43,7 @@ export function render() {
 }
 
 function setupDevFeatures(el, item, index) {
-    // --- 1. SPECIAL "QUICK DELETE" FOR ALERTS ---
+    // --- 1. OPTIMISTIC DELETE (No Confirm) ---
     if (item.type === 'alert') {
         const delBtn = document.createElement('button');
         delBtn.className = 'quick-delete-btn';
@@ -51,10 +51,9 @@ function setupDevFeatures(el, item, index) {
         delBtn.title = "Delete Alert";
         delBtn.onclick = (e) => {
             e.stopPropagation();
-            if(confirm("Remove this announcement?")) {
-                state.items.splice(index, 1);
-                triggerRender();
-            }
+            // REMOVED THE CONFIRM CHECK HERE
+            state.items.splice(index, 1);
+            triggerRender();
         };
         el.appendChild(delBtn);
     }
@@ -64,11 +63,6 @@ function setupDevFeatures(el, item, index) {
         el.classList.add('editable');
         el.setAttribute('contenteditable', 'true');
         el.onblur = (e) => {
-            // Fix: If it's an alert, we might accidentally overwrite the X button HTML
-            // if we blindly save innerHTML. 
-            // However, the X button is appended via JS after render, so e.target.innerHTML 
-            // usually contains just the text content unless user messed with DOM.
-            // Ideally, we strip the button out before saving.
             const clone = el.cloneNode(true);
             const btns = clone.querySelectorAll('.quick-delete-btn, .element-tools');
             btns.forEach(b => b.remove());
@@ -76,7 +70,7 @@ function setupDevFeatures(el, item, index) {
             const newVal = clone.innerHTML;
             if (state.items[index].content !== newVal) {
                 state.items[index].content = newVal;
-                triggerRender(); // Trigger auto-save
+                triggerRender(); 
             }
         };
     } else {
@@ -84,7 +78,7 @@ function setupDevFeatures(el, item, index) {
         el.setAttribute('contenteditable', 'false'); 
     }
 
-    // --- 3. ELEMENT TOOLBAR ---
+    // --- 3. ELEMENT TOOLBAR (Using Custom Modals) ---
     const tools = document.createElement('div');
     tools.className = 'element-tools';
     tools.contentEditable = "false";
@@ -110,12 +104,13 @@ function setupDevFeatures(el, item, index) {
         }
     });
 
-    // Resize & Scale
-    const sizeBtn = createBtn('fa-expand', 'tool-size', () => {
+    // Resize (Using Custom Modal)
+    const sizeBtn = createBtn('fa-expand', 'tool-size', async () => {
         const current = item.styles.maxWidth || '1000px';
-        const newVal = prompt("Max Width:", current);
+        const newVal = await ask("Enter Max Width (e.g. 100%, 600px):", current);
         if(newVal) { item.styles.maxWidth = newVal; triggerRender(); }
     });
+
     const zoomOutBtn = createBtn('fa-search-minus', 'tool-scale', () => changeScale(item, -0.1));
     const zoomInBtn = createBtn('fa-search-plus', 'tool-scale', () => changeScale(item, 0.1));
 

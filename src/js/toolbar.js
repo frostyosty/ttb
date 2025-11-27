@@ -2,6 +2,7 @@
 import { state, setItems } from './state.js';
 import { saveContent, fetchHistory, restoreSnapshot } from './db.js';
 import { render } from './renderer.js';
+import { ask } from './modal.js'; // <--- NEW IMPORT
 
 export function initToolbar() {
     
@@ -10,7 +11,6 @@ export function initToolbar() {
     const oldSave = document.getElementById('btn-save');
     if (oldSave) oldSave.remove();
 
-    // SECTIONS BUTTON
     if (!document.getElementById('btn-sections')) {
         const btn = document.createElement('button');
         btn.id = 'btn-sections';
@@ -19,12 +19,11 @@ export function initToolbar() {
         btn.addEventListener('click', openSectionsManager);
     }
 
-    // NEW: EMERGENCY BUTTON (Orange)
     if (!document.getElementById('btn-emergency')) {
         const btn = document.createElement('button');
         btn.id = 'btn-emergency';
         btn.innerHTML = '<i class="fas fa-bullhorn"></i> Alert';
-        btn.style.background = '#ff9800'; // Make it stand out
+        btn.style.background = '#ff9800'; 
         actionsDiv.insertBefore(btn, document.getElementById('btn-restore'));
         btn.addEventListener('click', () => {
             document.getElementById('emergency-modal').classList.remove('hidden');
@@ -32,12 +31,10 @@ export function initToolbar() {
         });
     }
 
-    // 2. TOGGLE MASS PANEL
     document.getElementById('btn-mass').addEventListener('click', () => {
         document.getElementById('mass-panel').classList.toggle('hidden');
     });
 
-    // 3. MASS EDIT LOGIC
     const padSlider = document.getElementById('global-padding');
     const radSlider = document.getElementById('global-radius');
     const textSlider = document.getElementById('global-text');
@@ -62,14 +59,12 @@ export function initToolbar() {
 }
 
 function setupModals() {
-    // Sections Modal
     document.getElementById('close-sections').addEventListener('click', () => document.getElementById('sections-modal').classList.add('hidden'));
     document.getElementById('btn-add-page').addEventListener('click', addNewPage);
     document.getElementById('btn-add-section').addEventListener('click', addNewSection);
     const noteBtn = document.getElementById('btn-add-notepad');
     if(noteBtn) noteBtn.addEventListener('click', addNewNotepad);
 
-    // Emergency Modal
     document.getElementById('close-emergency').addEventListener('click', () => document.getElementById('emergency-modal').classList.add('hidden'));
     document.getElementById('post-emergency').addEventListener('click', postAnnouncement);
 }
@@ -77,31 +72,18 @@ function setupModals() {
 function postAnnouncement() {
     const text = document.getElementById('emergency-text').value;
     if(!text) return;
-
-    // Create the Alert Item
     const newItem = {
-        type: 'alert', // Special Type
+        type: 'alert', 
         page: state.currentPage || 'home',
-        position: -10, // Force to top (assuming others are 0+)
+        position: -10,
         content: `<h3><i class="fas fa-exclamation-triangle"></i> Important</h3><p>${text}</p>`,
-        styles: {
-            // These will be overridden by .alert-box CSS mostly, but good for defaults
-            padding: "20px",
-            maxWidth: "800px",
-            margin: "20px auto"
-        }
+        styles: { padding: "20px", maxWidth: "800px", margin: "20px auto" }
     };
-
-    state.items.unshift(newItem); // Add to front of array
+    state.items.unshift(newItem); 
     triggerOptimisticUpdate();
-    
-    // Cleanup
     document.getElementById('emergency-text').value = '';
     document.getElementById('emergency-modal').classList.add('hidden');
 }
-
-// ... (Rest of file: openSectionsManager, renderSectionsTable, attachTableListeners, addNewPage, addNewSection, addNewNotepad, triggerOptimisticUpdate, setupHistory - KEEP AS IS) ...
-// Copy them from your previous version or just ensure they are below.
 
 function openSectionsManager() {
     renderSectionsTable();
@@ -151,10 +133,21 @@ function attachTableListeners() {
     document.querySelectorAll('.del-btn').forEach(el => { el.addEventListener('click', (e) => { const btn = e.target.closest('.del-btn'); const index = btn.getAttribute('data-idx'); if(confirm('Delete?')) { state.items.splice(index, 1); renderSectionsTable(); triggerOptimisticUpdate(); } }); });
 }
 
-function addNewPage() {
-    const name = prompt("Page Name:"); if (!name) return;
-    state.items.push({ type: 'header', page: name.toLowerCase().replace(/\s/g, '-'), position: 0, content: `<h3>${name.toUpperCase()}</h3>`, styles: { padding: "30px", background: "white", borderRadius: "8px", textAlign: "center" } });
-    renderSectionsTable(); triggerOptimisticUpdate();
+// --- UPDATED TO USE CUSTOM MODAL ---
+async function addNewPage() {
+    const name = await ask("Enter Page Name (e.g. Gallery):");
+    if (!name) return;
+    
+    state.items.push({ 
+        type: 'header', 
+        page: name.toLowerCase().replace(/\s/g, '-'), 
+        position: 0, 
+        content: `<h3>${name.toUpperCase()}</h3>`, 
+        styles: { padding: "30px", background: "white", borderRadius: "8px", textAlign: "center" } 
+    });
+    
+    renderSectionsTable(); 
+    triggerOptimisticUpdate();
 }
 
 function addNewSection() {
