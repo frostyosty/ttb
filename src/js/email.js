@@ -1,5 +1,6 @@
 /// src/js/email.js
-import emailjs from '@emailjs/browser';
+import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/+esm';
+
 import { EMAIL_SERVICE_ID, EMAIL_TEMPLATE_ID, EMAIL_PUBLIC_KEY } from './config.js';
 
 let isInitialized = false;

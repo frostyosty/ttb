@@ -7,25 +7,62 @@
     <title>Tweed Trading</title>
     <link rel="stylesheet" href="/src/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script>
-        // SAFETY NET: If the app hangs for more than 8 seconds, force remove the loader
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                const loader = document.getElementById('loading-view');
-                // If loader exists and is still visible...
-                if (loader && getComputedStyle(loader).display !== 'none' && !loader.classList.contains('fade-out')) {
-                    console.warn("Safety Net: Force removing loader due to timeout.");
-                    loader.style.display = 'none';
+<script type="module">
+    import { STATIC_CONTENT } from './src/js/fallback/staticContent.js';
 
-                    // If the app container is empty, show a basic error
-                    const app = document.getElementById('app-container');
-                    if (app && app.innerHTML.trim() === '') {
-                        app.innerHTML = '<div style="padding:40px; text-align:center;"><h3>Loading Timeout</h3><p>Please refresh the page or check your connection.</p></div>';
-                    }
+    // SAFETY NET: If app crashes or times out (8 seconds), force render the Static Content
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            const loader = document.getElementById('loading-view');
+            
+            // If loader is still visible, the App crashed/hung
+            if(loader && getComputedStyle(loader).display !== 'none' && !loader.classList.contains('fade-out')) {
+                console.warn("Safety Net: Main App failed. Rendering Static Fallback.");
+                
+                // 1. Hide Loader
+                loader.style.display = 'none';
+                
+                // 2. Render Static Content Manually
+                const container = document.getElementById('app-container');
+                if(container && container.innerHTML.trim() === '') {
+                    // Loop through static items and build HTML string
+                    let html = '';
+                    STATIC_CONTENT.forEach(item => {
+                        // Basic renderer for fallback
+                        let content = item.content || '';
+                        let className = 'content-block';
+                        if(item.type === 'alert') className += ' alert-box';
+                        
+                        // Convert styles object to string
+                        let styleStr = '';
+                        if(item.styles) {
+                            Object.entries(item.styles).forEach(([k, v]) => {
+                                // Convert camelCase to kebab-case (paddingTop -> padding-top)
+                                const key = k.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase();
+                                styleStr += `${key}:${v};`;
+                            });
+                        }
+                        
+                        // Notepad special case
+                        if(item.type === 'notepad') {
+                            content = `<div class="notepad-container"><div class="notepad-tape"></div><h3 class="notepad-title">My Measurements</h3><textarea class="notepad-textarea" placeholder="Notes (Offline Mode)"></textarea></div>`;
+                        }
+
+                        html += `<div class="${className}" style="${styleStr}">${content}</div>`;
+                    });
+                    
+                    container.innerHTML = html;
+                    
+                    // Add a small "Offline" badge
+                    const badge = document.createElement('div');
+                    badge.innerHTML = 'Offline Mode';
+                    badge.style.cssText = 'position:fixed; bottom:10px; right:10px; background:#333; color:white; padding:5px 10px; border-radius:4px; font-size:12px; opacity:0.7; pointer-events:none;';
+                    document.body.appendChild(badge);
                 }
-            }, 8000); // 8 seconds max wait
-        });
-    </script>
+            }
+        }, 8000); // 8 seconds max wait
+    });
+</script>
 </head>
 
 <body>
