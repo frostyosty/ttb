@@ -1,38 +1,19 @@
 /// src/js/config.js
 
-console.log("🔍 DEBUG: Loading config.js...");
+console.log("Loading config.js (Hardcoded Mode)...");
 
-// 1. Safe Access Helper
-// This prevents the "Cannot read properties of undefined" crash
-const getEnv = (key) => {
-    try {
-        // Check if Vite injected the env object
-        if (import.meta && import.meta.env) {
-            const val = import.meta.env[key];
-            console.log(`🔍 DEBUG: Found ${key}?`, val ? "YES (Hidden)" : "NO");
-            return val;
-        } else {
-            console.error("❌ DEBUG: import.meta.env is MISSING. App is not running in Vite context.");
-            return null;
-        }
-    } catch (e) {
-        console.error("❌ DEBUG: Critical Error reading env:", e);
-        return null;
-    }
-};
+// 1. SUPABASE KEYS (Hardcoded for stability)
+export const SUPABASE_URL = "https://oannlpewujcnmbzzvklu.supabase.co"; 
+export const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hbm5scGV3dWpjbm1ienp2a2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYxMzQwMDQsImV4cCI6MjA2MTcxMDAwNH0.2hKaOLPYsRh6p1CQFfLYqpTo2Cz1WuQa4Y5n0AIoNPE";
 
-// 2. Export Keys (Using the helper)
-export const SUPABASE_URL = getEnv('VITE_SUPABASE_URL');
-export const SUPABASE_KEY = getEnv('VITE_SUPABASE_KEY');
-
-// 3. Email Keys (Hardcoded is fine, or use env if you set them up in Vercel)
+// 2. EMAIL KEYS
 export const EMAIL_SERVICE_ID = "service_rrotpos";  
 export const EMAIL_TEMPLATE_ID = "template_b1rhpqe"; 
 export const EMAIL_PUBLIC_KEY = "q-cEhuh-4Xkk7iodE";
 
-// 4. Check for Critical Missing Keys
+// 3. SAFETY CHECK
 if (!SUPABASE_URL || !SUPABASE_KEY) {
-    console.warn("⚠️ WARNING: Supabase Keys are missing. Database connection will fail.");
-    // You might want to trigger a manual alert here to see it on mobile
-    // alert("Config Error: Missing API Keys");
+    console.error("CRITICAL: Keys are empty even after hardcoding.");
+} else {
+    console.log("Keys loaded successfully.");
 }

@@ -7,6 +7,19 @@
     <title>Tweed Trading</title>
     <link rel="stylesheet" href="/src/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<script>
+    if (window.navigator && navigator.serviceWorker) {
+        navigator.serviceWorker.getRegistrations()
+        .then(function(registrations) {
+            for(let registration of registrations) {
+                registration.unregister();
+                console.log("Service Worker Unregistered (Kill Switch Active)");
+            }
+        });
+    }
+</script>
+
 <script type="module">
     import { STATIC_CONTENT } from './src/js/fallback/staticContent.js';
 
