@@ -1,10 +1,12 @@
 /// src/js/carousel.js
+const BASE_URL = 'https://oannlpewujcnmbzzvklu.supabase.co/storage/v1/object/public/assets/';
+
 const imageMap = {
-    doors: ['/assets/door2.jpg', '/assets/door3.jpg', '/assets/door4.jpg'],
-    windows: ['/assets/window1.jpg', '/assets/window2.jpg'],
-    handles: ['/assets/handles1.jpg', '/assets/handles2.jpg'],
-    electrical: ['/assets/elec2.jpg', '/assets/elec3.jpg'],
-    tiles: ['/assets/tiles1.jpg', '/assets/tiles2.jpg', '/assets/tiles3.jpg']
+    doors: [BASE_URL + 'door2.jpg', BASE_URL + 'door3.jpg', BASE_URL + 'door4.jpg'],
+    windows: [BASE_URL + 'window1.jpg', BASE_URL + 'window2.jpg'],
+    handles: [BASE_URL + 'handles1.jpg', BASE_URL + 'handles2.jpg'],
+    electrical: [BASE_URL + 'elec2.jpg', BASE_URL + 'elec3.jpg'],
+    tiles: [BASE_URL + 'tiles1.jpg', BASE_URL + 'tiles2.jpg', BASE_URL + 'tiles3.jpg']
 };
 
 let interval;

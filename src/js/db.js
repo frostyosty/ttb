@@ -1,6 +1,6 @@
 /// src/js/db.js
+// Use CDN for robust loading
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -21,8 +21,8 @@ export async function fetchContent() {
 }
 
 export async function saveContent(items) {
-    // 1. CLEAN THE DATA
-    const cleanItems = items.map(item => {
+    // 1. PREPARE PAYLOAD
+    const payload = items.map(item => {
         const clean = {
             type: item.type,
             content: item.content,
@@ -30,51 +30,65 @@ export async function saveContent(items) {
             position: item.position || 0,
             page: item.page || 'home'
         };
-        // Only keep ID if it is a real number
+        // Keep ID if it exists
         if (item.id && typeof item.id === 'number') {
             clean.id = item.id;
         }
         return clean;
     });
 
+    console.log("Saving...", payload);
+
     // 2. SAVE HISTORY (Background)
-    supabase.from(TABLE_HISTORY).insert({ snapshot: cleanItems }).then(({ error }) => {
+    supabase.from(TABLE_HISTORY).insert({ snapshot: payload }).then(({ error }) => {
         if (error) console.warn('History save warning:', error.message);
     });
 
-    // 3. SPLIT THE JOB
-    // Group A: Existing items (Have ID) -> UPDATE
-    const toUpdate = cleanItems.filter(i => i.id);
-    // Group B: New items (No ID) -> INSERT
-    const toInsert = cleanItems.filter(i => !i.id);
+    // 3. DELETE MISSING ITEMS (The Fix for Zombie Pages)
+    // We collect all IDs that currently exist in our app. 
+    // Anything in the DB that is NOT in this list will be deleted.
+    const activeIds = payload
+        .filter(i => i.id) // Only look at items that have an ID
+        .map(i => i.id);
 
-    console.log(`Saving: ${toUpdate.length} Updates, ${toInsert.length} Inserts`);
+    if (activeIds.length > 0) {
+        const { error: deleteError } = await supabase
+            .from(TABLE_CONTENT)
+            .delete()
+            .not('id', 'in', `(${activeIds.join(',')})`); // Delete where ID is NOT in list
+        
+        if (deleteError) console.error("Delete sync failed:", deleteError);
+    } else {
+        // Edge case: If user deleted EVERYTHING, wipe the table
+        // (Optional safety: usually we don't want to wipe the whole table easily)
+        // await supabase.from(TABLE_CONTENT).delete().neq('id', 0); 
+    }
 
+    // 4. SPLIT UPDATES vs INSERTS
+    const toUpdate = payload.filter(i => i.id);
+    const toInsert = payload.filter(i => !i.id);
     let freshData = [];
 
-    // Operation A: Upsert existing
+    // Operation A: Update existing
     if (toUpdate.length > 0) {
         const { data: updatedData, error: updateError } = await supabase
             .from(TABLE_CONTENT)
             .upsert(toUpdate)
             .select();
-            
         if (updateError) throw updateError;
         freshData = [...freshData, ...updatedData];
     }
 
-    // Operation B: Insert new (Forces DB to generate IDs)
+    // Operation B: Insert new
     if (toInsert.length > 0) {
         const { data: insertedData, error: insertError } = await supabase
             .from(TABLE_CONTENT)
             .insert(toInsert)
-            .select(); // Get the new IDs back
-
+            .select();
         if (insertError) throw insertError;
         freshData = [...freshData, ...insertedData];
     }
 
-    // 4. RETURN COMBINED FRESH DATA
     return freshData;
 }
 

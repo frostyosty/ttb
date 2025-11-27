@@ -5,7 +5,6 @@ import { render } from './renderer.js';
 import { initEditor } from './editor.js';
 import { initToolbar } from './toolbar.js';
 import { initEmailConfig, attachEmailListeners } from './email.js';
-// NEW IMPORT: Pointing to the new file in the new folder
 import { STATIC_CONTENT } from './fallback/staticContent.js';
 import { initCarousel } from './carousel.js';
 

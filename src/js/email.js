@@ -1,5 +1,7 @@
 /// src/js/email.js
-import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/+esm';
+
+// 👇 CHANGE THIS LINE
+import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/+esm';
 
 import { EMAIL_SERVICE_ID, EMAIL_TEMPLATE_ID, EMAIL_PUBLIC_KEY } from './config.js';
 
@@ -14,7 +16,6 @@ export function initEmailConfig() {
 
 export function attachEmailListeners() {
     const form = document.getElementById('embedded-email-form');
-    
     if (!form) return;
     if (form.getAttribute('data-listening') === 'true') return;
     form.setAttribute('data-listening', 'true');
@@ -22,17 +23,15 @@ export function attachEmailListeners() {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
-        // --- 1. SPAM PREVENTION (2 Minute Reset) ---
+        // 2 Minute Cooldown
         const lastSubmit = localStorage.getItem('lastEmailSubmit');
         const now = Date.now();
-        const COOLDOWN_MS = 2 * 60 * 1000; // 2 Minutes
+        const COOLDOWN_MS = 2 * 60 * 1000; 
 
         if (lastSubmit) {
             const timeDiff = now - parseInt(lastSubmit);
             if (timeDiff < COOLDOWN_MS) {
-                // Calculate seconds left
                 const secondsLeft = Math.ceil((COOLDOWN_MS - timeDiff) / 1000);
-                
                 showPopup(`To prevent spam, please wait ${secondsLeft} seconds before sending another message.`);
                 return;
             }
@@ -53,15 +52,12 @@ export function attachEmailListeners() {
         emailjs.send(EMAIL_SERVICE_ID, EMAIL_TEMPLATE_ID, templateParams)
             .then(() => {
                 showPopup('Message successfully sent!');
-                
-                // Save current time
                 localStorage.setItem('lastEmailSubmit', Date.now().toString());
-                
                 form.reset();
             })
             .catch((err) => {
                 showPopup('Error sending email. Please try again later.');
-                console.error('Error sending email:', err);
+                console.error(err);
             })
             .finally(() => {
                 btn.innerText = originalText;
@@ -76,8 +72,6 @@ function showPopup(message) {
         popup.innerText = message;
         popup.classList.remove('hidden');
         popup.style.background = ''; 
-        
-        // MATCH CSS DURATION (4000ms)
         setTimeout(() => popup.classList.add('hidden'), 4000);
     } else {
         alert(message);
