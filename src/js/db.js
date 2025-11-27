@@ -20,47 +20,61 @@ export async function fetchContent() {
 }
 
 export async function saveContent(items) {
-    // 1. SANITIZE PAYLOAD
-    // We strictly reconstruct the object to ensure no hidden 'null' IDs slip through
-    const payload = items.map(item => {
-        const cleanItem = {
+    // 1. CLEAN THE DATA
+    const cleanItems = items.map(item => {
+        const clean = {
             type: item.type,
             content: item.content,
             styles: item.styles || {},
             position: item.position || 0,
             page: item.page || 'home'
         };
-
-        // ONLY add ID if it is a valid number. 
-        // If it is null, undefined, or string "null", we LEAVE IT OUT entirely.
+        // Only keep ID if it is a real number
         if (item.id && typeof item.id === 'number') {
-            cleanItem.id = item.id;
+            clean.id = item.id;
         }
-
-        return cleanItem;
+        return clean;
     });
 
-    // --- DEBUG LOG: LOOK HERE IN CONSOLE ---
-    console.log("Saving Payload to DB:", payload); 
-
-    // 2. CREATE HISTORY
-    supabase.from(TABLE_HISTORY).insert({ snapshot: payload }).then(({ error }) => {
+    // 2. SAVE HISTORY (Background)
+    supabase.from(TABLE_HISTORY).insert({ snapshot: cleanItems }).then(({ error }) => {
         if (error) console.warn('History save warning:', error.message);
     });
 
-    // 3. UPSERT
-    const { data, error } = await supabase
-        .from(TABLE_CONTENT)
-        .upsert(payload, { onConflict: 'id' }) 
-        .select();
+    // 3. SPLIT THE JOB
+    // Group A: Existing items (Have ID) -> UPDATE
+    const toUpdate = cleanItems.filter(i => i.id);
+    // Group B: New items (No ID) -> INSERT
+    const toInsert = cleanItems.filter(i => !i.id);
 
-    if (error) {
-        showErrorToast('Save Failed: ' + error.message);
-        console.error("FULL DB ERROR:", error);
-        throw error;
+    console.log(`Saving: ${toUpdate.length} Updates, ${toInsert.length} Inserts`);
+
+    let freshData = [];
+
+    // Operation A: Upsert existing
+    if (toUpdate.length > 0) {
+        const { data: updatedData, error: updateError } = await supabase
+            .from(TABLE_CONTENT)
+            .upsert(toUpdate)
+            .select();
+            
+        if (updateError) throw updateError;
+        freshData = [...freshData, ...updatedData];
     }
-    
-    return data;
+
+    // Operation B: Insert new (Forces DB to generate IDs)
+    if (toInsert.length > 0) {
+        const { data: insertedData, error: insertError } = await supabase
+            .from(TABLE_CONTENT)
+            .insert(toInsert)
+            .select(); // Get the new IDs back
+
+        if (insertError) throw insertError;
+        freshData = [...freshData, ...insertedData];
+    }
+
+    // 4. RETURN COMBINED FRESH DATA
+    return freshData;
 }
 
 export async function fetchHistory() {
@@ -76,15 +90,4 @@ export async function restoreSnapshot(snapshotItems) {
     await supabase.from(TABLE_CONTENT).delete().neq('id', 0); 
     const { error } = await supabase.from(TABLE_CONTENT).insert(snapshotItems);
     return !error;
-}
-
-function showErrorToast(msg) {
-    const toast = document.getElementById('toast');
-    if(toast) {
-        toast.innerText = msg;
-        toast.style.background = '#d32f2f';
-        toast.style.border = '2px solid white';
-        toast.classList.remove('hidden');
-        setTimeout(() => toast.classList.add('hidden'), 4000);
-    }
 }
