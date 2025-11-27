@@ -10,6 +10,20 @@ import { initCarousel } from './carousel.js';
 
 let saveTimer;
 
+// --- GLOBAL IMAGE DEBUGGER ---
+// This listens for any "error" event on the page.
+// If it came from an <img> tag, we log the broken URL.
+window.addEventListener('error', (e) => {
+    if (e.target.tagName === 'IMG') {
+        console.error("❌ IMAGE FAILED TO LOAD:");
+        console.error("   Source:", e.target.src);
+        console.error("   Element ID:", e.target.id || '(No ID)');
+        
+        // Optional: Visual indicator for debugging
+        e.target.style.border = "5px solid red";
+    }
+}, true); // "true" ensures we catch the error during the capture phase
+
 async function startApp() {
     console.log('Initializing Tweed Trading CMS...');
     
