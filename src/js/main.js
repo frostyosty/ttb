@@ -36,14 +36,25 @@ async function startApp() {
 
     let items = [];
     try {
+        // --- TIMEOUT INCREASED TO 15 SECONDS ---
         const fetchPromise = fetchContent();
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 5000));
+        
+        // Give mobile networks more time to resolve DNS/SSL
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("Timeout (15s limit reached)")), 15000)
+        );
+
         items = await Promise.race([fetchPromise, timeoutPromise]);
 
         if (!items || items.length === 0) throw new Error("Database Empty");
 
     } catch (error) {
-        console.warn("Fallback Mode Active", error);
+        console.warn("Connection Issue. Switching to Fallback.", error);
+        
+        // --- DEBUG ALERT: THIS WILL TELL US THE REAL ERROR ON YOUR PHONE ---
+        // Once fixed, we will remove this line.
+        // alert("Debug Error: " + error.message); 
+        
         items = FALLBACK_ITEMS; 
     }
 
@@ -71,6 +82,9 @@ async function startApp() {
 
     } catch (criticalError) {
         console.error("CRITICAL FAILURE:", criticalError);
+        // Alert critical errors too
+        alert("Critical Failure: " + criticalError.message);
+        
         const loader = document.getElementById('loading-view');
         if(loader) loader.style.display = 'none';
         triggerMaintenanceMode();
@@ -78,16 +92,12 @@ async function startApp() {
 
     // --- AUTO-SAVE LISTENER ---
     document.addEventListener('app-render-request', () => {
-        // 1. Re-Sort
         state.items.sort((a, b) => (a.position || 0) - (b.position || 0));
-        
-        // 2. Re-Render Everything
         render();
-        setupNavigation(); // <--- FIX FOR ISSUE 1: Rebuild Nav Bar immediately
+        setupNavigation(); // Ensure nav stays in sync
         initCarousel();
         import('./email.js').then(m => m.attachEmailListeners());
 
-        // 3. Debounce Save
         clearTimeout(saveTimer);
         saveTimer = setTimeout(async () => {
             console.log("Auto-saving...");
@@ -109,7 +119,6 @@ function setupNavigation() {
     const navContainer = document.querySelector('.main-nav');
     if(!navContainer) return;
     
-    // Find all pages
     const pages = new Set(state.items.map(i => i.page || 'home'));
     const orderedPages = ['home', 'products', 'contact'];
     pages.forEach(p => { if (!orderedPages.includes(p)) orderedPages.push(p); });
@@ -119,7 +128,6 @@ function setupNavigation() {
     orderedPages.forEach(pageName => {
         const btn = document.createElement('button');
         btn.className = 'nav-btn';
-        // Check state.currentPage instead of hardcoding 'home'
         if(pageName === (state.currentPage || 'home')) btn.classList.add('active');
         btn.setAttribute('data-page', pageName);
         btn.innerText = pageName.charAt(0).toUpperCase() + pageName.slice(1);
