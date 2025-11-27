@@ -7,28 +7,50 @@ const TABLE_CONTENT = 'tweed_trading_content';
 const TABLE_HISTORY = 'tweed_trading_history';
 
 export async function fetchContent() {
-    // ... (Keep existing fetchContent logic same) ...
     const { data, error } = await supabase
-        .from(TABLE_CONTENT).select('*').order('position', { ascending: true });
-    if (error) { console.error(SUPABASE_ERROR, error); return []; }
+        .from(TABLE_CONTENT)
+        .select('*')
+        .order('position', { ascending: true });
+
+    if (error) {
+        console.error('SUPABASE ERROR:', error.message);
+        return [];
+    }
     return data;
 }
 
 export async function saveContent(items) {
-    // 1. Create History (Background)
-    supabase.from(TABLE_HISTORY).insert({ snapshot: items }).then(({ error }) => {
+    // 1. SANITIZE PAYLOAD (Fixes the "Null ID" crash)
+    const payload = items.map(item => {
+        // Create a copy so we don't mess up the local state
+        const cleanItem = { ...item };
+        
+        // If ID is missing, null, or 0, delete the key entirely.
+        // This tells Supabase: "This is a new row, please generate an ID."
+        if (!cleanItem.id) {
+            delete cleanItem.id;
+        }
+        return cleanItem;
+    });
+
+    // 2. Create History (Background)
+    supabase.from(TABLE_HISTORY).insert({ snapshot: payload }).then(({ error }) => {
         if (error) console.warn('History save warning:', error.message);
     });
 
-    // 2. Upsert Items
-    const { error } = await supabase.from(TABLE_CONTENT).upsert(items);
+    // 3. Upsert Items
+    const { data, error } = await supabase
+        .from(TABLE_CONTENT)
+        .upsert(payload)
+        .select(); // We ask Supabase to return the new data (with IDs)
 
     if (error) {
-        // ONLY show alert if it fails
         showErrorToast('Save Failed: ' + error.message);
         throw error;
     }
-    // Success is now SILENT (Optimistic)
+    
+    // Optional: Return the data so we can update local state with real IDs
+    return data;
 }
 
 export async function fetchHistory() {
@@ -43,25 +65,19 @@ export async function fetchHistory() {
 }
 
 export async function restoreSnapshot(snapshotItems) {
-    // Delete all current content (Clean slate)
     await supabase.from(TABLE_CONTENT).delete().neq('id', 0); 
-    
-    // Insert old snapshot
     const { error } = await supabase.from(TABLE_CONTENT).insert(snapshotItems);
-    
     if (error) console.error(error);
     return !error;
 }
 
-// Helper for error toast
 function showErrorToast(msg) {
     const toast = document.getElementById('toast');
     if(toast) {
         toast.innerText = msg;
-        toast.style.background = 'red'; // Keep red for errors
+        toast.style.background = '#d32f2f'; // Red
+        toast.style.border = '2px solid white';
         toast.classList.remove('hidden');
-        
-        // MATCH CSS DURATION (4000ms)
         setTimeout(() => toast.classList.add('hidden'), 4000);
     }
 }

@@ -7,25 +7,25 @@
     <title>Tweed Trading</title>
     <link rel="stylesheet" href="/src/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<script>
-    // SAFETY NET: If the app hangs for more than 8 seconds, force remove the loader
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            const loader = document.getElementById('loading-view');
-            // If loader exists and is still visible...
-            if(loader && getComputedStyle(loader).display !== 'none' && !loader.classList.contains('fade-out')) {
-                console.warn("Safety Net: Force removing loader due to timeout.");
-                loader.style.display = 'none';
-                
-                // If the app container is empty, show a basic error
-                const app = document.getElementById('app-container');
-                if(app && app.innerHTML.trim() === '') {
-                   app.innerHTML = '<div style="padding:40px; text-align:center;"><h3>Loading Timeout</h3><p>Please refresh the page or check your connection.</p></div>';
+    <script>
+        // SAFETY NET: If the app hangs for more than 8 seconds, force remove the loader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('loading-view');
+                // If loader exists and is still visible...
+                if (loader && getComputedStyle(loader).display !== 'none' && !loader.classList.contains('fade-out')) {
+                    console.warn("Safety Net: Force removing loader due to timeout.");
+                    loader.style.display = 'none';
+
+                    // If the app container is empty, show a basic error
+                    const app = document.getElementById('app-container');
+                    if (app && app.innerHTML.trim() === '') {
+                        app.innerHTML = '<div style="padding:40px; text-align:center;"><h3>Loading Timeout</h3><p>Please refresh the page or check your connection.</p></div>';
+                    }
                 }
-            }
-        }, 8000); // 8 seconds max wait
-    });
-</script>
+            }, 8000); // 8 seconds max wait
+        });
+    </script>
 </head>
 
 <body>
@@ -89,21 +89,21 @@
             <button id="btn-mass"><i class="fas fa-layer-group"></i> Mass Edit</button>
             <button id="btn-restore"><i class="fas fa-history"></i> History</button>
         </div>
-<div id="mass-panel" class="hidden mass-panel">
-    <label>
-        Padding
-        <input type="range" id="global-padding" min="0" max="100" title="Space inside boxes">
-    </label>
-    <label>
-        Radius
-        <input type="range" id="global-radius" min="0" max="50" title="Rounded corners">
-    </label>
-    <!-- NEW TEXT SLIDER -->
-    <label>
-        Text Scale
-        <input type="range" id="global-text" min="80" max="150" value="100" title="Font Size %">
-    </label>
-</div>
+        <div id="mass-panel" class="hidden mass-panel">
+            <label>
+                Padding
+                <input type="range" id="global-padding" min="0" max="100" title="Space inside boxes">
+            </label>
+            <label>
+                Radius
+                <input type="range" id="global-radius" min="0" max="50" title="Rounded corners">
+            </label>
+            <!-- NEW TEXT SLIDER -->
+            <label>
+                Text Scale
+                <input type="range" id="global-text" min="80" max="150" value="100" title="Font Size %">
+            </label>
+        </div>
     </div>
 
     <!-- Sections Manager Modal -->
@@ -123,6 +123,10 @@
                     <button id="btn-add-section"
                         style="background:#2e7d32; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-size:0.9rem;">
                         <i class="fas fa-plus-circle"></i> New Section
+                    </button>
+                    <button id="btn-add-notepad"
+                        style="background:#fbc02d; color:black; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-size:0.9rem;">
+                        <i class="fas fa-sticky-note"></i> New Note
                     </button>
                     <button id="close-sections"
                         style="background:transparent; border:none; font-size:1.5rem; cursor:pointer; margin-left:10px; color:#666;">&times;</button>
@@ -178,7 +182,24 @@
             <p class="subtext">Contact: 40 Courtney Road, Gate Pa</p>
         </div>
     </div>
+    <!-- Emergency Announcement Modal -->
+    <div id="emergency-modal" class="modal hidden">
+        <div class="modal-content" style="text-align: center;">
+            <h3 style="color: #ff9800;">📢 Post Announcement</h3>
+            <p style="color:#666; font-size:0.9rem;">This will appear at the top of the current page in ORANGE.</p>
 
+            <textarea id="emergency-text" rows="4" placeholder="e.g. Closing early today due to weather..."
+                style="width: 100%; padding: 10px; margin: 15px 0; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <button id="close-emergency"
+                    style="background:#eee; color:#333; border:none; padding:10px 20px; border-radius:4px; cursor:pointer;">Cancel</button>
+                <button id="post-emergency"
+                    style="background:#ff9800; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold;">POST
+                    NOW</button>
+            </div>
+        </div>
+    </div>
     <!-- Entry Point Module -->
     <script type="module" src="/src/js/main.js"></script>
 </body>

@@ -3,24 +3,33 @@ import { state, setItems } from './state.js';
 import { saveContent, fetchHistory, restoreSnapshot } from './db.js';
 import { render } from './renderer.js';
 
-
-
 export function initToolbar() {
     
-    // 1. ADD "SECTIONS" BUTTON
+    // 1. ADD BUTTONS
     const actionsDiv = document.querySelector('.toolbar-actions');
-    
-    // Remove old Save button if exists
     const oldSave = document.getElementById('btn-save');
     if (oldSave) oldSave.remove();
 
+    // SECTIONS BUTTON
     if (!document.getElementById('btn-sections')) {
         const btn = document.createElement('button');
         btn.id = 'btn-sections';
         btn.innerHTML = '<i class="fas fa-list"></i> Sections';
-        const historyBtn = document.getElementById('btn-restore');
-        actionsDiv.insertBefore(btn, historyBtn);
+        actionsDiv.insertBefore(btn, document.getElementById('btn-restore'));
         btn.addEventListener('click', openSectionsManager);
+    }
+
+    // NEW: EMERGENCY BUTTON (Orange)
+    if (!document.getElementById('btn-emergency')) {
+        const btn = document.createElement('button');
+        btn.id = 'btn-emergency';
+        btn.innerHTML = '<i class="fas fa-bullhorn"></i> Alert';
+        btn.style.background = '#ff9800'; // Make it stand out
+        actionsDiv.insertBefore(btn, document.getElementById('btn-restore'));
+        btn.addEventListener('click', () => {
+            document.getElementById('emergency-modal').classList.remove('hidden');
+            document.getElementById('emergency-text').focus();
+        });
     }
 
     // 2. TOGGLE MASS PANEL
@@ -31,45 +40,68 @@ export function initToolbar() {
     // 3. MASS EDIT LOGIC
     const padSlider = document.getElementById('global-padding');
     const radSlider = document.getElementById('global-radius');
-    const textSlider = document.getElementById('global-text'); // <--- NEW
+    const textSlider = document.getElementById('global-text');
 
     const triggerUpdate = () => document.dispatchEvent(new Event('app-render-request'));
-
     const applyMass = () => {
         state.items.forEach(item => {
             if(!item.styles) item.styles = {};
-            
-            // Apply Sliders
             if(padSlider) item.styles.padding = `${padSlider.value}px`;
             if(radSlider) item.styles.borderRadius = `${radSlider.value}px`;
-            if(textSlider) item.styles.fontSize = `${textSlider.value}%`; // <--- NEW
+            if(textSlider) item.styles.fontSize = `${textSlider.value}%`;
         });
         render();
     };
 
-    // Attach Listeners
-    if(padSlider) { 
-        padSlider.addEventListener('change', triggerUpdate); 
-        padSlider.addEventListener('input', applyMass); 
-    }
-    if(radSlider) { 
-        radSlider.addEventListener('change', triggerUpdate); 
-        radSlider.addEventListener('input', applyMass); 
-    }
-    if(textSlider) { // <--- NEW LISTENERS
-        textSlider.addEventListener('change', triggerUpdate); 
-        textSlider.addEventListener('input', applyMass); 
-    }
+    if(padSlider) { padSlider.addEventListener('change', triggerUpdate); padSlider.addEventListener('input', applyMass); }
+    if(radSlider) { radSlider.addEventListener('change', triggerUpdate); radSlider.addEventListener('input', applyMass); }
+    if(textSlider) { textSlider.addEventListener('change', triggerUpdate); textSlider.addEventListener('input', applyMass); }
 
     setupHistory();
-    
-    // Modal Listeners
+    setupModals();
+}
+
+function setupModals() {
+    // Sections Modal
     document.getElementById('close-sections').addEventListener('click', () => document.getElementById('sections-modal').classList.add('hidden'));
     document.getElementById('btn-add-page').addEventListener('click', addNewPage);
     document.getElementById('btn-add-section').addEventListener('click', addNewSection);
+    const noteBtn = document.getElementById('btn-add-notepad');
+    if(noteBtn) noteBtn.addEventListener('click', addNewNotepad);
+
+    // Emergency Modal
+    document.getElementById('close-emergency').addEventListener('click', () => document.getElementById('emergency-modal').classList.add('hidden'));
+    document.getElementById('post-emergency').addEventListener('click', postAnnouncement);
 }
 
-// --- SECTIONS MANAGER LOGIC ---
+function postAnnouncement() {
+    const text = document.getElementById('emergency-text').value;
+    if(!text) return;
+
+    // Create the Alert Item
+    const newItem = {
+        type: 'alert', // Special Type
+        page: state.currentPage || 'home',
+        position: -10, // Force to top (assuming others are 0+)
+        content: `<h3><i class="fas fa-exclamation-triangle"></i> Important</h3><p>${text}</p>`,
+        styles: {
+            // These will be overridden by .alert-box CSS mostly, but good for defaults
+            padding: "20px",
+            maxWidth: "800px",
+            margin: "20px auto"
+        }
+    };
+
+    state.items.unshift(newItem); // Add to front of array
+    triggerOptimisticUpdate();
+    
+    // Cleanup
+    document.getElementById('emergency-text').value = '';
+    document.getElementById('emergency-modal').classList.add('hidden');
+}
+
+// ... (Rest of file: openSectionsManager, renderSectionsTable, attachTableListeners, addNewPage, addNewSection, addNewNotepad, triggerOptimisticUpdate, setupHistory - KEEP AS IS) ...
+// Copy them from your previous version or just ensure they are below.
 
 function openSectionsManager() {
     renderSectionsTable();
@@ -93,6 +125,7 @@ function renderSectionsTable() {
         let text = tempDiv.innerText.substring(0, 40) + '...';
         if (item.type === 'carousel') text = '<b>[Carousel]</b>';
         if (item.type === 'map') text = '<b>[Map]</b>';
+        if (item.type === 'alert') text = '<b style="color:orange">[ALERT]</b> ' + text;
         
         const pageSelect = `<input type="text" class="page-input" data-idx="${realIndex}" value="${item.page || 'home'}" style="padding:5px; width:80px;" list="page-options">`;
         const posInput = `<input type="number" class="pos-input" data-idx="${realIndex}" value="${item.position || 0}" style="width:50px; padding:5px;">`;
@@ -129,6 +162,11 @@ function addNewSection() {
     renderSectionsTable(); triggerOptimisticUpdate();
 }
 
+function addNewNotepad() {
+    const newItem = { type: 'notepad', page: state.currentPage || 'home', position: 99, content: '', styles: { padding: "10px", margin: "20px auto", maxWidth: "600px", background: "transparent" } };
+    state.items.push(newItem); renderSectionsTable(); triggerOptimisticUpdate();
+}
+
 function triggerOptimisticUpdate() { render(); document.dispatchEvent(new Event('app-render-request')); }
 
 function setupHistory() {
@@ -152,4 +190,3 @@ function setupHistory() {
     });
     document.getElementById('btn-close-modal').addEventListener('click', () => document.getElementById('history-modal').classList.add('hidden'));
 }
-
