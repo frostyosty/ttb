@@ -5,7 +5,8 @@ import { render } from './renderer.js';
 import { initEditor } from './editor.js';
 import { initToolbar } from './toolbar.js';
 import { initEmailConfig, attachEmailListeners } from './email.js';
-import { FALLBACK_ITEMS } from './fallbackData.js';
+// NEW IMPORT: Pointing to the new file in the new folder
+import { STATIC_CONTENT } from './fallback/staticContent.js';
 import { initCarousel } from './carousel.js';
 
 let saveTimer;
@@ -14,7 +15,7 @@ async function startApp() {
     console.log('Initializing Tweed Trading CMS...');
     
     const startTime = Date.now();
-    const MIN_LOAD_TIME = 1000; 
+    const MIN_LOAD_TIME = 1000; // Keep spinner for at least 1s so it doesn't flash
 
     // --- DIMMING OBSERVER ---
     const toastObserver = new MutationObserver((mutations) => {
@@ -35,13 +36,15 @@ async function startApp() {
     initEmailConfig();
 
     let items = [];
+    let isOfflineMode = false;
+
     try {
-        // --- TIMEOUT INCREASED TO 15 SECONDS ---
+        // --- TIMEOUT REDUCED TO 4 SECONDS ---
         const fetchPromise = fetchContent();
         
-        // Give mobile networks more time to resolve DNS/SSL
+        // 4 Second Limit: If network is slow/blocked, switch to Static Mode
         const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("Timeout (15s limit reached)")), 15000)
+            setTimeout(() => reject(new Error("Network Timeout (4s)")), 4000)
         );
 
         items = await Promise.race([fetchPromise, timeoutPromise]);
@@ -49,13 +52,11 @@ async function startApp() {
         if (!items || items.length === 0) throw new Error("Database Empty");
 
     } catch (error) {
-        console.warn("Connection Issue. Switching to Fallback.", error);
+        console.warn("Switching to Static High-Fidelity Mode:", error.message);
         
-        // --- DEBUG ALERT: THIS WILL TELL US THE REAL ERROR ON YOUR PHONE ---
-        // Once fixed, we will remove this line.
-        // alert("Debug Error: " + error.message); 
-        
-        items = FALLBACK_ITEMS; 
+        // LOAD STATIC CONTENT
+        items = STATIC_CONTENT;
+        isOfflineMode = true;
     }
 
     try {
@@ -65,13 +66,19 @@ async function startApp() {
         render(); 
         attachEmailListeners(); 
         initCarousel(); 
-        initEditor();
+
+        // Only enable Editing tools if we are actually connected
+        // If we are using Static Content, saving won't work anyway, so why show tools?
+        // However, user might want to access "My Notes" which works offline.
+        initEditor(); 
         initToolbar();
         
         document.getElementById('maintenance-view').classList.add('hidden');
 
+        // --- HIDE LOADING SCREEN ---
         const elapsedTime = Date.now() - startTime;
         const remainingTime = Math.max(0, MIN_LOAD_TIME - elapsedTime);
+
         setTimeout(() => {
             const loader = document.getElementById('loading-view');
             if (loader) {
@@ -80,11 +87,14 @@ async function startApp() {
             }
         }, remainingTime);
 
+        // Optional: Show a subtle "Offline Mode" indicator if you want
+        if (isOfflineMode) {
+            console.log("App running in Offline / Static Mode");
+        }
+
     } catch (criticalError) {
         console.error("CRITICAL FAILURE:", criticalError);
-        // Alert critical errors too
-        alert("Critical Failure: " + criticalError.message);
-        
+        // If even the static content crashes, allow maintenance view
         const loader = document.getElementById('loading-view');
         if(loader) loader.style.display = 'none';
         triggerMaintenanceMode();
@@ -92,12 +102,19 @@ async function startApp() {
 
     // --- AUTO-SAVE LISTENER ---
     document.addEventListener('app-render-request', () => {
+        // If Offline, we allow UI updates (re-sort etc) but disable Saving
         state.items.sort((a, b) => (a.position || 0) - (b.position || 0));
         render();
-        setupNavigation(); // Ensure nav stays in sync
+        setupNavigation();
         initCarousel();
         import('./email.js').then(m => m.attachEmailListeners());
 
+        if (isOfflineMode) {
+            console.log("Offline Mode: Changes are temporary and will not save to database.");
+            return; // STOP HERE
+        }
+
+        // Only save if Online
         clearTimeout(saveTimer);
         saveTimer = setTimeout(async () => {
             console.log("Auto-saving...");
