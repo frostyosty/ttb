@@ -13,7 +13,7 @@ export async function fetchContent() {
         .order('position', { ascending: true });
 
     if (error) {
-        console.error('SUPABASE ERROR:', error.message);
+        console.error('SUPABASE FETCH ERROR:', error.message);
         return [];
     }
     return data;
@@ -21,36 +21,45 @@ export async function fetchContent() {
 
 export async function saveContent(items) {
     // 1. SANITIZE PAYLOAD
-    // We create a clean array to send to Supabase
+    // We strictly reconstruct the object to ensure no hidden 'null' IDs slip through
     const payload = items.map(item => {
-        // Deep clone to ensure we don't mutate local state unexpectedly
-        const clean = JSON.parse(JSON.stringify(item));
-        
-        // CRITICAL FIX: Explicitly remove ID if it is null, undefined, 0, or "null"
-        if (!clean.id || clean.id === 'null') {
-            delete clean.id; // Let Supabase generate the ID
+        const cleanItem = {
+            type: item.type,
+            content: item.content,
+            styles: item.styles || {},
+            position: item.position || 0,
+            page: item.page || 'home'
+        };
+
+        // ONLY add ID if it is a valid number. 
+        // If it is null, undefined, or string "null", we LEAVE IT OUT entirely.
+        if (item.id && typeof item.id === 'number') {
+            cleanItem.id = item.id;
         }
-        return clean;
+
+        return cleanItem;
     });
 
-    // 2. CREATE HISTORY (Background)
+    // --- DEBUG LOG: LOOK HERE IN CONSOLE ---
+    console.log("Saving Payload to DB:", payload); 
+
+    // 2. CREATE HISTORY
     supabase.from(TABLE_HISTORY).insert({ snapshot: payload }).then(({ error }) => {
         if (error) console.warn('History save warning:', error.message);
     });
 
-    // 3. UPSERT & RETURN DATA
+    // 3. UPSERT
     const { data, error } = await supabase
         .from(TABLE_CONTENT)
         .upsert(payload, { onConflict: 'id' }) 
-        .select(); // <--- IMPORTANT: Get the data back (including new IDs)
+        .select();
 
     if (error) {
         showErrorToast('Save Failed: ' + error.message);
+        console.error("FULL DB ERROR:", error);
         throw error;
     }
     
-    // 4. RETURN FRESH DATA
-    // We return the data so the app can update local state with the new IDs
     return data;
 }
 
@@ -77,7 +86,5 @@ function showErrorToast(msg) {
         toast.style.border = '2px solid white';
         toast.classList.remove('hidden');
         setTimeout(() => toast.classList.add('hidden'), 4000);
-    } else {
-        console.error(msg);
     }
 }
