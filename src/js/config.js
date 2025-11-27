@@ -1,9 +1,9 @@
 /// public/js/config.js
-// export const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-// export const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY;
+export const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+export const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY;
 
-export const SUPABASE_URL = "https://oannlpewujcnmbzzvklu.supabase.co"; 
-export const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hbm5scGV3dWpjbm1ienp2a2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYxMzQwMDQsImV4cCI6MjA2MTcxMDAwNH0.2hKaOLPYsRh6p1CQFfLYqpTo2Cz1WuQa4Y5n0AIoNPE";
+// export const SUPABASE_URL = "https://oannlpewujcnmbzzvklu.supabase.co"; 
+// export const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hbm5scGV3dWpjbm1ienp2a2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYxMzQwMDQsImV4cCI6MjA2MTcxMDAwNH0.2hKaOLPYsRh6p1CQFfLYqpTo2Cz1WuQa4Y5n0AIoNPE";
 
 // UPDATED WITH YOUR SNIPPET VALUES
 export const EMAIL_SERVICE_ID = "service_rrotpos";  
