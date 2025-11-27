@@ -93,26 +93,46 @@ function openSectionsManager() {
 function renderSectionsTable() {
     const tbody = document.getElementById('sections-list');
     tbody.innerHTML = '';
+    
+    // Sort items logic
     const sortedItems = [...state.items].sort((a, b) => {
         if (a.page === b.page) return (a.position || 0) - (b.position || 0);
         return (a.page || '').localeCompare(b.page || '');
     });
 
+    // 1. GATHER ALL UNIQUE PAGES
+    const uniquePages = new Set(state.items.map(i => i.page || 'home'));
+    // Ensure default pages always exist in the dropdown
+    ['home', 'products', 'contact'].forEach(p => uniquePages.add(p));
+    const pageOptions = Array.from(uniquePages).sort();
+
     sortedItems.forEach(item => {
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid #eee';
         const realIndex = state.items.indexOf(item);
+        
+        // Preview Text
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = item.content || '';
         let text = tempDiv.innerText.substring(0, 40) + '...';
-        
-        // Nicer Labels for Special Types
         if (item.type === 'carousel') text = '<b>[Carousel]</b>';
         if (item.type === 'map') text = '<b>[Map]</b>';
         if (item.type === 'notepad') text = '<b>[Notepad]</b>';
         if (item.type === 'alert') text = '<b style="color:orange">[ALERT]</b> ' + text;
         
-        const pageSelect = `<input type="text" class="page-input" data-idx="${realIndex}" value="${item.page || 'home'}" style="padding:5px; width:80px;" list="page-options">`;
+        // 2. BUILD SELECT DROPDOWN (Replacing the old Input)
+        let optionsHtml = '';
+        pageOptions.forEach(p => {
+            const isSelected = (item.page || 'home') === p ? 'selected' : '';
+            optionsHtml += `<option value="${p}" ${isSelected}>${p.charAt(0).toUpperCase() + p.slice(1)}</option>`;
+        });
+        
+        const pageSelect = `
+            <select class="page-select" data-idx="${realIndex}" style="padding:8px; width:100px; border-radius:4px; border:1px solid #ccc;">
+                ${optionsHtml}
+            </select>
+        `;
+
         const posInput = `<input type="number" class="pos-input" data-idx="${realIndex}" value="${item.position || 0}" style="width:50px; padding:5px;">`;
         const actions = `<button class="del-btn" data-idx="${realIndex}" style="color:red; background:none; border:none; cursor:pointer;"><i class="fas fa-trash"></i></button>`;
 
@@ -120,31 +140,29 @@ function renderSectionsTable() {
         tbody.appendChild(tr);
     });
 
-    // --- FIX FOR ISSUE 3: Always rebuild Dropdown Options ---
-    // Remove old datalist if exists so we can update it
-    const oldDl = document.getElementById('page-options');
-    if (oldDl) oldDl.remove();
-
-    const dl = document.createElement('datalist');
-    dl.id = 'page-options';
-    const pages = [...new Set(state.items.map(i => i.page || 'home'))];
-    pages.forEach(p => { const opt = document.createElement('option'); opt.value = p; dl.appendChild(opt); });
-    document.body.appendChild(dl);
-
     attachTableListeners();
 }
 
 function attachTableListeners() {
-    document.querySelectorAll('.page-input').forEach(el => { el.addEventListener('change', (e) => { const index = e.target.getAttribute('data-idx'); state.items[index].page = e.target.value.toLowerCase().replace(/\s/g, '-'); triggerOptimisticUpdate(); }); });
+    // Dropdown Change Listener
+    document.querySelectorAll('.page-select').forEach(el => { 
+        el.addEventListener('change', (e) => { 
+            const index = e.target.getAttribute('data-idx'); 
+            state.items[index].page = e.target.value; // No regex needed for select
+            triggerOptimisticUpdate(); 
+            // Re-render table to sort the row into its new group
+            renderSectionsTable();
+        }); 
+    });
+
     document.querySelectorAll('.pos-input').forEach(el => { el.addEventListener('change', (e) => { const index = e.target.getAttribute('data-idx'); state.items[index].position = parseInt(e.target.value); triggerOptimisticUpdate(); }); });
     
-    // --- FIX FOR ISSUE 4: No Confirm on Delete ---
+    // 3. DELETE (INSTANT - NO CONFIRM)
     document.querySelectorAll('.del-btn').forEach(el => { 
         el.addEventListener('click', (e) => { 
             const btn = e.target.closest('.del-btn'); 
             const index = btn.getAttribute('data-idx'); 
-            
-            // Just do it!
+            // Removed Confirm() check
             state.items.splice(index, 1); 
             renderSectionsTable(); 
             triggerOptimisticUpdate(); 
@@ -186,30 +204,24 @@ function setupHistory() {
         const list = document.getElementById('history-list');
         list.innerHTML = '';
         history.forEach(h => {
-            // --- FIX FOR ISSUE 2: Better History Preview ---
             let preview = 'Empty';
             if (h.snapshot && h.snapshot.length > 0) {
                 const types = h.snapshot.map(i => {
                     if (i.content) {
-                        // Strip HTML tags to get raw text
                         const div = document.createElement('div');
                         div.innerHTML = i.content;
-                        const cleanText = div.innerText.substring(0, 15).trim(); // Get first 15 chars
+                        const cleanText = div.innerText.substring(0, 15).trim();
                         if (cleanText) return cleanText;
                     }
-                    // Fallback to type name
                     return i.type.charAt(0).toUpperCase() + i.type.slice(1);
                 });
-                // Show more items (slice 5 instead of 3)
-                preview = types.slice(0, 5).join(', ');
-                if (types.length > 5) preview += '...';
+                preview = types.slice(0, 5).join(', ') + (types.length > 5 ? '...' : '');
             }
 
             const li = document.createElement('li');
             li.style.fontSize = '0.9rem';
             li.innerHTML = `<div style="display:flex; justify-content:space-between;"><strong>${new Date(h.created_at).toLocaleTimeString()}</strong><span style="color:#666; font-size:0.8rem;">ID: ${h.id}</span></div><div style="color:#2e7d32; font-style:italic;">Contains: ${preview}</div>`;
             li.onclick = async () => { 
-                // We keep confirm here because restoring is destructive
                 if(confirm('Restore?')) { 
                     await restoreSnapshot(h.snapshot); 
                     setItems(h.snapshot); 

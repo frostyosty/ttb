@@ -1,9 +1,35 @@
 /// src/js/renderer.js
 import { state } from './state.js';
-import { ask } from './modal.js'; // <--- NEW IMPORT
+import { ask } from './modal.js';
 
 const triggerRender = () => document.dispatchEvent(new Event('app-render-request'));
 let dragSrcIndex = null;
+
+// Helper to handle color picker state so it doesn't get destroyed during editing
+let activeColorCallback = null;
+let globalColorInput = document.getElementById('global-color-picker');
+
+// Ensure global picker exists in DOM (prevents re-render destruction)
+if (!globalColorInput) {
+    globalColorInput = document.createElement('input');
+    globalColorInput.id = 'global-color-picker';
+    globalColorInput.type = 'color';
+    globalColorInput.style.display = 'none';
+    document.body.appendChild(globalColorInput);
+    
+    // Live Preview
+    globalColorInput.addEventListener('input', (e) => {
+        if (activeColorCallback) activeColorCallback(e.target.value, false); // false = don't save yet
+    });
+
+    // Commit Change
+    globalColorInput.addEventListener('change', (e) => {
+        if (activeColorCallback) {
+            activeColorCallback(e.target.value, true); // true = save now
+            activeColorCallback = null; // Cleanup
+        }
+    });
+}
 
 export function render() {
     const container = document.getElementById('app-container');
@@ -43,7 +69,7 @@ export function render() {
 }
 
 function setupDevFeatures(el, item, index) {
-    // --- 1. OPTIMISTIC DELETE (No Confirm) ---
+    // --- 1. OPTIMISTIC DELETE ---
     if (item.type === 'alert') {
         const delBtn = document.createElement('button');
         delBtn.className = 'quick-delete-btn';
@@ -51,7 +77,6 @@ function setupDevFeatures(el, item, index) {
         delBtn.title = "Delete Alert";
         delBtn.onclick = (e) => {
             e.stopPropagation();
-            // REMOVED THE CONFIRM CHECK HERE
             state.items.splice(index, 1);
             triggerRender();
         };
@@ -63,12 +88,14 @@ function setupDevFeatures(el, item, index) {
         el.classList.add('editable');
         el.setAttribute('contenteditable', 'true');
         el.onblur = (e) => {
+            if (state.items[index] !== item) return;
+
             const clone = el.cloneNode(true);
             const btns = clone.querySelectorAll('.quick-delete-btn, .element-tools');
             btns.forEach(b => b.remove());
             
             const newVal = clone.innerHTML;
-            if (state.items[index].content !== newVal) {
+            if (item.content !== newVal) {
                 state.items[index].content = newVal;
                 triggerRender(); 
             }
@@ -78,10 +105,18 @@ function setupDevFeatures(el, item, index) {
         el.setAttribute('contenteditable', 'false'); 
     }
 
-    // --- 3. ELEMENT TOOLBAR (Using Custom Modals) ---
+    // --- 3. ELEMENT TOOLBAR ---
     const tools = document.createElement('div');
     tools.className = 'element-tools';
     tools.contentEditable = "false";
+
+    // FIX FOR ISSUE 3: Counter-Scale
+    // If the box is scaled to 0.5, we scale the tools to 2.0 so they look normal.
+    const currentScale = parseFloat((item.styles.transform || '').replace(/[^0-9.]/g, '')) || 1;
+    if (currentScale !== 1) {
+        tools.style.transform = `scale(${1 / currentScale})`;
+        tools.style.transformOrigin = 'bottom right'; // Pin to corner
+    }
 
     // Drag
     const dragBtn = createBtn('fa-grip-vertical', 'tool-pos', () => {});
@@ -104,26 +139,56 @@ function setupDevFeatures(el, item, index) {
         }
     });
 
-    // Resize (Using Custom Modal)
+    // Resize
     const sizeBtn = createBtn('fa-expand', 'tool-size', async () => {
         const current = item.styles.maxWidth || '1000px';
-        const newVal = await ask("Enter Max Width (e.g. 100%, 600px):", current);
+        const newVal = await ask("Max Width (e.g. 100%, 600px):", current);
         if(newVal) { item.styles.maxWidth = newVal; triggerRender(); }
     });
 
     const zoomOutBtn = createBtn('fa-search-minus', 'tool-scale', () => changeScale(item, -0.1));
     const zoomInBtn = createBtn('fa-search-plus', 'tool-scale', () => changeScale(item, 0.1));
 
-    // Colors
-    const colorInput = document.createElement('input'); colorInput.type = 'color'; colorInput.style.display = 'none';
-    colorInput.onchange = (e) => { item.styles.color = e.target.value; triggerRender(); };
-    const colorBtn = createBtn('fa-font', 'tool-color', () => colorInput.click());
+    // --- FIX FOR ISSUE 1 & 2: COLORS ---
+    
+    // Text Color
+    const colorBtn = createBtn('fa-font', 'tool-color', () => {
+        // Check if user has highlighted text
+        const selection = window.getSelection();
+        const hasSelection = selection.rangeCount > 0 && !selection.isCollapsed && selection.anchorNode.parentNode.closest('.content-block') === el;
 
-    const bgInput = document.createElement('input'); bgInput.type = 'color'; bgInput.style.display = 'none';
-    bgInput.onchange = (e) => { item.styles.background = e.target.value; triggerRender(); };
-    const bgBtn = createBtn('fa-fill-drip', 'tool-color', () => bgInput.click());
+        activeColorCallback = (val, save) => {
+            if (hasSelection) {
+                // If text selected, use execCommand (Old but reliable for CMS)
+                document.execCommand('styleWithCSS', false, true);
+                document.execCommand('foreColor', false, val);
+            } else {
+                // Else, Block style
+                el.style.color = val; // Preview
+                if (save) {
+                    // If we used execCommand, content changed. If block, style changed.
+                    if (hasSelection) state.items[index].content = el.innerHTML;
+                    else item.styles.color = val;
+                    triggerRender();
+                }
+            }
+        };
+        globalColorInput.click();
+    });
 
-    tools.append(dragBtn, sizeBtn, zoomOutBtn, zoomInBtn, colorBtn, bgBtn, colorInput, bgInput);
+    // Background Color
+    const bgBtn = createBtn('fa-fill-drip', 'tool-color', () => {
+        activeColorCallback = (val, save) => {
+            el.style.backgroundColor = val; // Preview
+            if (save) {
+                item.styles.background = val; // Save
+                triggerRender();
+            }
+        };
+        globalColorInput.click();
+    });
+
+    tools.append(dragBtn, sizeBtn, zoomOutBtn, zoomInBtn, colorBtn, bgBtn);
     el.appendChild(tools);
 }
 
