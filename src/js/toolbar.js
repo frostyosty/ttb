@@ -3,8 +3,13 @@ import { state, setItems } from './state.js';
 import { saveContent, fetchHistory, restoreSnapshot } from './db.js';
 import { render } from './renderer.js';
 import { ask } from './modal.js';
+// We need the image manager for carousel edits
+import { openImageManager } from './imageManager.js'; 
+
+let editingIndex = null; // Track which item is being edited in the modal
 
 export function initToolbar() {
+    
     // 1. ADD BUTTONS
     const actionsDiv = document.querySelector('.toolbar-actions');
     const oldSave = document.getElementById('btn-save');
@@ -59,16 +64,27 @@ export function initToolbar() {
 }
 
 function setupModals() {
-    // Sections Modal
-    document.getElementById('close-sections').addEventListener('click', () => document.getElementById('sections-modal').classList.add('hidden'));
+    // --- SECTIONS MANAGER ---
+    const secModal = document.getElementById('sections-modal');
+    document.getElementById('close-sections').addEventListener('click', () => secModal.classList.add('hidden'));
+    
+    // Click Outside to Close
+    secModal.addEventListener('click', (e) => {
+        if (e.target === secModal) secModal.classList.add('hidden');
+    });
+
     document.getElementById('btn-add-page').addEventListener('click', addNewPage);
     document.getElementById('btn-add-section').addEventListener('click', addNewSection);
     const noteBtn = document.getElementById('btn-add-notepad');
     if(noteBtn) noteBtn.addEventListener('click', addNewNotepad);
 
-    // Emergency Modal
+    // --- EMERGENCY ---
     document.getElementById('close-emergency').addEventListener('click', () => document.getElementById('emergency-modal').classList.add('hidden'));
     document.getElementById('post-emergency').addEventListener('click', postAnnouncement);
+
+    // --- CONTENT EDITOR ---
+    document.getElementById('cancel-edit-content').addEventListener('click', () => document.getElementById('edit-content-modal').classList.add('hidden'));
+    document.getElementById('save-edit-content').addEventListener('click', saveContentEdit);
 }
 
 function postAnnouncement() {
@@ -95,6 +111,7 @@ function openSectionsManager() {
 function renderSectionsTable() {
     const tbody = document.getElementById('sections-list');
     tbody.innerHTML = '';
+    
     const sortedItems = [...state.items].sort((a, b) => {
         if (a.page === b.page) return (a.position || 0) - (b.position || 0);
         return (a.page || '').localeCompare(b.page || '');
@@ -111,7 +128,7 @@ function renderSectionsTable() {
         
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = item.content || '';
-        let text = tempDiv.innerText.substring(0, 40) + '...';
+        let text = tempDiv.innerText.substring(0, 30) + '...';
         if (item.type === 'carousel') text = '<b>[Carousel]</b>';
         if (item.type === 'map') text = '<b>[Map]</b>';
         if (item.type === 'notepad') text = '<b>[Notepad]</b>';
@@ -125,7 +142,14 @@ function renderSectionsTable() {
         
         const pageSelect = `<select class="page-select" data-idx="${realIndex}" style="padding:8px; width:100px; border-radius:4px; border:1px solid #ccc;">${optionsHtml}</select>`;
         const posInput = `<input type="number" class="pos-input" data-idx="${realIndex}" value="${item.position || 0}" style="width:50px; padding:5px;">`;
-        const actions = `<button class="del-btn" data-idx="${realIndex}" style="color:red; background:none; border:none; cursor:pointer;"><i class="fas fa-trash"></i></button>`;
+        
+        // ACTIONS: EDIT (Pencil) and DELETE (Bin)
+        const actions = `
+            <div style="display:flex; justify-content:flex-end; gap:5px;">
+                <button class="edit-row-btn" data-idx="${realIndex}" style="color:#2196f3; background:none; border:none; cursor:pointer; font-size:1.1rem;"><i class="fas fa-pen"></i></button>
+                <button class="del-btn" data-idx="${realIndex}" style="color:red; background:none; border:none; cursor:pointer; font-size:1.1rem;"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
 
         tr.innerHTML = `<td style="padding:10px; font-size:0.9rem;">${text}</td><td style="padding:10px;">${pageSelect}</td><td style="padding:10px;">${posInput}</td><td style="padding:10px;">${actions}</td>`;
         tbody.appendChild(tr);
@@ -137,14 +161,71 @@ function renderSectionsTable() {
 function attachTableListeners() {
     document.querySelectorAll('.page-select').forEach(el => { el.addEventListener('change', (e) => { const index = e.target.getAttribute('data-idx'); state.items[index].page = e.target.value; triggerOptimisticUpdate(); renderSectionsTable(); }); });
     document.querySelectorAll('.pos-input').forEach(el => { el.addEventListener('change', (e) => { const index = e.target.getAttribute('data-idx'); state.items[index].position = parseInt(e.target.value); triggerOptimisticUpdate(); }); });
-    document.querySelectorAll('.del-btn').forEach(el => { el.addEventListener('click', (e) => { const btn = e.target.closest('.del-btn'); const index = btn.getAttribute('data-idx'); state.items.splice(index, 1); renderSectionsTable(); triggerOptimisticUpdate(); }); });
+    
+    // DELETE
+    document.querySelectorAll('.del-btn').forEach(el => { 
+        el.addEventListener('click', (e) => { 
+            const index = e.target.closest('.del-btn').getAttribute('data-idx'); 
+            state.items.splice(index, 1); 
+            renderSectionsTable(); 
+            triggerOptimisticUpdate(); 
+        }); 
+    });
+
+    // EDIT
+    document.querySelectorAll('.edit-row-btn').forEach(el => {
+        el.addEventListener('click', async (e) => {
+            const index = e.target.closest('.edit-row-btn').getAttribute('data-idx');
+            const item = state.items[index];
+
+            if (item.type === 'carousel') {
+                // Reuse existing Image Manager
+                openImageManager(index);
+                // Also close sections manager so we can see the image modal? 
+                // Or stack them. Stacking is fine if z-index is right.
+            } else if (item.type === 'map') {
+                const newCode = await ask("Paste Google Maps Embed HTML:");
+                if (newCode && newCode.includes('<iframe')) {
+                    item.content = newCode; // We wrap it in a div in renderer anyway, but raw iframe is fine
+                    triggerOptimisticUpdate();
+                } else if (newCode) {
+                    alert("Invalid Embed Code. Must start with <iframe...");
+                }
+            } else if (item.type === 'notepad') {
+                alert("Notepad content is unique to each user's device. You cannot edit it globally.");
+            } else {
+                // Standard Text/Header/Alert/Section -> Open Content Editor
+                editingIndex = index;
+                document.getElementById('edit-content-textarea').value = item.content || '';
+                document.getElementById('edit-content-modal').classList.remove('hidden');
+            }
+        });
+    });
+}
+
+function saveContentEdit() {
+    if (editingIndex !== null) {
+        state.items[editingIndex].content = document.getElementById('edit-content-textarea').value;
+        triggerOptimisticUpdate();
+        document.getElementById('edit-content-modal').classList.add('hidden');
+        renderSectionsTable(); // Refresh the preview text in the table
+    }
 }
 
 async function addNewPage() {
     const name = await ask("Enter Page Name (e.g. Gallery):");
     if (!name) return;
-    state.items.push({ type: 'header', page: name.toLowerCase().replace(/\s/g, '-'), position: 0, content: `<h3>${name.toUpperCase()}</h3>`, styles: { padding: "30px", background: "white", borderRadius: "8px", textAlign: "center" } });
-    renderSectionsTable(); triggerOptimisticUpdate();
+    
+    state.items.push({ 
+        type: 'header', 
+        page: name.toLowerCase().replace(/\s/g, '-'), 
+        position: 0, 
+        content: `<h3>${name.toUpperCase()}</h3>`, 
+        styles: { padding: "30px", background: "white", borderRadius: "8px", textAlign: "center" } 
+    });
+    
+    renderSectionsTable(); 
+    triggerOptimisticUpdate();
 }
 
 function addNewSection() {
@@ -161,34 +242,34 @@ function triggerOptimisticUpdate() { render(); document.dispatchEvent(new Event(
 
 function setupHistory() {
     const modal = document.getElementById('history-modal');
+    // Click Outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.add('hidden');
+    });
 
     document.getElementById('btn-restore').addEventListener('click', async () => {
         const history = await fetchHistory();
         const list = document.getElementById('history-list');
         list.innerHTML = '';
-        
-        history.forEach((h, index) => {
-            const prevSnapshot = history[index + 1]?.snapshot || [];
-            const currSnapshot = h.snapshot || [];
-            
-            // Generate summary (e.g. "Added Map, Edited Header")
-            let summary = generateDiffSummary(currSnapshot, prevSnapshot);
-            if (index === history.length - 1) summary = "Baseline / Oldest Backup";
-
+        history.forEach(h => {
+            let preview = 'Empty';
+            if (h.snapshot && h.snapshot.length > 0) {
+                const types = h.snapshot.map(i => {
+                    if (i.content) {
+                        const div = document.createElement('div');
+                        div.innerHTML = i.content;
+                        const cleanText = div.innerText.replace(/\n/g, ' ').substring(0, 15).trim();
+                        if (cleanText) return cleanText;
+                    }
+                    return i.type.charAt(0).toUpperCase() + i.type.slice(1);
+                });
+                preview = types.slice(0, 5).join(', ') + (types.length > 5 ? '...' : '');
+            }
             const li = document.createElement('li');
             li.style.fontSize = '0.9rem';
-            li.innerHTML = `
-                <div style="display:flex; justify-content:space-between;">
-                    <strong>${new Date(h.created_at).toLocaleTimeString()}</strong>
-                    <span style="color:#666; font-size:0.8rem;">ID: ${h.id}</span>
-                </div>
-                <div style="color:#2e7d32; font-style:italic; margin-top:4px; font-weight:500;">
-                    ${summary}
-                </div>
-            `;
-            
+            li.innerHTML = `<div style="display:flex; justify-content:space-between;"><strong>${new Date(h.created_at).toLocaleTimeString()}</strong><span style="color:#666; font-size:0.8rem;">ID: ${h.id}</span></div><div style="color:#2e7d32; font-style:italic;">Contains: ${preview}</div>`;
             li.onclick = async () => { 
-                if(confirm('Restore this version?')) { 
+                if(confirm('Restore?')) { 
                     await restoreSnapshot(h.snapshot); 
                     setItems(h.snapshot); 
                     render(); 
@@ -199,70 +280,5 @@ function setupHistory() {
         });
         modal.classList.remove('hidden');
     });
-
-    // --- CLOSING LOGIC ---
-    const closeHistory = () => modal.classList.add('hidden');
-
-    // 1. Footer Button
-    document.getElementById('btn-close-modal').addEventListener('click', closeHistory);
-    
-    // 2. Header X Button
-    const closeX = document.getElementById('close-history-x');
-    if(closeX) closeX.addEventListener('click', closeHistory);
-
-    // 3. Click Outside (Background)
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) { // e.target checks if we clicked the grey overlay
-            closeHistory();
-        }
-    });
-}
-
-function generateDiffSummary(current, previous) {
-    if (!previous || previous.length === 0) return "Initial Load / Reset";
-    
-    const changes = [];
-    let changeCount = 0;
-
-    // 1. Check for Edits & Moves
-    current.forEach(curr => {
-        const prev = previous.find(p => p.id === curr.id);
-        if (!prev) {
-            changes.push(`Added <b>${getLabel(curr)}</b>`);
-            changeCount++;
-        } else if (JSON.stringify(curr) !== JSON.stringify(prev)) {
-            changeCount++;
-            if (curr.content !== prev.content) changes.push(`Edited <b>${getLabel(curr)}</b>`);
-            else if (curr.position !== prev.position) changes.push(`Moved <b>${getLabel(curr)}</b>`);
-            else if (JSON.stringify(curr.styles) !== JSON.stringify(prev.styles)) changes.push(`Styled <b>${getLabel(curr)}</b>`);
-            else changes.push(`Modified <b>${getLabel(curr)}</b>`);
-        }
-    });
-
-    // 2. Check for Deletes
-    previous.forEach(prev => {
-        if (!current.find(c => c.id === prev.id)) {
-            changes.push(`Deleted <b>${getLabel(prev)}</b>`);
-            changeCount++;
-        }
-    });
-
-    if (changeCount === 0) return "No visible changes";
-    if (changeCount > 4) return `${changeCount} items changed (Mass Edit)`;
-    
-    // Unique list, joined by comma and space
-    return [...new Set(changes)].slice(0, 4).join(", ");
-}
-
-function getLabel(item) {
-    if (item.type === 'alert') return "Alert";
-    if (item.type === 'map') return "Map";
-    if (item.type === 'carousel') return "Carousel";
-    if (item.content) {
-        const div = document.createElement('div');
-        div.innerHTML = item.content;
-        const text = div.innerText.replace(/\n/g, ' ').substring(0, 15).trim();
-        if (text) return text;
-    }
-    return item.type.charAt(0).toUpperCase() + item.type.slice(1);
+    document.getElementById('btn-close-modal').addEventListener('click', () => modal.classList.add('hidden'));
 }

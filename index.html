@@ -8,86 +8,86 @@
     <link rel="stylesheet" href="/src/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-<script>
-    if (window.navigator && navigator.serviceWorker) {
-        navigator.serviceWorker.getRegistrations()
-        .then(function(registrations) {
-            for(let registration of registrations) {
-                registration.unregister();
-                console.log("Service Worker Unregistered (Kill Switch Active)");
-            }
-        });
-    }
-</script>
+    <script>
+        if (window.navigator && navigator.serviceWorker) {
+            navigator.serviceWorker.getRegistrations()
+                .then(function (registrations) {
+                    for (let registration of registrations) {
+                        registration.unregister();
+                        console.log("Service Worker Unregistered (Kill Switch Active)");
+                    }
+                });
+        }
+    </script>
 
-<script type="module">
-    import { STATIC_CONTENT } from './src/js/fallback/staticContent.js';
+    <script type="module">
+        import { STATIC_CONTENT } from './src/js/fallback/staticContent.js';
 
-    // SAFETY NET: If app crashes or times out (8 seconds), force render the Static Content
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            const loader = document.getElementById('loading-view');
-            
-            // If loader is still visible, the App crashed/hung
-            if(loader && getComputedStyle(loader).display !== 'none' && !loader.classList.contains('fade-out')) {
-                console.warn("Safety Net: Main App failed. Rendering Static Fallback.");
-                
-                // 1. Hide Loader
-                loader.style.display = 'none';
-                
-                // 2. Render Static Content Manually
-                const container = document.getElementById('app-container');
-                if(container && container.innerHTML.trim() === '') {
-                    // Loop through static items and build HTML string
-                    let html = '';
-                    STATIC_CONTENT.forEach(item => {
-                        // Basic renderer for fallback
-                        let content = item.content || '';
-                        let className = 'content-block';
-                        if(item.type === 'alert') className += ' alert-box';
-                        
-                        // Convert styles object to string
-                        let styleStr = '';
-                        if(item.styles) {
-                            Object.entries(item.styles).forEach(([k, v]) => {
-                                // Convert camelCase to kebab-case (paddingTop -> padding-top)
-                                const key = k.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase();
-                                styleStr += `${key}:${v};`;
-                            });
-                        }
-                        
-                        // Notepad special case
-                        if(item.type === 'notepad') {
-                            content = `<div class="notepad-container"><div class="notepad-tape"></div><h3 class="notepad-title">My Measurements</h3><textarea class="notepad-textarea" placeholder="Notes (Offline Mode)"></textarea></div>`;
-                        }
+        // SAFETY NET: If app crashes or times out (8 seconds), force render the Static Content
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('loading-view');
 
-                        html += `<div class="${className}" style="${styleStr}">${content}</div>`;
-                    });
-                    
-                    container.innerHTML = html;
-                    
-                    // Add a small "Offline" badge
-                    const badge = document.createElement('div');
-                    badge.innerHTML = 'Offline Mode';
-                    badge.style.cssText = 'position:fixed; bottom:10px; right:10px; background:#333; color:white; padding:5px 10px; border-radius:4px; font-size:12px; opacity:0.7; pointer-events:none;';
-                    document.body.appendChild(badge);
+                // If loader is still visible, the App crashed/hung
+                if (loader && getComputedStyle(loader).display !== 'none' && !loader.classList.contains('fade-out')) {
+                    console.warn("Safety Net: Main App failed. Rendering Static Fallback.");
+
+                    // 1. Hide Loader
+                    loader.style.display = 'none';
+
+                    // 2. Render Static Content Manually
+                    const container = document.getElementById('app-container');
+                    if (container && container.innerHTML.trim() === '') {
+                        // Loop through static items and build HTML string
+                        let html = '';
+                        STATIC_CONTENT.forEach(item => {
+                            // Basic renderer for fallback
+                            let content = item.content || '';
+                            let className = 'content-block';
+                            if (item.type === 'alert') className += ' alert-box';
+
+                            // Convert styles object to string
+                            let styleStr = '';
+                            if (item.styles) {
+                                Object.entries(item.styles).forEach(([k, v]) => {
+                                    // Convert camelCase to kebab-case (paddingTop -> padding-top)
+                                    const key = k.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase();
+                                    styleStr += `${key}:${v};`;
+                                });
+                            }
+
+                            // Notepad special case
+                            if (item.type === 'notepad') {
+                                content = `<div class="notepad-container"><div class="notepad-tape"></div><h3 class="notepad-title">My Measurements</h3><textarea class="notepad-textarea" placeholder="Notes (Offline Mode)"></textarea></div>`;
+                            }
+
+                            html += `<div class="${className}" style="${styleStr}">${content}</div>`;
+                        });
+
+                        container.innerHTML = html;
+
+                        // Add a small "Offline" badge
+                        const badge = document.createElement('div');
+                        badge.innerHTML = 'Offline Mode';
+                        badge.style.cssText = 'position:fixed; bottom:10px; right:10px; background:#333; color:white; padding:5px 10px; border-radius:4px; font-size:12px; opacity:0.7; pointer-events:none;';
+                        document.body.appendChild(badge);
+                    }
                 }
-            }
-        }, 4000); // 8 seconds max wait
-    });
-</script>
+            }, 4000); // 8 seconds max wait
+        });
+    </script>
 </head>
 
 <body>
 
     <!-- Header / Trigger Zone -->
     <div id="super-header" class="site-header">
-    <!-- Updated SRC to Supabase Public URL -->
-    <img src="https://oannlpewujcnmbzzvklu.supabase.co/storage/v1/object/public/assets/quick_logo.png" 
-         alt="Tweed Trading" class="header-logo"
-         onerror="this.style.display='none'; document.getElementById('fallback-text').style.display='block';">
-    <h1 id="fallback-text" style="display: none;">Tweed Trading</h1>
-</div>
+        <!-- Updated SRC to Supabase Public URL -->
+        <img src="https://oannlpewujcnmbzzvklu.supabase.co/storage/v1/object/public/assets/quick_logo.png"
+            alt="Tweed Trading" class="header-logo"
+            onerror="this.style.display='none'; document.getElementById('fallback-text').style.display='block';">
+        <h1 id="fallback-text" style="display: none;">Tweed Trading</h1>
+    </div>
 
     <!-- MOVED OUTSIDE: Navigation Tabs -->
     <!-- 3. NAV -->
@@ -160,70 +160,92 @@
 
     <!-- Sections Manager Modal -->
     <div id="sections-modal" class="modal hidden">
-        <div class="modal-content" style="max-width: 900px; width: 95%;">
+        <div class="modal-content"
+            style="max-width: 900px; width: 95%; max-height: 90vh; display: flex; flex-direction: column;">
 
-            <!-- Header with Actions -->
+            <!-- Header -->
             <div
-                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px;">
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:15px;">
                 <h3 style="margin:0; color:#2e7d32;">Manage Sections</h3>
 
-                <div style="display:flex; gap:10px;">
-                    <button id="btn-add-page"
-                        style="background:#4caf50; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-size:0.9rem;">
-                        <i class="fas fa-folder-plus"></i> New Page
-                    </button>
-                    <button id="btn-add-section"
-                        style="background:#2e7d32; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-size:0.9rem;">
-                        <i class="fas fa-plus-circle"></i> New Section
-                    </button>
-                    <button id="btn-add-notepad"
-                        style="background:#fbc02d; color:black; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-size:0.9rem;">
-                        <i class="fas fa-sticky-note"></i> New Note
-                    </button>
-                    <button id="close-sections"
-                        style="background:transparent; border:none; font-size:1.5rem; cursor:pointer; margin-left:10px; color:#666;">&times;</button>
-                </div>
+                <!-- Mobile Friendly Close Button -->
+                <button id="close-sections"
+                    style="background:transparent; border:none; font-size:2rem; cursor:pointer; color:#666; padding:0 15px;">&times;</button>
             </div>
 
-            <!-- Table -->
-            <div style="overflow-x:auto; max-height: 60vh; overflow-y:auto;">
+            <!-- Buttons -->
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
+                <button id="btn-add-page"
+                    style="background:#4caf50; color:white; border:none; padding:10px 15px; border-radius:4px; cursor:pointer; flex:1;"><i
+                        class="fas fa-folder-plus"></i> Page</button>
+                <button id="btn-add-section"
+                    style="background:#2e7d32; color:white; border:none; padding:10px 15px; border-radius:4px; cursor:pointer; flex:1;"><i
+                        class="fas fa-plus-circle"></i> Section</button>
+                <button id="btn-add-notepad"
+                    style="background:#fbc02d; color:black; border:none; padding:10px 15px; border-radius:4px; cursor:pointer; flex:1;"><i
+                        class="fas fa-sticky-note"></i> Note</button>
+            </div>
+
+            <!-- Table (Scrollable area) -->
+            <div style="flex:1; overflow-y:auto;">
                 <table id="sections-table" style="width:100%; border-collapse: collapse;">
-                    <thead style="position:sticky; top:0; background:#eee; z-index:1;">
+                    <thead style="position:sticky; top:0; background:#f4f4f4; z-index:1;">
                         <tr style="text-align:left;">
-                            <th style="padding:10px;">Preview</th>
+                            <th style="padding:10px;">Content</th>
                             <th style="padding:10px;">Page</th>
-                            <th style="padding:10px;">Order</th>
-                            <th style="padding:10px;">Actions</th>
+                            <th style="padding:10px;">Pos</th>
+                            <th style="padding:10px; text-align:right;">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="sections-list">
-                        <!-- Rows injected by JS -->
-                    </tbody>
+                    <tbody id="sections-list"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- History Modal -->
-<div id="history-modal" class="modal hidden">
-    <!-- Increased max-width to 600px for better readability -->
-    <div class="modal-content" style="max-width: 600px; width: 95%;">
-        
-        <!-- Header with X Button -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
-            <h3 style="margin:0; color:#2e7d32;">Restore Version</h3>
-            <button id="close-history-x" style="background:transparent; border:none; font-size:1.5rem; cursor:pointer; color:#666;">&times;</button>
-        </div>
+    <!-- NEW: Content Editor Modal -->
+    <div id="edit-content-modal" class="modal hidden" style="z-index: 8000;">
+        <div class="modal-content"
+            style="max-width: 600px; width: 95%; height: 70vh; display:flex; flex-direction:column;">
+            <h3 style="margin-top:0; color:#2e7d32;">Edit Content</h3>
+            <p style="color:#666; font-size:0.8rem; margin-bottom:10px;">You can edit the HTML directly here.</p>
 
-        <ul id="history-list">
-            <!-- List injected by JS -->
-        </ul>
-        
-        <div style="text-align:right; margin-top:15px;">
-            <button id="btn-close-modal" style="background:#eee; color:#333; border:none; padding:10px 20px; border-radius:4px; cursor:pointer;">Close</button>
+            <textarea id="edit-content-textarea"
+                style="flex:1; width:100%; padding:15px; border:1px solid #ccc; border-radius:4px; font-family:monospace; resize:none;"></textarea>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
+                <button id="cancel-edit-content"
+                    style="background:#eee; color:#333; border:none; padding:10px 20px; border-radius:4px; cursor:pointer;">Cancel</button>
+                <button id="save-edit-content"
+                    style="background:#2e7d32; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold;">Save
+                    Changes</button>
+            </div>
         </div>
     </div>
-</div>
+
+    <!-- History Modal -->
+    <div id="history-modal" class="modal hidden">
+        <!-- Increased max-width to 600px for better readability -->
+        <div class="modal-content" style="max-width: 600px; width: 95%;">
+
+            <!-- Header with X Button -->
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                <h3 style="margin:0; color:#2e7d32;">Restore Version</h3>
+                <button id="close-history-x"
+                    style="background:transparent; border:none; font-size:1.5rem; cursor:pointer; color:#666;">&times;</button>
+            </div>
+
+            <ul id="history-list">
+                <!-- List injected by JS -->
+            </ul>
+
+            <div style="text-align:right; margin-top:15px;">
+                <button id="btn-close-modal"
+                    style="background:#eee; color:#333; border:none; padding:10px 20px; border-radius:4px; cursor:pointer;">Close</button>
+            </div>
+        </div>
+    </div>
 
     <div id="maintenance-view" class="hidden maintenance-overlay">
         <div class="maintenance-content">
@@ -266,19 +288,21 @@
     </div>
 
     <!-- Generic Input Modal -->
-<div id="input-modal" class="modal hidden" style="z-index: 9000;">
-    <div class="modal-content" style="max-width: 400px; text-align: center;">
-        <h3 id="input-modal-title" style="color:#2e7d32; margin-top:0;">Input</h3>
-        
-        <input type="text" id="input-modal-field" 
-               style="width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;">
-        
-        <div style="display:flex; gap:10px; justify-content:center;">
-            <button id="input-modal-cancel" style="background:#eee; color:#333; border:none; padding:10px 20px; border-radius:4px; cursor:pointer;">Cancel</button>
-            <button id="input-modal-confirm" style="background:#2e7d32; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold;">OK</button>
+    <div id="input-modal" class="modal hidden" style="z-index: 9000;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h3 id="input-modal-title" style="color:#2e7d32; margin-top:0;">Input</h3>
+
+            <input type="text" id="input-modal-field"
+                style="width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;">
+
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <button id="input-modal-cancel"
+                    style="background:#eee; color:#333; border:none; padding:10px 20px; border-radius:4px; cursor:pointer;">Cancel</button>
+                <button id="input-modal-confirm"
+                    style="background:#2e7d32; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold;">OK</button>
+            </div>
         </div>
     </div>
-</div>
     <!-- Entry Point Module -->
     <script type="module" src="/src/js/main.js"></script>
 </body>
