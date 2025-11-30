@@ -5,7 +5,6 @@ import { render } from './renderer.js';
 import { ask } from './modal.js';
 
 export function initToolbar() {
-    
     // 1. ADD BUTTONS
     const actionsDiv = document.querySelector('.toolbar-actions');
     const oldSave = document.getElementById('btn-save');
@@ -31,6 +30,7 @@ export function initToolbar() {
         });
     }
 
+    // 2. LISTENERS
     document.getElementById('btn-mass').addEventListener('click', () => {
         document.getElementById('mass-panel').classList.toggle('hidden');
     });
@@ -59,12 +59,14 @@ export function initToolbar() {
 }
 
 function setupModals() {
+    // Sections Modal
     document.getElementById('close-sections').addEventListener('click', () => document.getElementById('sections-modal').classList.add('hidden'));
     document.getElementById('btn-add-page').addEventListener('click', addNewPage);
     document.getElementById('btn-add-section').addEventListener('click', addNewSection);
     const noteBtn = document.getElementById('btn-add-notepad');
     if(noteBtn) noteBtn.addEventListener('click', addNewNotepad);
 
+    // Emergency Modal
     document.getElementById('close-emergency').addEventListener('click', () => document.getElementById('emergency-modal').classList.add('hidden'));
     document.getElementById('post-emergency').addEventListener('click', postAnnouncement);
 }
@@ -98,7 +100,6 @@ function renderSectionsTable() {
         return (a.page || '').localeCompare(b.page || '');
     });
 
-    // Gather Unique Pages
     const uniquePages = new Set(state.items.map(i => i.page || 'home'));
     ['home', 'products', 'contact'].forEach(p => uniquePages.add(p));
     const pageOptions = Array.from(uniquePages).sort();
@@ -130,10 +131,6 @@ function renderSectionsTable() {
         tbody.appendChild(tr);
     });
 
-    // Fix Dropdown Logic (remove old if exists)
-    const oldDl = document.getElementById('page-options');
-    if (oldDl) oldDl.remove();
-
     attachTableListeners();
 }
 
@@ -162,19 +159,19 @@ function addNewNotepad() {
 
 function triggerOptimisticUpdate() { render(); document.dispatchEvent(new Event('app-render-request')); }
 
-// --- SMART HISTORY LOGIC ---
 function setupHistory() {
+    const modal = document.getElementById('history-modal');
+
     document.getElementById('btn-restore').addEventListener('click', async () => {
         const history = await fetchHistory();
         const list = document.getElementById('history-list');
         list.innerHTML = '';
         
-        // Loop to compare Current vs Previous
         history.forEach((h, index) => {
-            // "Next" item in list is actually the older one (Previous State)
             const prevSnapshot = history[index + 1]?.snapshot || [];
             const currSnapshot = h.snapshot || [];
             
+            // Generate summary (e.g. "Added Map, Edited Header")
             let summary = generateDiffSummary(currSnapshot, prevSnapshot);
             if (index === history.length - 1) summary = "Baseline / Oldest Backup";
 
@@ -195,17 +192,32 @@ function setupHistory() {
                     await restoreSnapshot(h.snapshot); 
                     setItems(h.snapshot); 
                     render(); 
-                    document.getElementById('history-modal').classList.add('hidden'); 
+                    modal.classList.add('hidden'); 
                 } 
             };
             list.appendChild(li);
         });
-        document.getElementById('history-modal').classList.remove('hidden');
+        modal.classList.remove('hidden');
     });
-    document.getElementById('btn-close-modal').addEventListener('click', () => document.getElementById('history-modal').classList.add('hidden'));
+
+    // --- CLOSING LOGIC ---
+    const closeHistory = () => modal.classList.add('hidden');
+
+    // 1. Footer Button
+    document.getElementById('btn-close-modal').addEventListener('click', closeHistory);
+    
+    // 2. Header X Button
+    const closeX = document.getElementById('close-history-x');
+    if(closeX) closeX.addEventListener('click', closeHistory);
+
+    // 3. Click Outside (Background)
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) { // e.target checks if we clicked the grey overlay
+            closeHistory();
+        }
+    });
 }
 
-// Helper: Compare two lists and describe what happened
 function generateDiffSummary(current, previous) {
     if (!previous || previous.length === 0) return "Initial Load / Reset";
     
@@ -219,7 +231,6 @@ function generateDiffSummary(current, previous) {
             changes.push(`Added <b>${getLabel(curr)}</b>`);
             changeCount++;
         } else if (JSON.stringify(curr) !== JSON.stringify(prev)) {
-            // It changed. How?
             changeCount++;
             if (curr.content !== prev.content) changes.push(`Edited <b>${getLabel(curr)}</b>`);
             else if (curr.position !== prev.position) changes.push(`Moved <b>${getLabel(curr)}</b>`);
@@ -237,19 +248,17 @@ function generateDiffSummary(current, previous) {
     });
 
     if (changeCount === 0) return "No visible changes";
-    if (changeCount > 3) return `${changeCount} items changed (Mass Edit)`;
+    if (changeCount > 4) return `${changeCount} items changed (Mass Edit)`;
     
-    // Unique list, max 3 lines
-    return [...new Set(changes)].slice(0, 3).join(", ");
+    // Unique list, joined by comma and space
+    return [...new Set(changes)].slice(0, 4).join(", ");
 }
 
-// Helper: Get a readable name for an item
 function getLabel(item) {
     if (item.type === 'alert') return "Alert";
     if (item.type === 'map') return "Map";
     if (item.type === 'carousel') return "Carousel";
     if (item.content) {
-        // Strip HTML
         const div = document.createElement('div');
         div.innerHTML = item.content;
         const text = div.innerText.replace(/\n/g, ' ').substring(0, 15).trim();

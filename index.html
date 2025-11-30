@@ -205,13 +205,25 @@
     </div>
 
     <!-- History Modal -->
-    <div id="history-modal" class="modal hidden">
-        <div class="modal-content">
-            <h3>Restore Version</h3>
-            <ul id="history-list"></ul>
-            <button id="btn-close-modal" style="margin-top:10px;">Close</button>
+<div id="history-modal" class="modal hidden">
+    <!-- Increased max-width to 600px for better readability -->
+    <div class="modal-content" style="max-width: 600px; width: 95%;">
+        
+        <!-- Header with X Button -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
+            <h3 style="margin:0; color:#2e7d32;">Restore Version</h3>
+            <button id="close-history-x" style="background:transparent; border:none; font-size:1.5rem; cursor:pointer; color:#666;">&times;</button>
+        </div>
+
+        <ul id="history-list">
+            <!-- List injected by JS -->
+        </ul>
+        
+        <div style="text-align:right; margin-top:15px;">
+            <button id="btn-close-modal" style="background:#eee; color:#333; border:none; padding:10px 20px; border-radius:4px; cursor:pointer;">Close</button>
         </div>
     </div>
+</div>
 
     <div id="maintenance-view" class="hidden maintenance-overlay">
         <div class="maintenance-content">
