@@ -204,14 +204,51 @@
     </div>
 
     <!-- NEW: Content Editor Modal -->
+    <!-- Content Editor Modal (Rich Text) -->
     <div id="edit-content-modal" class="modal hidden" style="z-index: 8000;">
         <div class="modal-content"
-            style="max-width: 600px; width: 95%; height: 70vh; display:flex; flex-direction:column;">
+            style="max-width: 700px; width: 95%; height: 80vh; display:flex; flex-direction:column;">
             <h3 style="margin-top:0; color:#2e7d32;">Edit Content</h3>
-            <p style="color:#666; font-size:0.8rem; margin-bottom:10px;">You can edit the HTML directly here.</p>
 
-            <textarea id="edit-content-textarea"
-                style="flex:1; width:100%; padding:15px; border:1px solid #ccc; border-radius:4px; font-family:monospace; resize:none;"></textarea>
+            <!-- EDITOR TOOLBAR -->
+            <div class="editor-toolbar"
+                style="background:#f4f4f4; border:1px solid #ccc; border-bottom:none; padding:8px; display:flex; gap:5px; flex-wrap:wrap; border-radius: 4px 4px 0 0;">
+                <!-- Headings -->
+                <select id="editor-format" style="padding:5px; border-radius:3px; border:1px solid #ccc;">
+                    <option value="p">Normal Text</option>
+                    <option value="h3">Big Header (H3)</option>
+                    <option value="h4">Small Header (H4)</option>
+                </select>
+                <div style="width:1px; background:#ccc; margin:0 5px;"></div>
+
+                <!-- Styling -->
+                <button class="editor-btn" data-cmd="bold" title="Bold"><i class="fas fa-bold"></i></button>
+                <button class="editor-btn" data-cmd="italic" title="Italic"><i class="fas fa-italic"></i></button>
+                <button class="editor-btn" data-cmd="underline" title="Underline"><i
+                        class="fas fa-underline"></i></button>
+                <div style="width:1px; background:#ccc; margin:0 5px;"></div>
+
+                <!-- Lists -->
+                <button class="editor-btn" data-cmd="insertUnorderedList" title="Bullet List"><i
+                        class="fas fa-list-ul"></i></button>
+                <button class="editor-btn" data-cmd="insertOrderedList" title="Number List"><i
+                        class="fas fa-list-ol"></i></button>
+                <div style="width:1px; background:#ccc; margin:0 5px;"></div>
+
+                <!-- Link -->
+                <button class="editor-btn" id="editor-link-btn" title="Insert Link"><i class="fas fa-link"></i></button>
+                <button class="editor-btn" data-cmd="unlink" title="Remove Link"><i class="fas fa-unlink"></i></button>
+
+                <!-- Clear -->
+                <button class="editor-btn" data-cmd="removeFormat" title="Clear Formatting" style="margin-left:auto;"><i
+                        class="fas fa-eraser"></i></button>
+            </div>
+
+            <!-- VISUAL EDITING AREA -->
+            <div id="visual-editor" contenteditable="true"
+                style="flex:1; width:100%; padding:20px; border:1px solid #ccc; border-radius: 0 0 4px 4px; overflow-y:auto; outline:none; font-family:inherit;">
+                <!-- Content loaded here by JS -->
+            </div>
 
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
                 <button id="cancel-edit-content"

@@ -3,10 +3,9 @@ import { state, setItems } from './state.js';
 import { saveContent, fetchHistory, restoreSnapshot } from './db.js';
 import { render } from './renderer.js';
 import { ask } from './modal.js';
-// We need the image manager for carousel edits
 import { openImageManager } from './imageManager.js'; 
 
-let editingIndex = null; // Track which item is being edited in the modal
+let editingIndex = null; 
 
 export function initToolbar() {
     
@@ -61,31 +60,69 @@ export function initToolbar() {
 
     setupHistory();
     setupModals();
+    setupRichTextEditor(); // <--- NEW FUNCTION
 }
 
 function setupModals() {
-    // --- SECTIONS MANAGER ---
     const secModal = document.getElementById('sections-modal');
     document.getElementById('close-sections').addEventListener('click', () => secModal.classList.add('hidden'));
-    
-    // Click Outside to Close
-    secModal.addEventListener('click', (e) => {
-        if (e.target === secModal) secModal.classList.add('hidden');
-    });
+    secModal.addEventListener('click', (e) => { if (e.target === secModal) secModal.classList.add('hidden'); });
 
     document.getElementById('btn-add-page').addEventListener('click', addNewPage);
     document.getElementById('btn-add-section').addEventListener('click', addNewSection);
     const noteBtn = document.getElementById('btn-add-notepad');
     if(noteBtn) noteBtn.addEventListener('click', addNewNotepad);
 
-    // --- EMERGENCY ---
     document.getElementById('close-emergency').addEventListener('click', () => document.getElementById('emergency-modal').classList.add('hidden'));
     document.getElementById('post-emergency').addEventListener('click', postAnnouncement);
 
-    // --- CONTENT EDITOR ---
+    // --- EDITOR MODAL ---
     document.getElementById('cancel-edit-content').addEventListener('click', () => document.getElementById('edit-content-modal').classList.add('hidden'));
     document.getElementById('save-edit-content').addEventListener('click', saveContentEdit);
 }
+
+// --- NEW: RICH TEXT EDITOR LOGIC ---
+function setupRichTextEditor() {
+    // 1. Simple Buttons (Bold, Italic, Lists)
+    document.querySelectorAll('.editor-btn[data-cmd]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const cmd = btn.getAttribute('data-cmd');
+            document.execCommand(cmd, false, null);
+            document.getElementById('visual-editor').focus();
+        });
+    });
+
+    // 2. Format Dropdown (H3, H4, P)
+    document.getElementById('editor-format').addEventListener('change', (e) => {
+        document.execCommand('formatBlock', false, e.target.value);
+        document.getElementById('visual-editor').focus();
+    });
+
+    // 3. Link Button
+    document.getElementById('editor-link-btn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        const url = await ask("Enter URL (e.g. https://google.com):", "https://");
+        if (url) {
+            document.execCommand('createLink', false, url);
+        }
+    });
+}
+
+function saveContentEdit() {
+    if (editingIndex !== null) {
+        // Grab HTML from Visual Editor
+        const newContent = document.getElementById('visual-editor').innerHTML;
+        state.items[editingIndex].content = newContent;
+        
+        triggerOptimisticUpdate();
+        document.getElementById('edit-content-modal').classList.add('hidden');
+        renderSectionsTable(); 
+    }
+}
+
+// ... (Rest of code remains same: postAnnouncement, openSectionsManager, renderSectionsTable, etc) ...
+// Copy-paste below functions from previous version if overwriting completely
 
 function postAnnouncement() {
     const text = document.getElementById('emergency-text').value;
@@ -111,7 +148,6 @@ function openSectionsManager() {
 function renderSectionsTable() {
     const tbody = document.getElementById('sections-list');
     tbody.innerHTML = '';
-    
     const sortedItems = [...state.items].sort((a, b) => {
         if (a.page === b.page) return (a.position || 0) - (b.position || 0);
         return (a.page || '').localeCompare(b.page || '');
@@ -143,7 +179,6 @@ function renderSectionsTable() {
         const pageSelect = `<select class="page-select" data-idx="${realIndex}" style="padding:8px; width:100px; border-radius:4px; border:1px solid #ccc;">${optionsHtml}</select>`;
         const posInput = `<input type="number" class="pos-input" data-idx="${realIndex}" value="${item.position || 0}" style="width:50px; padding:5px;">`;
         
-        // ACTIONS: EDIT (Pencil) and DELETE (Bin)
         const actions = `
             <div style="display:flex; justify-content:flex-end; gap:5px;">
                 <button class="edit-row-btn" data-idx="${realIndex}" style="color:#2196f3; background:none; border:none; cursor:pointer; font-size:1.1rem;"><i class="fas fa-pen"></i></button>
@@ -162,7 +197,6 @@ function attachTableListeners() {
     document.querySelectorAll('.page-select').forEach(el => { el.addEventListener('change', (e) => { const index = e.target.getAttribute('data-idx'); state.items[index].page = e.target.value; triggerOptimisticUpdate(); renderSectionsTable(); }); });
     document.querySelectorAll('.pos-input').forEach(el => { el.addEventListener('change', (e) => { const index = e.target.getAttribute('data-idx'); state.items[index].position = parseInt(e.target.value); triggerOptimisticUpdate(); }); });
     
-    // DELETE
     document.querySelectorAll('.del-btn').forEach(el => { 
         el.addEventListener('click', (e) => { 
             const index = e.target.closest('.del-btn').getAttribute('data-idx'); 
@@ -172,60 +206,39 @@ function attachTableListeners() {
         }); 
     });
 
-    // EDIT
+    // --- UPDATED EDIT LOGIC ---
     document.querySelectorAll('.edit-row-btn').forEach(el => {
         el.addEventListener('click', async (e) => {
             const index = e.target.closest('.edit-row-btn').getAttribute('data-idx');
             const item = state.items[index];
 
             if (item.type === 'carousel') {
-                // Reuse existing Image Manager
                 openImageManager(index);
-                // Also close sections manager so we can see the image modal? 
-                // Or stack them. Stacking is fine if z-index is right.
             } else if (item.type === 'map') {
                 const newCode = await ask("Paste Google Maps Embed HTML:");
                 if (newCode && newCode.includes('<iframe')) {
-                    item.content = newCode; // We wrap it in a div in renderer anyway, but raw iframe is fine
+                    item.content = newCode;
                     triggerOptimisticUpdate();
-                } else if (newCode) {
-                    alert("Invalid Embed Code. Must start with <iframe...");
                 }
             } else if (item.type === 'notepad') {
-                alert("Notepad content is unique to each user's device. You cannot edit it globally.");
+                alert("Notepad cannot be edited globally.");
             } else {
-                // Standard Text/Header/Alert/Section -> Open Content Editor
+                // RICH TEXT EDITOR OPEN
                 editingIndex = index;
-                document.getElementById('edit-content-textarea').value = item.content || '';
+                const editor = document.getElementById('visual-editor');
+                // Load HTML content into the visual editor
+                editor.innerHTML = item.content || ''; 
                 document.getElementById('edit-content-modal').classList.remove('hidden');
             }
         });
     });
 }
 
-function saveContentEdit() {
-    if (editingIndex !== null) {
-        state.items[editingIndex].content = document.getElementById('edit-content-textarea').value;
-        triggerOptimisticUpdate();
-        document.getElementById('edit-content-modal').classList.add('hidden');
-        renderSectionsTable(); // Refresh the preview text in the table
-    }
-}
-
 async function addNewPage() {
     const name = await ask("Enter Page Name (e.g. Gallery):");
     if (!name) return;
-    
-    state.items.push({ 
-        type: 'header', 
-        page: name.toLowerCase().replace(/\s/g, '-'), 
-        position: 0, 
-        content: `<h3>${name.toUpperCase()}</h3>`, 
-        styles: { padding: "30px", background: "white", borderRadius: "8px", textAlign: "center" } 
-    });
-    
-    renderSectionsTable(); 
-    triggerOptimisticUpdate();
+    state.items.push({ type: 'header', page: name.toLowerCase().replace(/\s/g, '-'), position: 0, content: `<h3>${name.toUpperCase()}</h3>`, styles: { padding: "30px", background: "white", borderRadius: "8px", textAlign: "center" } });
+    renderSectionsTable(); triggerOptimisticUpdate();
 }
 
 function addNewSection() {
@@ -242,7 +255,6 @@ function triggerOptimisticUpdate() { render(); document.dispatchEvent(new Event(
 
 function setupHistory() {
     const modal = document.getElementById('history-modal');
-    // Click Outside
     modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.classList.add('hidden');
     });

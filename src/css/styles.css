@@ -987,3 +987,29 @@ body.toast-active #app-container {
     user-drag: none;
     pointer-events: none; /* Let clicks pass through to the div */
 }
+
+/* --- RICH TEXT EDITOR --- */
+.editor-btn {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 5px 10px;
+    cursor: pointer;
+    color: #333;
+    font-size: 0.9rem;
+    transition: all 0.1s;
+}
+
+.editor-btn:hover {
+    background: #e0e0e0;
+}
+
+.editor-btn:active {
+    background: #ccc;
+    transform: translateY(1px);
+}
+
+/* Style the visual editor to look like the real site */
+#visual-editor h3 { color: #2e7d32; margin-top: 0; }
+#visual-editor ul { padding-left: 20px; }
+#visual-editor a { color: #2e7d32; text-decoration: underline; }
