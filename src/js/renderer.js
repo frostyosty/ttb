@@ -5,11 +5,10 @@ import { ask } from './modal.js';
 const triggerRender = () => document.dispatchEvent(new Event('app-render-request'));
 let dragSrcIndex = null;
 
-// Helper to handle color picker state so it doesn't get destroyed during editing
+// Helper for color picker (kept for text/bg color changes)
 let activeColorCallback = null;
 let globalColorInput = document.getElementById('global-color-picker');
 
-// Ensure global picker exists in DOM (prevents re-render destruction)
 if (!globalColorInput) {
     globalColorInput = document.createElement('input');
     globalColorInput.id = 'global-color-picker';
@@ -17,16 +16,14 @@ if (!globalColorInput) {
     globalColorInput.style.display = 'none';
     document.body.appendChild(globalColorInput);
     
-    // Live Preview
     globalColorInput.addEventListener('input', (e) => {
-        if (activeColorCallback) activeColorCallback(e.target.value, false); // false = don't save yet
+        if (activeColorCallback) activeColorCallback(e.target.value, false); 
     });
 
-    // Commit Change
     globalColorInput.addEventListener('change', (e) => {
         if (activeColorCallback) {
-            activeColorCallback(e.target.value, true); // true = save now
-            activeColorCallback = null; // Cleanup
+            activeColorCallback(e.target.value, true); 
+            activeColorCallback = null; 
         }
     });
 }
@@ -60,7 +57,9 @@ export function render() {
 
         Object.assign(el.style, item.styles);
 
+        // Find the REAL index in the main state array
         const originalIndex = state.items.indexOf(item);
+
         if (state.isDevMode) {
             setupDevFeatures(el, item, originalIndex);
         }
@@ -83,20 +82,28 @@ function setupDevFeatures(el, item, index) {
         el.appendChild(delBtn);
     }
 
-    // --- 2. EDITABILITY ---
+    // --- 2. EDITABILITY (TEXT SAVE FIX) ---
     if (item.type !== 'notepad') {
         el.classList.add('editable');
         el.setAttribute('contenteditable', 'true');
+        
+        // This triggers when you click OUT of the text box
         el.onblur = (e) => {
-            if (state.items[index] !== item) return;
-
+            // 1. Clean up Dev UI elements before saving content
             const clone = el.cloneNode(true);
             const btns = clone.querySelectorAll('.quick-delete-btn, .element-tools');
             btns.forEach(b => b.remove());
             
             const newVal = clone.innerHTML;
-            if (item.content !== newVal) {
+            
+            // 2. CHECK: Did content change?
+            if (state.items[index].content !== newVal) {
+                console.log("📝 Text Change Detected on Item", index);
+                
+                // 3. UPDATE STATE
                 state.items[index].content = newVal;
+                
+                // 4. TRIGGER SAVE
                 triggerRender(); 
             }
         };
@@ -110,15 +117,14 @@ function setupDevFeatures(el, item, index) {
     tools.className = 'element-tools';
     tools.contentEditable = "false";
 
-    // FIX FOR ISSUE 3: Counter-Scale
-    // If the box is scaled to 0.5, we scale the tools to 2.0 so they look normal.
+    // Counter-Scale logic
     const currentScale = parseFloat((item.styles.transform || '').replace(/[^0-9.]/g, '')) || 1;
     if (currentScale !== 1) {
         tools.style.transform = `scale(${1 / currentScale})`;
-        tools.style.transformOrigin = 'bottom right'; // Pin to corner
+        tools.style.transformOrigin = 'bottom right';
     }
 
-    // Drag
+    // Buttons
     const dragBtn = createBtn('fa-grip-vertical', 'tool-pos', () => {});
     dragBtn.style.cursor = 'grab';
     el.draggable = true;
@@ -139,7 +145,6 @@ function setupDevFeatures(el, item, index) {
         }
     });
 
-    // Resize
     const sizeBtn = createBtn('fa-expand', 'tool-size', async () => {
         const current = item.styles.maxWidth || '1000px';
         const newVal = await ask("Max Width (e.g. 100%, 600px):", current);
@@ -149,24 +154,17 @@ function setupDevFeatures(el, item, index) {
     const zoomOutBtn = createBtn('fa-search-minus', 'tool-scale', () => changeScale(item, -0.1));
     const zoomInBtn = createBtn('fa-search-plus', 'tool-scale', () => changeScale(item, 0.1));
 
-    // --- FIX FOR ISSUE 1 & 2: COLORS ---
-    
-    // Text Color
     const colorBtn = createBtn('fa-font', 'tool-color', () => {
-        // Check if user has highlighted text
         const selection = window.getSelection();
         const hasSelection = selection.rangeCount > 0 && !selection.isCollapsed && selection.anchorNode.parentNode.closest('.content-block') === el;
 
         activeColorCallback = (val, save) => {
             if (hasSelection) {
-                // If text selected, use execCommand (Old but reliable for CMS)
                 document.execCommand('styleWithCSS', false, true);
                 document.execCommand('foreColor', false, val);
             } else {
-                // Else, Block style
-                el.style.color = val; // Preview
+                el.style.color = val; 
                 if (save) {
-                    // If we used execCommand, content changed. If block, style changed.
                     if (hasSelection) state.items[index].content = el.innerHTML;
                     else item.styles.color = val;
                     triggerRender();
@@ -176,17 +174,18 @@ function setupDevFeatures(el, item, index) {
         globalColorInput.click();
     });
 
-    // Background Color
     const bgBtn = createBtn('fa-fill-drip', 'tool-color', () => {
         activeColorCallback = (val, save) => {
-            el.style.backgroundColor = val; // Preview
+            el.style.backgroundColor = val; 
             if (save) {
-                item.styles.background = val; // Save
+                item.styles.background = val; 
                 triggerRender();
             }
         };
         globalColorInput.click();
     });
+
+    // NOTE: Removed Image Upload Button per your request
 
     tools.append(dragBtn, sizeBtn, zoomOutBtn, zoomInBtn, colorBtn, bgBtn);
     el.appendChild(tools);

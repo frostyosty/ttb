@@ -2,7 +2,7 @@
 // Use CDN for robust loading
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';
-
+// import { notifyAdminOfChange } from './security.js';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const TABLE_CONTENT = 'tweed_trading_content';
 const TABLE_HISTORY = 'tweed_trading_history';
