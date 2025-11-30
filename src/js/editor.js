@@ -36,7 +36,7 @@ export function initEditor() {
     // METHOD A: LONG PRESS (3 Seconds)
     // ==========================================
     if (DEV_TRIGGER === 'longpress') {
-        console.log("Security: Long Press Active");
+        // console.log("Security: Long Press Active");
         
         const startPress = () => {
             pressTimer = setTimeout(() => activate(), 3000); 
@@ -56,7 +56,7 @@ export function initEditor() {
     // METHOD B: SWIPE RIGHT (Slide Header)
     // ==========================================
     if (DEV_TRIGGER === 'swipe') {
-        console.log("Security: Swipe Gesture Active");
+        // console.log("Security: Swipe Gesture Active");
 
         // 1. DISABLE NATIVE DRAG (Fixes Desktop Issue)
         header.addEventListener('dragstart', (e) => {

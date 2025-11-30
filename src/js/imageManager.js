@@ -13,43 +13,66 @@ export function openImageManager(index) {
     // Load existing images from metadata
     tempImageList = item.metadata && item.metadata.images ? [...item.metadata.images] : [];
     
-    renderImageTable();
-    
+    // --- SAFETY CHECK 1: Ensure Modal Exists ---
     const modal = document.getElementById('image-modal');
+    if (!modal) {
+        console.error("CRITICAL: #image-modal is missing from index.html");
+        alert("Error: Image Manager modal HTML is missing. Check index.html");
+        return;
+    }
+
+    // Try to render the table
+    const success = renderImageTable();
+    if (!success) return; // Stop if table missing
+    
     modal.classList.remove('hidden');
 
     // Attach Listeners
-    document.getElementById('close-images').onclick = () => modal.classList.add('hidden');
+    const closeBtn = document.getElementById('close-images');
+    if (closeBtn) closeBtn.onclick = () => modal.classList.add('hidden');
     
     // --- 🔒 DISABLED UPLOAD BUTTON ---
-    document.getElementById('btn-upload-img').onclick = () => {
-        alert("SECURITY: Client-side uploads are disabled.\n\nPlease upload images to the Supabase 'assets' bucket manually, then add the URL to the database.");
-        // document.getElementById('img-upload-input').click(); // <--- DISABLED
-    };
+    const uploadBtn = document.getElementById('btn-upload-img');
+    if (uploadBtn) {
+        uploadBtn.onclick = () => {
+            alert("SECURITY: Client-side uploads are disabled.\n\nPlease upload images to the Supabase 'assets' bucket manually, then add the URL to the database.");
+        };
+    }
     
-    document.getElementById('img-upload-input').onchange = handleUpload;
+    const fileInput = document.getElementById('img-upload-input');
+    if (fileInput) fileInput.onchange = handleUpload;
     
-    // SAVE (Still works for reordering/categorizing existing images)
-    document.getElementById('btn-save-images').onclick = () => {
-        if (!state.items[currentCarouselIndex].metadata) {
-            state.items[currentCarouselIndex].metadata = {};
-        }
-        state.items[currentCarouselIndex].metadata.images = tempImageList;
-        
-        // Trigger Auto-Save
-        render();
-        document.dispatchEvent(new Event('app-render-request'));
-        modal.classList.add('hidden');
-    };
+    // SAVE
+    const saveBtn = document.getElementById('btn-save-images');
+    if (saveBtn) {
+        saveBtn.onclick = () => {
+            if (!state.items[currentCarouselIndex].metadata) {
+                state.items[currentCarouselIndex].metadata = {};
+            }
+            state.items[currentCarouselIndex].metadata.images = tempImageList;
+            
+            // Trigger Auto-Save
+            render();
+            document.dispatchEvent(new Event('app-render-request'));
+            modal.classList.add('hidden');
+        };
+    }
 }
 
 function renderImageTable() {
     const tbody = document.getElementById('images-list');
+    
+    // --- SAFETY CHECK 2: Ensure Table Body Exists ---
+    if (!tbody) {
+        console.error("CRITICAL: #images-list table body is missing from HTML");
+        return false;
+    }
+
     tbody.innerHTML = '';
 
     if (tempImageList.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="padding:20px; text-align:center;">No images in metadata. Add via Database.</td></tr>';
-        return;
+        tbody.innerHTML = '<tr><td colspan="3" style="padding:20px; text-align:center;">No images in metadata. Add via Database or Supabase Dashboard.</td></tr>';
+        return true;
     }
 
     tempImageList.forEach((img, idx) => {
@@ -72,7 +95,7 @@ function renderImageTable() {
             </select>
         `;
 
-        // 3. Delete (Removes from list, not storage)
+        // 3. Delete
         const delBtn = `<button class="img-del-btn" data-idx="${idx}" style="color:red; background:none; border:none; cursor:pointer;"><i class="fas fa-trash"></i></button>`;
 
         tr.innerHTML = `
@@ -111,27 +134,12 @@ function renderImageTable() {
             renderImageTable();
         });
     });
+
+    return true;
 }
 
 // 🔒 DISABLED UPLOAD HANDLER
 async function handleUpload(e) {
     alert("Uploads Disabled.");
     return;
-    
-    /* 
-    // OLD UPLOAD LOGIC (Commented out for security)
-    const files = e.target.files;
-    if (!files.length) return;
-
-    for (let file of files) {
-        const fileName = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
-        const { data, error } = await supabase.storage.from('assets').upload(fileName, file);
-
-        if (!error) {
-            const publicUrl = `${supabase.storageUrl}/object/public/assets/${fileName}`;
-            tempImageList.push({ url: publicUrl, category: 'doors' });
-        }
-    }
-    renderImageTable();
-    */
 }

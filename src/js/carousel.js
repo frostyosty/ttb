@@ -21,7 +21,7 @@ export function initCarousel() {
     if (!carouselImage) return; 
 
     // DEBUG: Verify we are using the correct URL now
-    console.log("Carousel: Base URL is:", BASE_URL);
+    // console.log("Carousel: Base URL is:", BASE_URL);
 
     const startShow = (category) => {
         const images = imageMap[category];
