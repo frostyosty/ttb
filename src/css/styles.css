@@ -966,3 +966,24 @@ body.toast-active #app-container {
     transform: scale(1.1);
     background: darkred;
 }
+
+.site-header { 
+    background: #000; 
+    color: #fff; 
+    padding: 20px 10px; 
+    text-align: center; 
+    cursor: pointer; 
+    
+    /* PREVENTS TEXT HIGHLIGHTING */
+    user-select: none; 
+    -webkit-user-select: none;
+    
+    border-bottom: 1px solid #333;
+}
+
+/* PREVENTS NATIVE IMAGE DRAGGING (The Ghost Image) */
+.site-header img {
+    -webkit-user-drag: none;
+    user-drag: none;
+    pointer-events: none; /* Let clicks pass through to the div */
+}
