@@ -35,8 +35,8 @@ export default defineConfig({
 
   build: {
     outDir: 'dist',
+    emptyOutDir: true, // Ensure we clear old files
   },
-
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -46,22 +46,19 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      includeAssets: [
-        'assets/icon.svg',          // Your Red T Icon
-        'assets/quick_logo.png'     // Your Logo
-      ],
+      // FORCE CLEANUP OF OLD CACHES
+      workbox: {
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
+        // Don't cache the index.html initially to prevent this loop
+        navigateFallback: null, 
+      },
       manifest: {
         name: 'Tweed Trading CMS',
         short_name: 'Tweed',
-        description: 'Manage Tweed Trading recycled materials inventory.',
-        theme_color: '#2e7d32',     // Your Green
-        background_color: '#ffffff',
-        start_url: '/',
-        display: 'standalone',
-        orientation: 'portrait',
+        theme_color: '#2e7d32',
         icons: [
-            // Using your SVG as a placeholder for PWA icons for now
-            // You should generate real PNGs later for full PWA support
           { src: 'assets/icon.svg', sizes: '192x192', type: 'image/svg+xml' },
           { src: 'assets/icon.svg', sizes: '512x512', type: 'image/svg+xml' }
         ],

@@ -5,21 +5,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tweed Trading</title>
-    <link rel="stylesheet" href="/src/css/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+    <!-- PWA KILL SWITCH - MUST BE FIRST -->
     <script>
-        if (window.navigator && navigator.serviceWorker) {
-            navigator.serviceWorker.getRegistrations()
-                .then(function (registrations) {
-                    for (let registration of registrations) {
-                        registration.unregister();
-                        console.log("Service Worker Unregistered (Kill Switch Active)");
-                    }
-                });
+        // Force unregister all SWs immediately
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                for (let registration of registrations) {
+                    registration.unregister()
+                        .then(() => console.log("Service Worker Force Unregistered"))
+                        .catch(err => console.error("SW Unregister failed", err));
+                }
+            });
+            // Force reload if we detect we are serving source files
+            // (The browser sees 'src/js/main.js' instead of 'assets/index.js')
+            window.addEventListener('load', () => {
+                const script = document.querySelector('script[src*="/src/js/main.js"]');
+                if (script) {
+                    console.warn("Detected Source file serving. This should be a build.");
+                }
+            });
         }
     </script>
 
+    <link rel="stylesheet" href="/src/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
   window.__FORCE_STATIC_FALLBACK__ = true;
 </script>
@@ -334,7 +344,7 @@
         </div>
     </div>
     <!-- Entry Point Module -->
-    <script type="module" src="/src/js/main.js"></script>
+    <script type="module" src="./src/js/main.js"></script>
 </body>
 
 </html>
