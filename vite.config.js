@@ -23,6 +23,7 @@ const nzstDate = new Date(buildTimestamp).toLocaleString('en-NZ', {
 // -----------------------------------
 
 export default defineConfig({
+  base: '/',
   // --- 2. Inject Global Variable ---
   define: {
     '__BUILD_TIMESTAMP__': JSON.stringify(nzstDate),
