@@ -1,5 +1,5 @@
 /// src/js/security.js
-import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/+esm';
+import emailjs from '@emailjs/browser';
 import { EMAIL_SERVICE_ID, EMAIL_PUBLIC_KEY } from './config.js';
 
 // REPLACE THIS WITH YOUR NEW TEMPLATE ID FROM STEP 1

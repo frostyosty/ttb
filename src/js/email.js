@@ -1,7 +1,7 @@
 /// src/js/email.js
 
 // 👇 CHANGE THIS LINE
-import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/+esm';
+import emailjs from '@emailjs/browser';
 
 import { EMAIL_SERVICE_ID, EMAIL_TEMPLATE_ID, EMAIL_PUBLIC_KEY } from './config.js';
 
