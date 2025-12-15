@@ -23,6 +23,9 @@ const nzstDate = new Date(buildTimestamp).toLocaleString('en-NZ', {
 // -----------------------------------
 
 export default defineConfig({
+    optimizeDeps: {
+    include: ['@supabase/supabase-js']
+  },
   base: '/',
   // --- 2. Inject Global Variable ---
   define: {
