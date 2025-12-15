@@ -8,6 +8,8 @@
 
     <!-- PWA KILL SWITCH - MUST BE FIRST -->
     <script>
+
+        console.log("LIVE DEPLOY CHECK: Build Version 1.0 (Check this number!)");
         // Force unregister all SWs immediately
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function (registrations) {
