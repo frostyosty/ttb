@@ -22,6 +22,7 @@ export async function fetchContent() {
     return data;
 }
 
+
 export async function saveContent(items) {
     // 1. PREPARE PAYLOAD
     const payload = items.map(item => {
