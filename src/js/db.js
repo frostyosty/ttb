@@ -1,5 +1,5 @@
 /// src/js/db.js
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { createClient } from '@supabase/supabase-js'
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';
 import { notifyAdminOfChange } from './security.js';
 
