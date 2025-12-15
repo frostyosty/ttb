@@ -2,12 +2,12 @@
 
 console.log("Loading config.js...");
 
-// --- 🔐 SECURITY SETTINGS 🔐 ---
+// ---  SECURITY SETTINGS  ---
 // Change this to switch how you open the admin menu.
 // Options: 'longpress' (3 seconds) OR 'swipe' (Slide header right)
 export const DEV_TRIGGER = 'swipe'; 
 
-// --- 🔴 KILL SWITCH 🔴 ---
+// ---  KILL SWITCH  ---
 export const FORCE_OFFLINE = false; 
 
 // 1. SUPABASE KEYS

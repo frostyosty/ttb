@@ -26,7 +26,7 @@ export function initCarousel() {
     const startShow = (category) => {
         const images = imageMap[category];
         if (!images) return;
-
+        
         let index = 0;
         carouselImage.src = images[0];
 
