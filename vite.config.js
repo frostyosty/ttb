@@ -26,6 +26,7 @@ export default defineConfig({
   // --- 2. Inject Global Variable ---
   define: {
     '__BUILD_TIMESTAMP__': JSON.stringify(nzstDate),
+    global: 'window',
   },
 
   build: {
