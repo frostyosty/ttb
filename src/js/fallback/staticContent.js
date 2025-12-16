@@ -15,7 +15,7 @@ export const STATIC_CONTENT = [
         type: 'carousel', // Triggers the slideshow logic
         page: 'home',
         position: 2,
-        content: '<h3 style="color:#2e7d32; text-transform: uppercase;">Sample Stock</h3><div style="text-align: center; margin-bottom: 20px;"><button id="doorsButton" class="filter-btn">Doors</button><button id="windowsButton" class="filter-btn">Windows</button><button id="handlesButton" class="filter-btn">Handles</button><button id="electricalButton" class="filter-btn">Electrical</button><button id="tilesButton" class="filter-btn">Tiles</button></div><div style="text-align: center;"><img id="carouselImage" src="/assets/window2.jpg" alt="Sample Stock" style="max-width: 100%; height: 350px; object-fit: cover; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div>',
+        content: '<h3 style="color:#2e7d32; text-transform: uppercase;">Sample Stock</h3><div style="text-align: center; margin-bottom: 20px;"><button id="doorsButton" class="filter-btn">Doors</button><button id="windowsButton" class="filter-btn">Windows</button><button id="handlesButton" class="filter-btn">Handles</button><button id="electricalButton" class="filter-btn">Electrical</button><button id="tilesButton" class="filter-btn">Tiles</button></div><div style="text-align: center;"><img id="carouselImage" src="/tweed_trading_assets/window2.jpg" alt="Sample Stock" style="max-width: 100%; height: 350px; object-fit: cover; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div>',
         styles: { padding: "30px", maxWidth: "800px", margin: "20px auto", background: "white", borderRadius: "8px" }
     },
     {

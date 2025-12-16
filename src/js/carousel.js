@@ -1,15 +1,16 @@
 /// src/js/carousel.js
 
 // 👇 CORRECT SUPABASE URL (Based on your logs)
-const BASE_URL = 'https://oannlpewujcnmbzzvklu.supabase.co/storage/v1/object/public/assets/';
+const BASE_URL = 'https://oannlpewujcnmbzzvklu.supabase.co/storage/v1/object/public/tweed_trading_assets/';
 
 const imageMap = {
-    // We use the BASE_URL variable so we don't have to type the long string every time
     doors: [BASE_URL + 'door2.jpg', BASE_URL + 'door3.jpg', BASE_URL + 'door4.jpg'],
     windows: [BASE_URL + 'window1.jpg', BASE_URL + 'window2.jpg'],
     handles: [BASE_URL + 'handles1.jpg', BASE_URL + 'handles2.jpg'],
     electrical: [BASE_URL + 'elec2.jpg', BASE_URL + 'elec3.jpg'],
-    tiles: [BASE_URL + 'tiles1.jpg', BASE_URL + 'tiles2.jpg', BASE_URL + 'tiles3.jpg']
+    
+    // 👇 UPDATE THIS LINE: Only list the one file you actually have
+    tiles: [BASE_URL + 'tiles1.jpg'] 
 };
 
 let interval;
