@@ -56,4 +56,6 @@ export function initCarousel() {
     setupBtn('handlesButton', 'handles');
     setupBtn('electricalButton', 'electrical');
     setupBtn('tilesButton', 'tiles');
+
+startShow('doors');
 }
