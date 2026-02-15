@@ -63,11 +63,6 @@ export default defineConfig({
         short_name: 'Tweed',
         theme_color: '#2e7d32',
         icons: [
-          icons: [
-        { src: 'assets/icon.svg', sizes: '192x192', type: 'image/svg+xml' },
-        { src: 'assets/icon.svg', sizes: '512x512', type: 'image/svg+xml' }
-    ]
-}
           { src: 'assets/icon.svg', sizes: '192x192', type: 'image/svg+xml' },
           { src: 'assets/icon.svg', sizes: '512x512', type: 'image/svg+xml' }
         ],
