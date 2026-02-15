@@ -1,95 +1,125 @@
-/* POS OVERLAY (Full Screen) */
+/* --- GLOBAL POS VARIABLES --- */
+:root {
+    --pos-bg: #f4f6f8;
+    --pos-sidebar-bg: #fff;
+    --pos-text: #2c3e50;
+    --pos-accent: #2e7d32;
+    --pos-border: #dfe6e9;
+    --pos-pad: 10px; /* Reduced from 20px */
+}
+
+/* FULL SCREEN CONTAINER */
 #pos-view {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: #f0f2f5;
-    z-index: 9000;
+    background: var(--pos-bg);
+    z-index: 9999;
     display: flex;
     flex-direction: column;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px; /* Compact font */
 }
 
 .pos-header {
-    background: #1a1a1a;
+    background: #1e1e1e;
     color: white;
-    padding: 15px 20px;
+    padding: 8px 15px; /* Compact header */
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 50px;
+    flex-shrink: 0;
 }
 
+/* GRID LAYOUT (Desktop) */
 .pos-grid {
     display: grid;
-    grid-template-columns: 300px 1fr; /* Sidebar vs Content */
+    grid-template-columns: 220px 1fr; /* Sidebar smaller */
     flex: 1;
     overflow: hidden;
 }
 
-/* SIDEBAR */
+/* SIDEBAR / NAVIGATION */
 .pos-sidebar {
-    background: white;
-    border-right: 1px solid #ddd;
-    padding: 20px;
+    background: var(--pos-sidebar-bg);
+    border-right: 1px solid var(--pos-border);
+    padding: var(--pos-pad);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
 }
 
 .pos-btn {
-    padding: 15px;
+    padding: 10px;
     text-align: left;
     background: none;
-    border: 1px solid #eee;
-    border-radius: 8px;
+    border: 1px solid transparent;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 1rem;
-    transition: 0.2s;
+    font-weight: 500;
+    color: #555;
+    transition: 0.1s;
 }
-.pos-btn:hover, .pos-btn.active {
-    background: #e3f2fd;
-    border-color: #2196f3;
-    color: #0d47a1;
+
+.pos-btn:hover { background: #f0f0f0; }
+.pos-btn.active {
+    background: #e8f5e9;
+    color: var(--pos-accent);
+    border-color: #c8e6c9;
+    font-weight: bold;
 }
 
 /* CONTENT AREA */
 .pos-content {
-    padding: 30px;
+    padding: var(--pos-pad);
     overflow-y: auto;
 }
 
-/* PRODUCT FORM */
-.product-form {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    max-width: 600px;
-}
-
-.form-group { margin-bottom: 15px; }
-.form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-.form-group input, .form-group select, .form-group textarea {
-    width: 100%; padding: 10px;
-    border: 1px solid #ddd; border-radius: 6px;
-}
-
-/* LABEL PREVIEW (Simulating the Sticker) */
-#label-preview-modal {
-    text-align: center;
-}
-.sticker-mockup {
-    width: 300px; /* Scaled up for screen */
-    height: auto;
-    background: white;
+/* FORM COMPACTNESS */
+.product-form .form-group { margin-bottom: 8px; }
+.product-form label { font-size: 0.85rem; font-weight: 600; color: #666; margin-bottom: 2px; display:block; }
+.product-form input, .product-form select {
+    padding: 6px 8px; /* Smaller inputs */
     border: 1px solid #ccc;
-    padding: 10px;
-    margin: 20px auto;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-/* HIDE ON WEBSITE */
-.hidden { display: none !important; }
+/* --- MOBILE OPTIMIZATIONS --- */
+@media (max-width: 768px) {
+    .pos-grid {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Tabs snap to top */
+    .pos-sidebar {
+        flex-direction: row;
+        border-right: none;
+        border-bottom: 1px solid var(--pos-border);
+        overflow-x: auto; /* Scrollable horizontal tabs */
+        white-space: nowrap;
+        padding: 5px;
+        flex-shrink: 0;
+    }
+
+    .pos-btn {
+        flex: 1;
+        text-align: center;
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
+    
+    /* On mobile, stack the split view vertically */
+    .split-view {
+        flex-direction: column !important;
+    }
+    .preview-panel {
+        width: 100% !important;
+        border-left: none !important;
+        border-top: 1px solid #ccc;
+        height: 300px;
+    }
+}

@@ -26,22 +26,19 @@ window.addEventListener('error', (e) => {
 
 async function startApp() {
     console.log('Initializing Tweed Trading CMS...');
-
-    // 👇 ADD THIS BLOCK HERE 👇
-    // ---------------------------------------------------------
-    // ADMIN PERSISTENCE CHECK
-    // If the cookie exists, auto-load the POS system immediately.
+    
+    // 1. ADMIN AUTO-LOGIN CHECK (Moved here for reliability)
     if (localStorage.getItem('tweed_admin_logged_in') === 'true') {
-        console.log("🔑 Welcome back, Admin. Loading POS...");
-        
-        // Show toolbar
+        console.log("🔑 Admin Cookie Found. Launching POS...");
         const toolbar = document.getElementById('dev-toolbar');
-        if (toolbar) toolbar.classList.remove('hidden');
-
-        // Dynamically import and start POS
+        if(toolbar) toolbar.classList.remove('hidden');
+        
+        // Dynamic import to keep initial load fast
         import('./pos/posMain.js').then(module => {
-            module.initPOS(); 
+            module.initPOS();
         });
+        // We return early so the main website code doesn't mess with the DOM
+        // return; // Optional: Uncomment if you want to STOP the website loading entirely in background
     }
     // ---------------------------------------------------------
     
