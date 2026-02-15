@@ -294,3 +294,21 @@ function setupHistory() {
     });
     document.getElementById('btn-close-modal').addEventListener('click', () => modal.classList.add('hidden'));
 }
+
+
+// ... existing code ...
+
+// Add POS Button to the toolbar HTML
+const actions = document.querySelector('.toolbar-actions');
+if (actions) {
+    const posBtn = document.createElement('button');
+    posBtn.innerHTML = '<i class="fas fa-cash-register"></i> POS Mode';
+    posBtn.style.background = "#ff9800"; // Orange to stand out
+    posBtn.onclick = () => {
+        // Dynamic Import (so we don't load POS code for normal users)
+        import('./pos/posMain.js').then(module => {
+            module.initPOS();
+        });
+    };
+    actions.appendChild(posBtn);
+}

@@ -10,6 +10,8 @@
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
     "@supabase/supabase-js": "^2.87.3",
+    "jsbarcode": "^3.12.3",
+    "qrcode": "^1.5.4",
     "vite": "^5.0.0",
     "vite-plugin-pwa": "^0.17.0"
   }

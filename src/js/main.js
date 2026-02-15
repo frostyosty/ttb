@@ -26,6 +26,24 @@ window.addEventListener('error', (e) => {
 
 async function startApp() {
     console.log('Initializing Tweed Trading CMS...');
+
+    // 👇 ADD THIS BLOCK HERE 👇
+    // ---------------------------------------------------------
+    // ADMIN PERSISTENCE CHECK
+    // If the cookie exists, auto-load the POS system immediately.
+    if (localStorage.getItem('tweed_admin_logged_in') === 'true') {
+        console.log("🔑 Welcome back, Admin. Loading POS...");
+        
+        // Show toolbar
+        const toolbar = document.getElementById('dev-toolbar');
+        if (toolbar) toolbar.classList.remove('hidden');
+
+        // Dynamically import and start POS
+        import('./pos/posMain.js').then(module => {
+            module.initPOS(); 
+        });
+    }
+    // ---------------------------------------------------------
     
     const startTime = Date.now();
     const MIN_LOAD_TIME = 1000; // Keep spinner for at least 1s so it doesn't flash

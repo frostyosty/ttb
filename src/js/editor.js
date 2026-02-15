@@ -13,31 +13,54 @@ export function initEditor() {
     let startY = 0;
     let isSwiping = false;
 
-    // --- ACTIVATION FUNCTION ---
+    // --- ACTIVATION FUNCTION (UPDATED) ---
     const activate = () => {
-        const isActive = toggleDevMode();
+        const isActive = toggleDevMode(); // This returns true (ON) or false (OFF)
         
-        if (isActive) document.body.classList.add('dev-active');
-        else document.body.classList.remove('dev-active');
+        if (isActive) {
+            // ✅ 1. USER JUST LOGGED IN
+            console.log("🔓 Dev Mode Unlocked via Gesture!");
+            document.body.classList.add('dev-active');
+            toolbar.classList.remove('hidden');
+            
+            // 💾 Save "Remember Me" Cookies
+            localStorage.setItem('tweed_admin_logged_in', 'true');
+            localStorage.setItem('tweed_is_admin_device', 'true'); // Stops security emails
 
-        toast.innerText = isActive ? "Dev Mode Activated" : "Dev Mode Deactivated";
+            // 🚀 Auto-Launch POS System
+            import('./pos/posMain.js').then(module => {
+                module.initPOS(); 
+            });
+
+            toast.innerText = "Admin Access Granted";
+        } else {
+            // ❌ 2. USER LOGGED OUT (Swiped again to turn off)
+            document.body.classList.remove('dev-active');
+            toolbar.classList.add('hidden');
+            
+            // 🗑️ Clear Cookies
+            localStorage.removeItem('tweed_admin_logged_in');
+            
+            toast.innerText = "Dev Mode Deactivated";
+            
+            // 🔄 Force Reload to clear sensitive data from screen
+            setTimeout(() => location.reload(), 1000);
+        }
+
+        // Standard UI updates
         toast.classList.remove('hidden');
         setTimeout(() => toast.classList.add('hidden'), 4000);
-
-        if (isActive) toolbar.classList.remove('hidden');
-        else toolbar.classList.add('hidden');
-
         render(); 
         
         if (navigator.vibrate) navigator.vibrate(200);
     };
 
+    // ... (The rest of your code for LONGPRESS and SWIPE stays exactly the same) ...
     // ==========================================
     // METHOD A: LONG PRESS (3 Seconds)
     // ==========================================
     if (DEV_TRIGGER === 'longpress') {
-        // console.log("Security: Long Press Active");
-        
+        // ... keep existing code ...
         const startPress = () => {
             pressTimer = setTimeout(() => activate(), 3000); 
         };
@@ -56,19 +79,11 @@ export function initEditor() {
     // METHOD B: SWIPE RIGHT (Slide Header)
     // ==========================================
     if (DEV_TRIGGER === 'swipe') {
-        // console.log("Security: Swipe Gesture Active");
+        // ... keep existing code ...
+        // 1. DISABLE NATIVE DRAG
+        header.addEventListener('dragstart', (e) => { e.preventDefault(); return false; });
 
-        // 1. DISABLE NATIVE DRAG (Fixes Desktop Issue)
-        header.addEventListener('dragstart', (e) => {
-            e.preventDefault();
-            return false;
-        });
-
-        const handleStart = (x, y) => {
-            isSwiping = true;
-            startX = x;
-            startY = y;
-        };
+        const handleStart = (x, y) => { isSwiping = true; startX = x; startY = y; };
 
         const handleEnd = (x, y) => {
             if (!isSwiping) return;
@@ -83,25 +98,12 @@ export function initEditor() {
             }
         };
 
-        // --- MOUSE EVENTS (Desktop) ---
-        header.addEventListener('mousedown', (e) => {
-            // Prevent text cursor
-            e.preventDefault(); 
-            handleStart(e.clientX, e.clientY);
-        });
+        // Mouse Events
+        header.addEventListener('mousedown', (e) => { e.preventDefault(); handleStart(e.clientX, e.clientY); });
+        window.addEventListener('mouseup', (e) => { handleEnd(e.clientX, e.clientY); });
 
-        // Listen on WINDOW so you can drag wildly off the header
-        window.addEventListener('mouseup', (e) => {
-            handleEnd(e.clientX, e.clientY);
-        });
-
-        // --- TOUCH EVENTS (Mobile) ---
-        header.addEventListener('touchstart', (e) => {
-            handleStart(e.touches[0].clientX, e.touches[0].clientY);
-        }, { passive: true });
-
-        header.addEventListener('touchend', (e) => {
-            handleEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-        });
+        // Touch Events
+        header.addEventListener('touchstart', (e) => { handleStart(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+        header.addEventListener('touchend', (e) => { handleEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY); });
     }
 }
