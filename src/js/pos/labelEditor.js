@@ -65,8 +65,10 @@ function refreshPreview(container, inputIds) {
 
 // Calculates CSS Zoom so the 58mm label fits inside the 300px (or smaller) phone screen
 function applyScale(container) {
+    // 👇 SAFETY CHECK: If container or parent is missing, STOP.
+    if (!container || !container.parentElement) return;
+    
     const parent = container.parentElement;
-    if (!parent) return;
     
     // Reset transform to measure naturally
     container.style.transform = 'none';
@@ -74,6 +76,9 @@ function applyScale(container) {
     const parentWidth = parent.clientWidth - 20; // 20px padding
     const labelWidth = 220; // Approx 58mm in pixels
     
+    // Prevent divide by zero or negative width issues
+    if (parentWidth <= 0) return;
+
     if (parentWidth < labelWidth) {
         const scale = parentWidth / labelWidth;
         container.style.transformOrigin = 'top left';

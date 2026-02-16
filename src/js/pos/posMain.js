@@ -11,30 +11,35 @@ export async function initPOS() {
     const app = document.getElementById('app-container');
     const header = document.getElementById('super-header');
     
-    // 1. Hide Main Website
+    // Safety Check
+    if (!app) {
+        console.error("CRITICAL: App container not found!");
+        return;
+    }
+
     if(header) header.style.display = 'none';
     if(document.querySelector('.main-nav')) document.querySelector('.main-nav').style.display = 'none';
 
-    // 2. Render POS Shell (Synchronously)
+    // 1. Render POS Shell
     app.innerHTML = `
         <div id="pos-view">
-            <header class="pos-header">
+             <!-- ... (Keep your existing Header/Sidebar HTML) ... -->
+             <header class="pos-header">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <strong style="font-size:1.2rem;">Tweed ERP</strong>
-                    <span id="pos-clock" style="font-size:0.8rem; opacity:0.8;"></span>
                 </div>
                 <button id="exit-pos" style="background:#d32f2f; color:white; border:none; padding:5px 12px; border-radius:4px;">Exit</button>
             </header>
             
             <div class="pos-grid">
-<nav class="pos-sidebar">
-    <button class="pos-btn active" data-tab="add">📦 Add Item</button>
-    <button class="pos-btn" data-tab="checkout">💰 Checkout</button>
-    <button class="pos-btn" data-tab="inventory">📋 Inventory</button>
-    <hr style="border:0; border-top:1px solid #ddd; margin:5px 0;">
-    <button class="pos-btn" data-tab="labels">🏷️ Label Maker</button>
-    <button class="pos-btn" data-tab="settings">⚙️ Public Store</button>
-</nav>
+                <nav class="pos-sidebar">
+                    <button class="pos-btn active" data-tab="add">📦 Add Item</button>
+                    <button class="pos-btn" data-tab="checkout">💰 Checkout</button>
+                    <button class="pos-btn" data-tab="inventory">📋 Inventory</button>
+                    <hr style="border:0; border-top:1px solid #ddd; margin:5px 0;">
+                    <button class="pos-btn" data-tab="labels">🏷️ Label Maker</button>
+                    <button class="pos-btn" data-tab="settings">⚙️ Public Store</button>
+                </nav>
 
                 <main class="pos-content" id="pos-content-area">
                     <!-- Dynamic Content Loads Here -->
@@ -43,19 +48,19 @@ export async function initPOS() {
         </div>
     `;
 
-    // 3. Initialize Global Listeners
+    // 2. Initialize Listeners
     initScanner();
     document.getElementById('exit-pos').addEventListener('click', () => location.reload());
 
-    // 4. Handle Navigation (Tabs)
     const tabs = document.querySelectorAll('.pos-btn[data-tab]');
     tabs.forEach(btn => {
         btn.addEventListener('click', (e) => switchTab(e.target.dataset.tab));
     });
 
-    // 5. Load Default Tab (Add Item)
-    // We wait 1 tick to ensure DOM is ready
-    setTimeout(() => switchTab('add'), 0);
+    // 3. 👇 FIX: Small delay to ensure innerHTML is parsed before finding 'pos-content-area'
+    setTimeout(() => {
+        switchTab('add');
+    }, 50); 
 }
 
 function switchTab(tabName) {
