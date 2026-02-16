@@ -1,5 +1,7 @@
 import { initScanner } from './scanner.js';
 import { initProductManager } from './productManager.js';
+import { initInventory } from './inventory.js';
+import { initCheckout } from './checkout.js';
 
 export async function initPOS() {
     console.log("🏭 Loading Tweed ERP...");
@@ -63,9 +65,9 @@ function switchTab(tabName) {
         initProductManager();
     } 
     else if (tabName === 'checkout') {
-        container.innerHTML = `<div style="text-align:center; padding:50px;"><h2>💰 Checkout Coming Soon</h2><p>This will be the cash register.</p></div>`;
+        initCheckout(); // Call the new function
     } 
     else if (tabName === 'inventory') {
-        container.innerHTML = `<div style="text-align:center; padding:50px;"><h2>📋 Inventory Coming Soon</h2><p>This will list all items.</p></div>`;
+        initInventory(); // Call the new function
     }
 }
