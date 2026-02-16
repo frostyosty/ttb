@@ -16,7 +16,7 @@ export async function initCheckout() {
              
 <div class="pos-mobile-stack">
 
-             <div style="display:flex; flex:1; overflow:hidden; gap:20px;">
+             <div style="flex:1; overflow:hidden; gap:20px;">
                 <!-- Results -->
                 <div id="search-results" style="flex:1; background:white; overflow-y:auto; border-radius:8px; padding:10px;"></div>
                 

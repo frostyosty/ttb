@@ -65,39 +65,45 @@ export async function initProductManager() {
 
 // Helper to add the grey button
 function setupActionButtons() {
-    const formBtn = document.querySelector('.submit-btn');
-    if(formBtn) {
+    const originalSubmitBtn = document.querySelector('#add-product-form .submit-btn');
+    
+    // Safety check: Don't run this twice if we reload the tab
+    if(originalSubmitBtn && !originalSubmitBtn.dataset.processed) {
+        
+        // 1. Mark as processed
+        originalSubmitBtn.dataset.processed = "true";
+        
+        // 2. Ensure the original button text is correct
+        originalSubmitBtn.innerText = "💾 Save & Print Label";
+        originalSubmitBtn.style.flex = "1";
+        originalSubmitBtn.style.marginTop = "0"; // Reset margin for flex layout
+
+        // 3. Create Container
         const btnGroup = document.createElement('div');
         Object.assign(btnGroup.style, { display:'flex', gap:'10px', marginTop:'10px' });
-        
-        formBtn.style.marginTop = '0';
-        formBtn.style.flex = '1';
-        
+
+        // 4. Create "Save Only" Button
         const saveOnlyBtn = document.createElement('button');
-        saveOnlyBtn.type = 'button';
+        saveOnlyBtn.type = 'button'; // Important: Prevent default submit
         saveOnlyBtn.innerText = '💾 Save Only';
         saveOnlyBtn.className = 'pos-btn';
         Object.assign(saveOnlyBtn.style, { flex:'1', background:'#757575', color:'white', justifyContent:'center' });
-        
-        // Bind click event for Save Only (pass false for shouldPrint)
-        // We need to access the handler, so we dispatch a custom event or bind directly if we hoist the handler.
-        // EASIER WAY: Let the main handler check the submitter, or just attach listener here.
-        saveOnlyBtn.addEventListener('click', (e) => {
-            // We need to trigger the main submit logic but with print=false.
-            // Since we can't easily pass the 'editor' instance here if it's not ready, 
-            // we will cheat and trigger the form submit, but set a flag on the form.
-            const form = document.getElementById('add-product-form');
-            form.dataset.print = "false";
-            form.requestSubmit(); // Triggers the main listener
+
+        // 5. Insert into DOM
+        originalSubmitBtn.parentNode.insertBefore(btnGroup, originalSubmitBtn);
+        btnGroup.appendChild(saveOnlyBtn);
+        btnGroup.appendChild(originalSubmitBtn); // Move original into group
+
+        // 6. Bind Logic
+        saveOnlyBtn.addEventListener('click', () => {
+             const form = document.getElementById('add-product-form');
+             form.dataset.print = "false"; // Signal to not print
+             form.requestSubmit(); // Trigger main form handler
         });
 
-        formBtn.addEventListener('click', () => {
+        originalSubmitBtn.addEventListener('click', () => {
              document.getElementById('add-product-form').dataset.print = "true";
         });
-        
-        formBtn.parentNode.insertBefore(btnGroup, formBtn);
-        btnGroup.appendChild(saveOnlyBtn);
-        btnGroup.appendChild(formBtn);
     }
 }
 

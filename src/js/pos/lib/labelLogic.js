@@ -1,6 +1,7 @@
 // src/js/pos/lib/labelLogic.js
 import { initLabelEditor } from '../editor/index.js';
 import { supabase } from '../../db.js';
+import { showPosInput } from '../ui/posModals.js'; // Import it
 
 /**
  * Initializes the Label Editor and binds standard controls (Edit Toggle, Template Loader)
@@ -51,7 +52,8 @@ export async function setupLabelEditorController({
     window.posSave = async () => {
         // ... existing save logic ...
         // (Make sure to check if 'select' exists before appending to it)
-        const name = prompt("Layout Name:");
+const name = await showPosInput("Name this Layout:", "e.g. 62mm Standard");
+
         if(name) {
             const newTpl = await editor.saveTemplate(name);
             if(newTpl && select) {
