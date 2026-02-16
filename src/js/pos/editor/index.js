@@ -71,8 +71,6 @@ export async function initLabelEditor(containerId, inputIds) {
  * Use this when you just want to print data (e.g. from Inventory list)
  * without loading the full Editor UI.
  */
-import { renderLabel } from './renderer.js';
-import { EditorState } from './state.js';
 
 export async function printLabelData(data, config = null) {
     // 1. Use provided config, or fallback to whatever is currently in State/Default
