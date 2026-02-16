@@ -123,3 +123,58 @@
         height: 300px;
     }
 }
+
+
+/* src/css/pos.css */
+
+/* ... (Keep your existing root variables and header styles) ... */
+
+/* CONTENT AREA */
+.pos-content {
+    padding: var(--pos-pad);
+    overflow-y: auto;
+    /* Ensure it doesn't force flex behavior globally unless specified */
+    display: block; 
+}
+
+/* UTILITY: STACK ON MOBILE */
+.pos-mobile-stack {
+    display: flex;
+    gap: 20px;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* --- MOBILE OVERRIDES --- */
+@media (max-width: 768px) {
+    /* Force stack layout */
+    .pos-mobile-stack {
+        flex-direction: column !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* Make the Checkout results area scrollable with a fixed height on mobile */
+    .pos-mobile-stack > div {
+        width: 100% !important;
+        flex: none !important;
+    }
+    
+    /* Give the search results a fixed height so page doesn't grow forever */
+    #search-results {
+        max-height: 300px; 
+    }
+
+    /* Fix POS Content padding */
+    .pos-content {
+        padding: 10px;
+        height: auto;
+    }
+    
+    /* Fix Preview Panel width on mobile */
+    .preview-panel {
+        width: 100% !important;
+        border-left: none !important;
+        border-top: 1px solid #ccc;
+    }
+}

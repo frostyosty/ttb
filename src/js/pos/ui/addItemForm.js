@@ -2,7 +2,7 @@
 
 export function renderAddItemForm(categories, templates) {
     return `
-    <div style="display:flex; height:100%; overflow:hidden;">
+    <div class="pos-mobile-stack" style="display:flex; height:100%; overflow:hidden;">
         
         <!-- LEFT: INPUT FORM -->
         <div style="flex:1; padding:20px; overflow-y:auto; background:#f9f9f9;">
@@ -16,7 +16,7 @@ export function renderAddItemForm(categories, templates) {
 
                 <div style="display:flex; gap:10px;">
                     <div class="form-group" style="flex:1;">
-                        <label>Category</label>
+                        <label>Category <button type="button" id="btn-manage-cats" style="background:none; border:none; color:#2196f3; cursor:pointer; font-weight:bold;" title="Add/Edit Categories">[+]</button></label>
                         <select id="p-cat">
                             <option value="">-- Unlinked --</option>
                             ${(categories || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
@@ -34,12 +34,22 @@ export function renderAddItemForm(categories, templates) {
                         <input type="number" id="p-stock" value="1">
                     </div>
                     <div class="form-group" style="flex:1;">
-                        <label>Load Template</label>
-                        <select id="p-template-loader">
-                            <option value="">-- Default Layout --</option>
-                            ${(templates || []).map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
-                        </select>
+                         <label>Paper Size</label>
+                         <select id="p-paper-size">
+                             <option value="62mm" selected>62mm Continuous</option>
+                             <option value="38mm">38mm Address</option>
+                             <option value="54mm">54mm File Folder</option>
+                             <option value="102mm">102mm Shipping</option>
+                         </select>
                     </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Load Template</label>
+                    <select id="p-template-loader">
+                        <option value="">-- Default Layout --</option>
+                        ${(templates || []).map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -47,18 +57,15 @@ export function renderAddItemForm(categories, templates) {
                     <input type="file" id="p-image" accept="image/*" capture="environment">
                 </div>
 
-                <!-- We inject the "Save Only" button via JS, or you can add it here if you prefer -->
-                <button type="submit" class="submit-btn" style="width:100%; padding:15px; font-size:1.1rem; margin-top:10px; background:#2e7d32; color:white; border:none; border-radius:4px; cursor:pointer;">
-                    💾 Save & Print Label
-                </button>
+                <!-- Action buttons will be injected here -->
+                <button type="submit" class="submit-btn hidden">Save</button>
             </form>
         </div>
 
-        <!-- RIGHT: LIVE PREVIEW -->
-        <div style="width:340px; background:#333; padding:20px; display:flex; flex-direction:column; align-items:center; border-left:1px solid #ddd;">
-            <h3 style="color:white; margin-top:0;">Live Preview</h3>
-            
-            <div style="display:flex; gap:10px; margin-bottom:10px; color:white; align-items:center;">
+        <!-- RIGHT: PREVIEW -->
+        <div class="preview-panel" style="width:340px; background:#333; padding:20px; display:flex; flex-direction:column; align-items:center; border-left:1px solid #ddd;">
+            <!-- ... (Keep your existing preview toolbar HTML) ... -->
+             <div style="display:flex; gap:10px; margin-bottom:10px; color:white; align-items:center;">
                 <label style="cursor:pointer;"><input type="checkbox" id="toggle-edit-mode"> Edit Layout</label>
             </div>
             
@@ -69,15 +76,12 @@ export function renderAddItemForm(categories, templates) {
                  <button class="pos-btn" onclick="window.posSave()" style="background:#2196f3; color:white;">Save</button>
             </div>
 
-            <!-- PREVIEW BOX -->
             <div id="preview-box" style="background:white; min-height:200px; width:100%; border-radius:4px; box-shadow:0 0 15px rgba(0,0,0,0.5);"></div>
             
-            <!-- PROPERTIES PANEL (Context Menu) -->
+            <!-- PROPERTIES PANEL -->
             <div id="editor-properties-panel" style="width:100%; background:#f4f4f4; margin-top:15px; padding:10px; border-radius:4px; min-height:80px;">
                 <small style="color:#666;">Select an element to edit</small>
             </div>
-            
-            <p style="color:#aaa; font-size:12px; margin-top:10px;">62mm Brother Tape</p>
         </div>
     </div>
     `;

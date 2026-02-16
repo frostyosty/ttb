@@ -35,6 +35,8 @@ export async function initLabelEditor(containerId, inputIds) {
     EditorState.reset();
     updateData();
 
+let currentSize = '62mm';
+
     return {
         // CRUD
         addItem: (type) => {
@@ -53,15 +55,22 @@ export async function initLabelEditor(containerId, inputIds) {
                 .insert({ name, config: EditorState.get() }).select().single();
             return error ? null : data;
         },
+
+setPaperSize: (sz) => { currentSize = sz; },
+    refresh: () => {
+        // Update to pass currentSize
+        renderLabel(activeContainer, EditorState.get(), activeData, true, currentSize);
+    },
         // Utils
         refresh: updateData,
         print: async (realData) => {
             const win = window.open('', '', 'width=400,height=600');
             win.document.write('<html><head><style>@page { size: 62mm auto; margin: 0; } body { margin: 0; }</style></head><body><div id="print-area"></div></body></html>');
             const container = win.document.getElementById('print-area');
-            await renderLabel(container, EditorState.get(), realData, false); // false = Print Mode (Clean)
+        await renderLabel(container, EditorState.get(), realData, false, currentSize);
             setTimeout(() => { win.print(); setTimeout(() => win.close(), 1000); }, 500);
         }
+        
     };
 }
 

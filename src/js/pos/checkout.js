@@ -14,6 +14,8 @@ export async function initCheckout() {
                     style="flex:1; padding:15px; font-size:1.2rem; border:2px solid #2e7d32; border-radius:6px;">
              </div>
              
+<div class="pos-mobile-stack">
+
              <div style="display:flex; flex:1; overflow:hidden; gap:20px;">
                 <!-- Results -->
                 <div id="search-results" style="flex:1; background:white; overflow-y:auto; border-radius:8px; padding:10px;"></div>
@@ -31,6 +33,7 @@ export async function initCheckout() {
                         <button id="btn-pay-card" class="pos-btn" style="width:100%; padding:15px; background:#2196f3; color:white; font-size:1.2rem;">💳 Pay Card</button>
                     </div>
                 </div>
+             </div>
              </div>
         </div>
     `;
@@ -60,10 +63,10 @@ export async function initCheckout() {
 
 // ... handleSearch and renderCart logic stays similar ...
 async function handleSearch(val) {
-    if(val.length < 2) return;
+    if (val.length < 2) return;
     const { data } = await supabase.from('tweed_trading_products')
         .select('*').or(`sku.ilike.%${val}%,name.ilike.%${val}%`).limit(10);
-    
+
     const box = document.getElementById('search-results');
     box.innerHTML = (data || []).map(item => `
         <div onclick="window.posAddToCart('${item.id}', '${item.name}', ${item.price})" 
@@ -88,25 +91,25 @@ function renderCart() {
 }
 
 async function processPayment(method) {
-    if(cart.length === 0) return showPosAlert("Cart is empty!");
-    
+    if (cart.length === 0) return showPosAlert("Cart is empty!");
+
     const total = cart.reduce((sum, i) => sum + i.price, 0);
 
     // 1. CONFIRMATION (Using New Modal)
     const confirmed = await showPosConfirm(`Confirm ${method.toUpperCase()} payment of $${total.toFixed(2)}?`);
-    if(!confirmed) return;
+    if (!confirmed) return;
 
     // 2. CREATE SALE RECORD
     const { data: sale, error } = await supabase.from('tweed_trading_sales')
         .insert({ total_amount: total, payment_method: method }).select().single();
-    
-    if(error || !sale) return showPosAlert("Transaction Failed: " + error.message);
+
+    if (error || !sale) return showPosAlert("Transaction Failed: " + error.message);
 
     // 3. ADD ITEMS & DECREMENT STOCK
     const itemsPayload = cart.map(c => ({
         sale_id: sale.id, product_id: c.id, quantity: 1, price_at_sale: c.price
     }));
-    
+
     await supabase.from('tweed_trading_sale_items').insert(itemsPayload);
 
     // 4. DECREMENT STOCK (Using SQL Function)

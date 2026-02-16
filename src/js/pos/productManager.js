@@ -1,7 +1,8 @@
 // src/js/pos/productManager.js
 import { supabase } from '../db.js';
 import { renderAddItemForm } from './ui/addItemForm.js';
-import { setupLabelEditorController } from './lib/labelLogic.js'; // 👈 USES SHARED LOGIC
+import { setupLabelEditorController } from './lib/labelLogic.js';
+import { openCategoryManager } from './ui/categoryManager.js';
 
 export async function initProductManager() {
     const container = document.getElementById('pos-content-area');
@@ -16,19 +17,47 @@ export async function initProductManager() {
 
     // 2. Render UI
     container.innerHTML = renderAddItemForm(catRes.data, tplRes.data);
-    
-    // 3. Inject "Save Only" Button (Custom logic for this form)
     setupActionButtons();
 
-    // 4. Initialize Shared Editor Logic
-    // This handles all the "posAdd", "posSave", "toggle-edit-mode" logic for us
+    // 3. Initialize Editor
     const editor = await setupLabelEditorController({
         previewId: 'preview-box',
-        inputMap: { name: 'p-name', price: 'p-price' }, // Maps form inputs to label fields
+        inputMap: { name: 'p-name', price: 'p-price' },
         toggleId: 'toggle-edit-mode',
         toolbarId: 'editor-toolbar',
         templateSelectId: 'p-template-loader'
     });
+
+    // 👇 NEW: Bind Category Manager Button
+    const btnManageCats = document.getElementById('btn-manage-cats');
+    if(btnManageCats) {
+        btnManageCats.addEventListener('click', () => {
+            openCategoryManager(async () => {
+                // Refresh Dropdown after modal closes
+                const { data } = await supabase.from('tweed_trading_categories').select('*').order('name');
+                const sel = document.getElementById('p-cat');
+                const oldVal = sel.value;
+                sel.innerHTML = '<option value="">-- Unlinked --</option>' + 
+                                data.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                sel.value = oldVal;
+            });
+        });
+    }
+
+    // 👇 NEW: Handle Paper Size Change
+    const sizeSelect = document.getElementById('p-paper-size');
+    sizeSelect.addEventListener('change', () => {
+        // Pass the new size to the refresh function
+        // (You may need to update 'setupLabelEditorController' to accept a size getter, 
+        //  but simpler is to update the 'editor.refresh' method in editor/index.js)
+        editor.setPaperSize(sizeSelect.value);
+        editor.refresh();
+    });
+
+    
+    // 3. Inject "Save Only" Button (Custom logic for this form)
+    setupActionButtons();
+
 
     // 5. Handle Form Submit
     document.getElementById('add-product-form').addEventListener('submit', (e) => handleFormSubmit(e, true, editor));
