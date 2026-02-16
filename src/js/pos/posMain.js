@@ -2,6 +2,8 @@ import { initScanner } from './scanner.js';
 import { initProductManager } from './productManager.js';
 import { initInventory } from './inventory.js';
 import { initCheckout } from './checkout.js';
+import { initCustomerFacing } from './customerFacing.js';
+import { initGenericLabelMaker } from './genericLabelMaker.js';
 
 export async function initPOS() {
     console.log("🏭 Loading Tweed ERP...");
@@ -25,11 +27,14 @@ export async function initPOS() {
             </header>
             
             <div class="pos-grid">
-                <nav class="pos-sidebar">
-                    <button class="pos-btn active" data-tab="add">📦 Add Item</button>
-                    <button class="pos-btn" data-tab="checkout">💰 Checkout</button>
-                    <button class="pos-btn" data-tab="inventory">📋 Inventory</button>
-                </nav>
+<nav class="pos-sidebar">
+    <button class="pos-btn active" data-tab="add">📦 Add Item</button>
+    <button class="pos-btn" data-tab="checkout">💰 Checkout</button>
+    <button class="pos-btn" data-tab="inventory">📋 Inventory</button>
+    <hr style="border:0; border-top:1px solid #ddd; margin:5px 0;">
+    <button class="pos-btn" data-tab="labels">🏷️ Label Maker</button>
+    <button class="pos-btn" data-tab="settings">⚙️ Public Store</button>
+</nav>
 
                 <main class="pos-content" id="pos-content-area">
                     <!-- Dynamic Content Loads Here -->
@@ -65,9 +70,15 @@ function switchTab(tabName) {
         initProductManager();
     } 
     else if (tabName === 'checkout') {
-        initCheckout(); // Call the new function
+        initCheckout();
     } 
     else if (tabName === 'inventory') {
-        initInventory(); // Call the new function
+        initInventory();
+    }
+    else if (tabName === 'labels') {
+        initGenericLabelMaker(); // New Tab 5
+    }
+    else if (tabName === 'settings') {
+        initCustomerFacing();    // New Tab 4
     }
 }
