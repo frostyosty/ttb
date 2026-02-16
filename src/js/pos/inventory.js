@@ -1,5 +1,5 @@
 import { supabase } from '../db.js';
-import { printCurrentLabel } from './labelEditor.js'; // Re-use print logic
+import { printLabelData } from './editor/index.js';
 
 export async function initInventory() {
     const container = document.getElementById('pos-content-area');
@@ -77,10 +77,14 @@ async function loadInventory(search = '') {
     `).join('');
 
     // Bind Window Actions (Lazy way for innerHTML events)
-    window.posReprint = (id) => {
-        const item = data.find(i => i.id == id);
-        if(item) printCurrentLabel(item); // Prints using current default template
-    };
+window.posReprint = (id) => {
+    const item = data.find(i => i.id == id);
+    if(item) {
+        // You can pass 'null' as 2nd arg to use default template, 
+        // or fetch a specific template from DB if you want.
+        printLabelData(item, null); 
+    }
+};
 
     window.posDelete = async (id) => {
         if(confirm('Delete this item?')) {

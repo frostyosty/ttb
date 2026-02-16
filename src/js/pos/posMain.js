@@ -39,6 +39,9 @@ export async function initPOS() {
                     <hr style="border:0; border-top:1px solid #ddd; margin:5px 0;">
                     <button class="pos-btn" data-tab="labels">🏷️ Label Maker</button>
                     <button class="pos-btn" data-tab="settings">⚙️ Public Store</button>
+                     <button class="pos-btn" data-tab="transactions">📜 History</button> <!-- NEW -->
+    <button class="pos-btn" data-tab="reports">📈 Financials</button> <!-- NEW -->
+    <hr style="border:0; border-top:1px solid #ddd; margin:5px 0;">
                 </nav>
 
                 <main class="pos-content" id="pos-content-area">
@@ -86,4 +89,6 @@ function switchTab(tabName) {
     else if (tabName === 'settings') {
         initCustomerFacing();    // New Tab 4
     }
+    else if (tabName === 'transactions') initTransactions();
+else if (tabName === 'reports') initReports();
 }
