@@ -4,6 +4,8 @@ import { initInventory } from './inventory.js';
 import { initCheckout } from './checkout.js';
 import { initCustomerFacing } from './customerFacing.js';
 import { initGenericLabelMaker } from './genericLabelMaker.js';
+import { initTransactions } from './transactions.js';
+import { initReports } from './reports.js';
 
 export async function initPOS() {
     console.log("🏭 Loading Tweed ERP...");

@@ -1,22 +1,28 @@
 import { EditorState } from './state.js';
 import { renderLabel } from './renderer.js';
 import { initInteractions } from './interactions.js';
-import { setPropertyRefresh, renderPropertiesPanel } from './propertiesPanel.js';
+import { setPropertyRefresh } from './propertiesPanel.js';
 import { supabase } from '../../db.js';
 
 let activeContainer = null;
 let activeData = {};
+let isEditing = false; // 👈 Track state locally
+let currentPaperSize = '62mm'; // 👈 Track size locally
 
 export async function initLabelEditor(containerId, inputIds) {
     activeContainer = document.getElementById(containerId);
     
-    // Init Components
-    const refresh = () => renderLabel(activeContainer, EditorState.get(), activeData, true);
+    // Helper to redraw
+    const refresh = () => {
+        // Pass isEditing and currentPaperSize to the renderer
+        renderLabel(activeContainer, EditorState.get(), activeData, isEditing, currentPaperSize);
+    };
     
+    // Init Interactions
     initInteractions(activeContainer, refresh);
-    setPropertyRefresh(refresh); // Let properties panel trigger re-renders
+    setPropertyRefresh(refresh);
 
-    // Setup Form Listeners (Live Preview)
+    // Live Data binding
     const updateData = () => {
         activeData = {
             name: document.getElementById(inputIds.name)?.value || 'Product Name',
@@ -35,14 +41,24 @@ export async function initLabelEditor(containerId, inputIds) {
     EditorState.reset();
     updateData();
 
-let currentSize = '62mm';
-
+    // 👇 RETURN THE PUBLIC API 👇
     return {
-        // CRUD
+        // 1. Toggle Edit Mode (Fixes your error)
+        toggleEdit: (enabled) => {
+            isEditing = enabled;
+            refresh();
+        },
+        // 2. Set Paper Size
+        setPaperSize: (size) => {
+            currentPaperSize = size;
+            refresh();
+        },
+        // 3. Add Item
         addItem: (type) => {
             EditorState.addElement(type);
             refresh();
         },
+        // 4. Load/Save Templates
         loadTemplate: async (id) => {
             const { data } = await supabase.from('tweed_trading_label_templates').select('*').eq('id', id).single();
             if(data) {
@@ -55,22 +71,15 @@ let currentSize = '62mm';
                 .insert({ name, config: EditorState.get() }).select().single();
             return error ? null : data;
         },
-
-setPaperSize: (sz) => { currentSize = sz; },
-    refresh: () => {
-        // Update to pass currentSize
-        renderLabel(activeContainer, EditorState.get(), activeData, true, currentSize);
-    },
-        // Utils
+        // 5. Utils
         refresh: updateData,
         print: async (realData) => {
             const win = window.open('', '', 'width=400,height=600');
             win.document.write('<html><head><style>@page { size: 62mm auto; margin: 0; } body { margin: 0; }</style></head><body><div id="print-area"></div></body></html>');
             const container = win.document.getElementById('print-area');
-        await renderLabel(container, EditorState.get(), realData, false, currentSize);
+            await renderLabel(container, EditorState.get(), realData, false, currentPaperSize);
             setTimeout(() => { win.print(); setTimeout(() => win.close(), 1000); }, 500);
         }
-        
     };
 }
 

@@ -8,9 +8,14 @@ let currentContainer = null;
 export function initInteractions(container, refreshFn) {
     currentContainer = container;
 
+
+    
     // 1. Mouse Down (Select or Drag)
-    container.addEventListener('mousedown', handleStart);
-    container.addEventListener('touchstart', handleStart, { passive: false });
+// 1. Mouse Down
+container.addEventListener('mousedown', handleStart);
+
+// 2. Touch Start (Explicitly non-passive so we can preventDefault)
+container.addEventListener('touchstart', handleStart, { passive: false });
 
     // 2. Double Click (Enter Text Edit Mode)
     container.addEventListener('dblclick', (e) => {
@@ -61,10 +66,13 @@ function handleStart(e) {
         return;
     }
 
-    // Don't drag if currently editing text
-    if (el.isContentEditable) return;
 
-    e.preventDefault(); // Stop text selection
+
+ const el = e.target.closest('.label-element');
+    
+    if (el && !el.isContentEditable) {
+        e.preventDefault(); // Stop Scroll, Start Drag
+
     const id = el.dataset.id;
     EditorState.select(id);
     
@@ -82,6 +90,8 @@ function handleStart(e) {
     startY = evt.clientY;
     origX = dragItem.x;
     origY = dragItem.y;
+
+    }
 }
 
 function handleMove(e, refreshFn) {
