@@ -66,10 +66,7 @@ function handleStart(e) {
         return;
     }
 
-
-
- const el = e.target.closest('.label-element');
-    
+   
     if (el && !el.isContentEditable) {
         e.preventDefault(); // Stop Scroll, Start Drag
 
