@@ -4,7 +4,7 @@ export const FALLBACK_ITEMS = [
     {
         type: 'section',
         page: 'home',
-        content: '<h3>About Us</h3><p>Founded over 30 years ago by Malcolm Tweed, Tweed Trading has been consistently providing Tauranga with an abundance of recycled building materials.</p><p><b>Open Hours:</b> Saturdays 11:00 AM - 1:00 PM</p>',
+        content: '<h3>About Us</h3><p>Founded over 30 years ago by Malcolm Tweed, Tweed Trading has been consistently providing Tauranga with an abundance of recycled building materials.</p><p><b>Open Hours:</b> Saturdays 11:00 AM - 1:00 PM</p><br><p>We are always interested in receiving external doors and aluminium joinery</p>',
         styles: { padding: "30px", maxWidth: "800px", margin: "20px auto", background: "white", borderRadius: "8px", boxShadow: "0 2px 5px rgba(0,0,0,0.1)" }
     },
     {
@@ -23,7 +23,7 @@ export const FALLBACK_ITEMS = [
     {
         type: 'product',
         page: 'products',
-        content: '<h4>Doors</h4><ul><li>Wooden Doors</li><li>Paneled Doors</li><li>French Doors</li></ul>',
+        content: '<h4>Doors</h4><ul><li>Wooden Doors</li><li>Paneled Doors</li></ul>',
         styles: { padding: "20px", margin: "10px auto", maxWidth: "600px", background: "white", borderLeft: "5px solid #2e7d32", borderRadius: "5px" }
     },
     {

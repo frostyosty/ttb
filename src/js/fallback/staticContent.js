@@ -7,7 +7,7 @@ export const STATIC_CONTENT = [
         type: 'section',
         page: 'home',
         position: 1,
-        content: '<h3>About Us</h3><p>Founded over 30 years ago by Malcolm Tweed, Tweed Trading has been consistently providing Tauranga with an abundance of recycled building materials.</p><p><b>Open Hours:</b> Saturdays 11:00 AM - 1:00 PM</p>',
+        content: '<h3>About Us</h3><p>Founded over 30 years ago by Malcolm Tweed, Tweed Trading has been consistently providing Tauranga with an abundance of recycled building materials.</p><p><b>Open Hours:</b> Saturdays 11:00 AM - 1:00 PM</p><br><p>We are always interested in receiving external doors and aluminium joinery</p>',
         styles: { padding: "30px", maxWidth: "800px", margin: "20px auto", background: "white", borderRadius: "8px", boxShadow: "0 2px 5px rgba(0,0,0,0.1)" }
     },
     {
@@ -41,7 +41,7 @@ export const STATIC_CONTENT = [
         type: 'section',
         page: 'products',
         position: 2,
-        content: '<h4>Timber</h4><ul><li>Reclaimed Wood</li><li>Rimu & Matai Flooring</li><li>Wooden Beams</li></ul>',
+        content: '<h4>Timber</h4><ul><li>Recycled Wood</li><li>Wooden Beams</li></ul>',
         styles: { padding: "20px", margin: "10px auto", maxWidth: "600px", background: "white", borderLeft: "5px solid #2e7d32", borderRadius: "5px" }
     },
     {
@@ -57,7 +57,7 @@ export const STATIC_CONTENT = [
         type: 'section',
         page: 'products',
         position: 4,
-        content: '<h4>Windows</h4><ul><li>Sash windows</li><li>Casement windows</li><li>Leadlights</li></ul>',
+        content: '<h4>Windows</h4><ul><li>Aluminium windows</li><li>Wooden windows</li><li>Sash windows</li></ul>',
         styles: { padding: "20px", margin: "10px auto", maxWidth: "600px", background: "white", borderLeft: "5px solid #2e7d32", borderRadius: "5px" }
     },
 
