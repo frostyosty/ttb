@@ -1,4 +1,3 @@
-// src/js/pos/productManager.js
 import { supabase } from '../db.js';
 import { renderAddItemForm } from './ui/addItemForm.js';
 import { setupLabelEditorController } from './lib/labelLogic.js';
@@ -6,7 +5,11 @@ import { openCategoryManager } from './ui/categoryManager.js';
 
 export async function initProductManager() {
     const container = document.getElementById('pos-content-area');
-    if (!container) return;
+    if (!container) {
+        console.error("POS Content Area missing");
+        return;
+    }
+    
     container.innerHTML = '<div style="padding:20px;">Loading...</div>';
 
     // 1. Fetch Categories & Templates
@@ -16,10 +19,17 @@ export async function initProductManager() {
     ]);
 
     // 2. Render UI
+    // We check if the container still exists (user might have switched tabs while fetching)
+    if (!document.getElementById('pos-content-area')) return;
+
     container.innerHTML = renderAddItemForm(catRes.data, tplRes.data);
+    
     setupActionButtons();
 
-    // 3. Initialize Editor
+    // 3. Initialize Shared Editor Logic
+    // We await a microtask to ensure the DOM has painted
+    await new Promise(r => setTimeout(r, 0));
+
     const editor = await setupLabelEditorController({
         previewId: 'preview-box',
         inputMap: { name: 'p-name', price: 'p-price' },
@@ -28,91 +38,85 @@ export async function initProductManager() {
         templateSelectId: 'p-template-loader'
     });
 
-    // 👇 NEW: Bind Category Manager Button
+    if (!editor) {
+        console.warn("Editor failed to initialize (DOM missing?)");
+        return;
+    }
+
+    // 4. Bind Category Manager Button (Safe Check)
     const btnManageCats = document.getElementById('btn-manage-cats');
-    if(btnManageCats) {
+    if (btnManageCats) {
         btnManageCats.addEventListener('click', () => {
             openCategoryManager(async () => {
-                // Refresh Dropdown after modal closes
+                // Refresh Dropdown
                 const { data } = await supabase.from('tweed_trading_categories').select('*').order('name');
                 const sel = document.getElementById('p-cat');
-                const oldVal = sel.value;
-                sel.innerHTML = '<option value="">-- Unlinked --</option>' + 
-                                data.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-                sel.value = oldVal;
+                if (sel && data) {
+                    const oldVal = sel.value;
+                    sel.innerHTML = '<option value="">-- Unlinked --</option>' + 
+                                    data.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                    sel.value = oldVal;
+                }
             });
         });
     }
 
-    // 👇 NEW: Handle Paper Size Change
+    // 5. Handle Paper Size Change (Safe Check)
     const sizeSelect = document.getElementById('p-paper-size');
-    sizeSelect.addEventListener('change', () => {
-        // Pass the new size to the refresh function
-        // (You may need to update 'setupLabelEditorController' to accept a size getter, 
-        //  but simpler is to update the 'editor.refresh' method in editor/index.js)
-        editor.setPaperSize(sizeSelect.value);
-        editor.refresh();
-    });
+    if (sizeSelect) {
+        sizeSelect.addEventListener('change', () => {
+            if (editor && editor.setPaperSize) {
+                editor.setPaperSize(sizeSelect.value);
+            }
+        });
+    }
 
-    
-    // 3. Inject "Save Only" Button (Custom logic for this form)
-    setupActionButtons();
-
-
-    // 5. Handle Form Submit
-    document.getElementById('add-product-form').addEventListener('submit', (e) => handleFormSubmit(e, true, editor));
+    // 6. Handle Form Submit
+    const form = document.getElementById('add-product-form');
+    if (form) {
+        form.addEventListener('submit', (e) => handleFormSubmit(e, true, editor));
+    }
 }
 
-// Helper to add the grey button
 function setupActionButtons() {
     const originalSubmitBtn = document.querySelector('#add-product-form .submit-btn');
-    
-    // Safety check: Don't run this twice if we reload the tab
     if(originalSubmitBtn && !originalSubmitBtn.dataset.processed) {
-        
-        // 1. Mark as processed
         originalSubmitBtn.dataset.processed = "true";
-        
-        // 2. Ensure the original button text is correct
         originalSubmitBtn.innerText = "💾 Save & Print Label";
         originalSubmitBtn.style.flex = "1";
-        originalSubmitBtn.style.marginTop = "0"; // Reset margin for flex layout
+        originalSubmitBtn.style.marginTop = "0"; 
 
-        // 3. Create Container
         const btnGroup = document.createElement('div');
         Object.assign(btnGroup.style, { display:'flex', gap:'10px', marginTop:'10px' });
 
-        // 4. Create "Save Only" Button
         const saveOnlyBtn = document.createElement('button');
-        saveOnlyBtn.type = 'button'; // Important: Prevent default submit
+        saveOnlyBtn.type = 'button';
         saveOnlyBtn.innerText = '💾 Save Only';
         saveOnlyBtn.className = 'pos-btn';
         Object.assign(saveOnlyBtn.style, { flex:'1', background:'#757575', color:'white', justifyContent:'center' });
 
-        // 5. Insert into DOM
         originalSubmitBtn.parentNode.insertBefore(btnGroup, originalSubmitBtn);
         btnGroup.appendChild(saveOnlyBtn);
-        btnGroup.appendChild(originalSubmitBtn); // Move original into group
+        btnGroup.appendChild(originalSubmitBtn);
 
-        // 6. Bind Logic
         saveOnlyBtn.addEventListener('click', () => {
              const form = document.getElementById('add-product-form');
-             form.dataset.print = "false"; // Signal to not print
-             form.requestSubmit(); // Trigger main form handler
+             if(form) {
+                 form.dataset.print = "false"; 
+                 form.requestSubmit();
+             }
         });
 
         originalSubmitBtn.addEventListener('click', () => {
-             document.getElementById('add-product-form').dataset.print = "true";
+             const form = document.getElementById('add-product-form');
+             if(form) form.dataset.print = "true";
         });
     }
 }
 
 async function handleFormSubmit(e, defaultPrintState, editor) {
     e.preventDefault();
-    
-    // Check if we clicked "Save Only" or "Save & Print"
     const shouldPrint = e.target.dataset.print !== "false"; 
-
     const btns = document.querySelectorAll('button');
     btns.forEach(b => b.disabled = true);
 
@@ -124,7 +128,6 @@ async function handleFormSubmit(e, defaultPrintState, editor) {
         const file = document.getElementById('p-image').files[0];
         const sku = 'TWD-' + Math.floor(100000 + Math.random() * 900000);
 
-        // Upload Image
         let imageUrl = null;
         if (file) {
             const fileName = `${Date.now()}_${file.name.replace(/[^a-z0-9.]/gi, '_')}`;
@@ -132,7 +135,6 @@ async function handleFormSubmit(e, defaultPrintState, editor) {
             if (data) imageUrl = `https://oannlpewujcnmbzzvklu.supabase.co/storage/v1/object/public/tweed_trading_assets/${fileName}`;
         }
 
-        // DB Insert
         const { error } = await supabase.from('tweed_trading_products').insert({
             name, price, category_id: catId, sku, 
             image_url: imageUrl, stock_level: stock,
@@ -141,17 +143,15 @@ async function handleFormSubmit(e, defaultPrintState, editor) {
 
         if (error) throw error;
 
-        // Print?
-        if (shouldPrint) {
+        if (shouldPrint && editor) {
             await editor.print({ name, price, sku, image_url: imageUrl });
         } else {
             alert("Saved to Inventory (Not Printed)");
         }
 
-        // Reset
         e.target.reset();
-        editor.refresh(); 
-        document.getElementById('p-name').focus();
+        if(editor) editor.refresh();
+        document.getElementById('p-name')?.focus();
 
     } catch (err) {
         alert("Error: " + err.message);
