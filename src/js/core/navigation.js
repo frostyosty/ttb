@@ -42,7 +42,8 @@ export async function setupNavigation() {
         btn.innerText = '🛍️ Shop Stock';
         btn.setAttribute('data-page', 'shop');
         btn.addEventListener('click', () => {
-             import('../shop/publicShop.js').then(m => m.initPublicShop());
+
+import('../shop/publicShop.js').then(m => m.initPublicShop());
              document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
              btn.classList.add('active');
         });
