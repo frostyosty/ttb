@@ -91,7 +91,7 @@ function renderImageTable() {
                 <option value="windows" ${img.category === 'windows' ? 'selected' : ''}>Windows</option>
                 <option value="handles" ${img.category === 'handles' ? 'selected' : ''}>Handles</option>
                 <option value="electrical" ${img.category === 'electrical' ? 'selected' : ''}>Electrical</option>
-                <option value="tiles" ${img.category === 'tiles' ? 'selected' : ''}>Tiles</option>
+
             </select>
         `;
 
