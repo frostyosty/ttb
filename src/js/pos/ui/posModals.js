@@ -1,3 +1,4 @@
+// 1. Alert (OK Button)
 export function showPosAlert(message) {
     return new Promise((resolve) => {
         const modal = createModalBase(message);
@@ -21,6 +22,7 @@ export function showPosAlert(message) {
     });
 }
 
+// 2. Confirm (Yes/No Buttons)
 export function showPosConfirm(message) {
     return new Promise((resolve) => {
         const modal = createModalBase(message);
@@ -58,33 +60,7 @@ export function showPosConfirm(message) {
     });
 }
 
-function createModalBase(msg) {
-    const overlay = document.createElement('div');
-    Object.assign(overlay.style, {
-        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-        background: 'rgba(0,0,0,0.5)', zIndex: 10000,
-        display: 'flex', alignItems: 'center', justifyContent: 'center'
-    });
-
-    const box = document.createElement('div');
-    box.className = 'pos-modal-content';
-    Object.assign(box.style, {
-        background: 'white', padding: '25px', borderRadius: '8px',
-        boxShadow: '0 4px 15px rgba(0,0,0,0.2)', width: '300px', textAlign: 'center'
-    });
-
-    const text = document.createElement('div');
-    text.innerText = msg;
-    text.style.fontSize = '1.1rem';
-    text.style.fontWeight = '500';
-
-    box.appendChild(text);
-    overlay.appendChild(box);
-    return overlay;
-}
-
-
-// Add this to your imports or exports list
+// 3. Input (Type Text)
 export function showPosInput(title, placeholder = "") {
     return new Promise((resolve) => {
         const overlay = document.createElement('div');
@@ -107,7 +83,7 @@ export function showPosInput(title, placeholder = "") {
         input.placeholder = placeholder;
         Object.assign(input.style, {
             width: '100%', padding: '10px', marginBottom: '15px',
-            border: '1px solid #ccc', borderRadius: '4px', fontSize: '1rem'
+            border: '1px solid #ccc', borderRadius: '4px', fontSize: '1rem', boxSizing: 'border-box'
         });
         
         // Handle Enter Key
@@ -132,7 +108,7 @@ export function showPosInput(title, placeholder = "") {
         confirmBtn.onclick = () => {
             const val = input.value.trim();
             document.body.removeChild(overlay);
-            resolve(val); // Return the text
+            resolve(val);
         };
 
         btnGroup.appendChild(cancelBtn);
@@ -142,6 +118,50 @@ export function showPosInput(title, placeholder = "") {
         overlay.appendChild(box);
         document.body.appendChild(overlay);
         
-        setTimeout(() => input.focus(), 50); // Focus after render
+        setTimeout(() => input.focus(), 50);
     });
+}
+
+// 4. Toast (Popup Notification) - THIS WAS MISSING
+export function showPosToast(msg, type = 'success') {
+    let toast = document.getElementById('pos-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'pos-toast';
+        document.body.appendChild(toast);
+    }
+
+    toast.innerText = msg;
+    toast.style.background = type === 'error' ? '#d32f2f' : '#333';
+    toast.classList.add('visible');
+
+    setTimeout(() => {
+        toast.classList.remove('visible');
+    }, 3000);
+}
+
+// Helper for Layout
+function createModalBase(msg) {
+    const overlay = document.createElement('div');
+    Object.assign(overlay.style, {
+        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+        background: 'rgba(0,0,0,0.5)', zIndex: 10000,
+        display: 'flex', alignItems: 'center', justifyContent: 'center'
+    });
+
+    const box = document.createElement('div');
+    box.className = 'pos-modal-content';
+    Object.assign(box.style, {
+        background: 'white', padding: '25px', borderRadius: '8px',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.2)', width: '300px', textAlign: 'center'
+    });
+
+    const text = document.createElement('div');
+    text.innerText = msg;
+    text.style.fontSize = '1.1rem';
+    text.style.fontWeight = '500';
+
+    box.appendChild(text);
+    overlay.appendChild(box);
+    return overlay;
 }
