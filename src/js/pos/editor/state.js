@@ -29,19 +29,23 @@ export const EditorState = {
     },
     addElement: (type) => {
         const id = Date.now().toString();
-        const newEl = { id, type, x: 20, y: 20, width: 150, height: 40 };
+        const newEl = { id, type, x: 20, y: 20, width: 100, height: 100 }; // Default 100x100
+        
+
+        
         
         if (type === 'text') {
             newEl.html = 'New Text';
             newEl.fontSize = 14;
             newEl.fontFamily = 'Arial';
-        } else if (type === 'qr') {
-            newEl.width = 80;
-            newEl.height = 80;
+} else if (type === 'qr') {
+            newEl.width = 80; newEl.height = 80;
+        } else if (type === 'image') {
+            newEl.width = 100; newEl.height = 100;
         }
         
         currentConfig.push(newEl);
-        return id;
+        return id; // Return ID so we can select it if we want
     },
     removeElement: (id) => {
         currentConfig = currentConfig.filter(el => el.id !== id);

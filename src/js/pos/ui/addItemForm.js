@@ -44,13 +44,16 @@ export function renderAddItemForm(categories, templates) {
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label>Load Template</label>
-                    <select id="p-template-loader">
-                        <option value="">-- Default Layout --</option>
-                        ${(templates || []).map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
-                    </select>
-                </div>
+<div class="form-group" style="flex:1;">
+    <label>
+        Load Template 
+        <button type="button" id="btn-manage-tpl" style="background:none; border:none; color:#2196f3; cursor:pointer; font-weight:bold;">[+]</button>
+    </label>
+    <select id="p-template-loader">
+        <option value="">-- Default Layout --</option>
+        ${(templates || []).map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
+    </select>
+</div>
 
                 <div class="form-group">
                     <label>Photo (Optional)</label>
@@ -73,6 +76,7 @@ export function renderAddItemForm(categories, templates) {
                  <button class="pos-btn" onclick="window.posAdd('text')">+Txt</button>
                  <button class="pos-btn" onclick="window.posAdd('barcode')">+Bar</button>
                  <button class="pos-btn" onclick="window.posAdd('qr')">+QR</button>
+                  <button class="pos-btn" onclick="window.posAdd('image')">+Img</button> 
                  <button class="pos-btn" onclick="window.posSave()" style="background:#2196f3; color:white;">Save</button>
             </div>
 

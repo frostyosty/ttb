@@ -46,6 +46,24 @@ export async function setupLabelEditorController({
         });
     }
 
+    // Bind Template Manager Button
+    const btnManage = document.getElementById('btn-manage-tpl');
+    if(btnManage) {
+        btnManage.addEventListener('click', () => {
+            openTemplateManager(async () => {
+                // Refresh Dropdown
+                const { data } = await supabase.from('tweed_trading_label_templates').select('*').order('name');
+                const select = document.getElementById(templateSelectId);
+                if(select && data) {
+                    const oldVal = select.value;
+                    select.innerHTML = '<option value="">-- Default Layout --</option>' + 
+                                       data.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+                    select.value = oldVal; // Try to keep selection if it still exists
+                }
+            });
+        });
+    }
+
     // 4. Bind Window Helpers
     window.posAdd = (type) => editor.addItem(type);
     

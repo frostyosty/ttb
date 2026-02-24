@@ -61,6 +61,31 @@ export async function renderLabel(container, config, data = {}, isEditing = fals
             el.style.fontFamily = item.fontFamily || 'Arial';
             el.style.color = item.color || 'black';
         } 
+
+
+        else if (item.type === 'image') {
+            // Priority: 1. Live Preview Blob (data.image_url) -> 2. Saved URL (item.src) -> 3. Placeholder
+            const src = data.image_url || item.src;
+
+            if (src) {
+                const img = document.createElement('img');
+                img.src = src;
+                Object.assign(img.style, {
+                    width: '100%', height: '100%',
+                    objectFit: 'contain', display: 'block'
+                });
+                el.appendChild(img);
+            } else {
+                // Render Placeholder
+                Object.assign(el.style, {
+                    backgroundColor: '#eee',
+                    border: '1px dashed #999',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: '#666', fontSize: '10px', flexDirection: 'column'
+                });
+                el.innerHTML = '<span style="font-size:20px;">🖼️</span><span>Photo Area</span>';
+            }
+        }
         else if (item.type === 'barcode') {
             const canvas = document.createElement('canvas');
             // 🛑 BARCODE SCALING CSS

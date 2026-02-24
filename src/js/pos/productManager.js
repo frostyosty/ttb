@@ -76,6 +76,33 @@ export async function initProductManager() {
     if (form) {
         form.addEventListener('submit', (e) => handleFormSubmit(e, true, editor));
     }
+
+    // 5. AUTO-INSERT IMAGE LOGIC
+    const photoInput = document.getElementById('p-image');
+    if (photoInput) {
+        photoInput.addEventListener('change', () => {
+            const file = photoInput.files[0];
+            if (file) {
+                // 1. Create Preview URL
+                const objectUrl = URL.createObjectURL(file);
+                photoInput.dataset.previewUrl = objectUrl; // Store for editor/index.js to find
+
+                // 2. Check if 'image' element exists in current config
+                const currentConfig = editor.getConfig(); // You need to expose getConfig in index.js
+                const hasImage = currentConfig.some(el => el.type === 'image');
+
+                // 3. Auto-Add if missing
+                if (!hasImage) {
+                    editor.addItem('image');
+                    // Optional: Move it to a nice spot?
+                    // The addItem default is 20,20. That works for now.
+                }
+
+                // 4. Force Refresh
+                editor.refresh();
+            }
+        });
+    }
 }
 
 function setupActionButtons() {

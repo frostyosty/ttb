@@ -43,6 +43,8 @@ export async function initLabelEditor(containerId, inputIds) {
 
     // 👇 RETURN THE PUBLIC API 👇
     return {
+
+        getConfig: () => EditorState.get(),
         // 1. Toggle Edit Mode (Fixes your error)
         toggleEdit: (enabled) => {
             isEditing = enabled;
