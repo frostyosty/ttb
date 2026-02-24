@@ -9,71 +9,70 @@ let activeData = {};
 let isEditing = false; // 👈 Track state locally
 let currentPaperSize = '62mm'; // 👈 Track size locally
 
-export async function initLabelEditor(containerId, inputIds) {
+export async function initLabelEditor(containerId, inputIds, imageInputId = null) {
     activeContainer = document.getElementById(containerId);
     
-    // Helper to redraw
     const refresh = () => {
-        // Pass isEditing and currentPaperSize to the renderer
         renderLabel(activeContainer, EditorState.get(), activeData, isEditing, currentPaperSize);
     };
     
-    // Init Interactions
     initInteractions(activeContainer, refresh);
     setPropertyRefresh(refresh);
 
-    // Live Data binding
+    // Live Data Binding
     const updateData = () => {
+        // 1. Get Text Data
         activeData = {
             name: document.getElementById(inputIds.name)?.value || 'Product Name',
             price: document.getElementById(inputIds.price)?.value || '0.00',
             sku: 'PREVIEW'
         };
+
+        // 2. 👇 Get Image Blob (Fixes the "Photo Area" issue)
+        if (imageInputId) {
+            const fileInput = document.getElementById(imageInputId);
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                // If we haven't generated a URL yet, or if it changed
+                if (!fileInput.dataset.previewUrl) {
+                    fileInput.dataset.previewUrl = URL.createObjectURL(fileInput.files[0]);
+                }
+                activeData.image_url = fileInput.dataset.previewUrl;
+            }
+        }
+
         refresh();
     };
 
+    // Listen to Text Inputs
     Object.values(inputIds).forEach(id => {
         const el = document.getElementById(id);
         if(el) el.addEventListener('input', updateData);
     });
 
+    // 👇 Listen to Image Input (Fixes "Not showing when uploaded")
+    if (imageInputId) {
+        const imgInput = document.getElementById(imageInputId);
+        if(imgInput) imgInput.addEventListener('change', updateData);
+    }
+
     // Initial Load
     EditorState.reset();
     updateData();
 
-    // 👇 RETURN THE PUBLIC API 👇
     return {
-
-        getConfig: () => EditorState.get(),
-        // 1. Toggle Edit Mode (Fixes your error)
-        toggleEdit: (enabled) => {
-            isEditing = enabled;
-            refresh();
-        },
-        // 2. Set Paper Size
-        setPaperSize: (size) => {
-            currentPaperSize = size;
-            refresh();
-        },
-        // 3. Add Item
-        addItem: (type) => {
-            EditorState.addElement(type);
-            refresh();
-        },
-        // 4. Load/Save Templates
+        getConfig: () => EditorState.get(), // Exposed for auto-insert logic
+        toggleEdit: (enabled) => { isEditing = enabled; refresh(); },
+        setPaperSize: (size) => { currentPaperSize = size; refresh(); },
+        addItem: (type) => { EditorState.addElement(type); refresh(); },
         loadTemplate: async (id) => {
             const { data } = await supabase.from('tweed_trading_label_templates').select('*').eq('id', id).single();
-            if(data) {
-                EditorState.set(data.config);
-                refresh();
-            }
+            if(data) { EditorState.set(data.config); refresh(); }
         },
         saveTemplate: async (name) => {
             const { data, error } = await supabase.from('tweed_trading_label_templates')
                 .insert({ name, config: EditorState.get() }).select().single();
             return error ? null : data;
         },
-        // 5. Utils
         refresh: updateData,
         print: async (realData) => {
             const win = window.open('', '', 'width=400,height=600');

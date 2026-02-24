@@ -2,13 +2,14 @@
 import { initLabelEditor } from '../editor/index.js';
 import { supabase } from '../../db.js';
 import { showPosInput } from '../ui/posModals.js'; // Import it
+import { openTemplateManager } from '../ui/templateManager.js';
 
 /**
  * Initializes the Label Editor and binds standard controls (Edit Toggle, Template Loader)
  * Returns the 'editor' instance.
  */
 export async function setupLabelEditorController({
-    previewId, inputMap, toggleId, toolbarId, templateSelectId
+    previewId, inputMap, toggleId, toolbarId, templateSelectId, imageInputId
 }) {
     
     // 1. Initialize Core
@@ -18,7 +19,7 @@ export async function setupLabelEditorController({
         return null; 
     }
 
-    const editor = await initLabelEditor(previewId, inputMap);
+    const editor = await initLabelEditor(previewId, inputMap, imageInputId );
 
     // 2. Bind Edit Toggle (Safe Check)
     const toggle = document.getElementById(toggleId);
