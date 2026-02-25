@@ -2,7 +2,7 @@
 import { initLabelEditor } from '../editor/index.js';
 import { supabase } from '../../db.js';
 import { showPosInput } from '../ui/posModals.js'; // Import it
-import { openTemplateManager } from '../ui/templateManager.js';
+import { openTemplateManager } from '../ui/templates/index.js';
 
 /**
  * Initializes the Label Editor and binds standard controls (Edit Toggle, Template Loader)
