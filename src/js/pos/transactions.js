@@ -1,17 +1,18 @@
+// ./src/js/pos/transactions.js 
+
 import { supabase } from '../db.js';
 
 export async function initTransactions() {
-    const container = document.getElementById('pos-content-area');
-    container.innerHTML = 'Loading History...';
+  const container = document.getElementById('pos-content-area');
+  container.innerHTML = 'Loading History...';
 
-    // Fetch Last 50 Sales
-    const { data: sales } = await supabase
-        .from('tweed_trading_sales')
-        .select(`*, items:tweed_trading_sale_items(count)`) // Get count of items
-        .order('created_at', { ascending: false })
-        .limit(50);
+  const { data: sales } = await supabase.
+  from('tweed_trading_sales').
+  select(`*, items:tweed_trading_sale_items(count)`).
+  order('created_at', { ascending: false }).
+  limit(50);
 
-    container.innerHTML = `
+  container.innerHTML = `
         <div style="padding:20px;">
             <h2>📜 Transaction History</h2>
             <div style="background:white; border-radius:8px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
@@ -26,7 +27,7 @@ export async function initTransactions() {
                         </tr>
                     </thead>
                     <tbody>
-                        ${sales.map(s => `
+                        ${sales.map((s) => `
                             <tr style="border-bottom:1px solid #eee;">
                                 <td style="padding:15px;">${new Date(s.created_at).toLocaleString()}</td>
                                 <td style="padding:15px; font-family:monospace;">#${s.id}</td>

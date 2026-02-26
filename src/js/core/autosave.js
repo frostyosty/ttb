@@ -1,3 +1,5 @@
+// ./src/js/core/autosave.js 
+
 import { saveContent } from '../db.js';
 import { state, setItems } from '../state.js';
 import { setupNavigation } from './navigation.js';
@@ -8,34 +10,32 @@ import { attachEmailListeners } from '../email.js';
 let saveTimer;
 
 export function initAutoSave(isOfflineMode) {
-    document.addEventListener('app-render-request', () => {
-        // 1. Update UI immediately
-        state.items.sort((a, b) => (a.position || 0) - (b.position || 0));
-        render();
-        setupNavigation();
-        initCarousel();
-        attachEmailListeners();
+  document.addEventListener('app-render-request', () => {
 
-        // 2. Stop if offline
-        if (isOfflineMode) {
-            console.log("Offline Mode: Changes are temporary.");
-            return;
+    state.items.sort((a, b) => (a.position || 0) - (b.position || 0));
+    render();
+    setupNavigation();
+    initCarousel();
+    attachEmailListeners();
+
+    if (isOfflineMode) {
+      console.log("Offline Mode: Changes are temporary.");
+      return;
+    }
+
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      console.log("☁️ Auto-saving...");
+      try {
+        const freshItems = await saveContent(state.items);
+        if (freshItems && freshItems.length > 0) {
+          freshItems.sort((a, b) => (a.position || 0) - (b.position || 0));
+          setItems(freshItems);
+          console.log("✅ Synced.");
         }
-
-        // 3. Debounced Save to Database
-        clearTimeout(saveTimer);
-        saveTimer = setTimeout(async () => {
-            console.log("☁️ Auto-saving...");
-            try {
-                const freshItems = await saveContent(state.items);
-                if (freshItems && freshItems.length > 0) {
-                    freshItems.sort((a, b) => (a.position || 0) - (b.position || 0));
-                    setItems(freshItems);
-                    console.log("✅ Synced.");
-                }
-            } catch (err) {
-                console.error("❌ Auto-save failed:", err);
-            }
-        }, 1000);
-    });
+      } catch (err) {
+        console.error("❌ Auto-save failed:", err);
+      }
+    }, 1000);
+  });
 }

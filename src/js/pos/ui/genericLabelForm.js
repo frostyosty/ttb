@@ -1,19 +1,20 @@
-// src/js/pos/ui/genericLabelForm.js
+// ./src/js/pos/ui/genericLabelForm.js 
+
 
 export function renderGenericLabelForm(templates) {
-    return `
+  return `
     <div style="display:flex; height:100%; overflow:hidden;">
-        
+
         <!-- LEFT: CONTROLS -->
         <div style="flex:1; padding:20px; overflow-y:auto; background:#f9f9f9;">
             <h2 style="margin-top:0; color:#d32f2f;">🏷️ Generic Label Maker</h2>
-            
+
             <!-- ... (Keep Title/Subtitle inputs) ... -->
             <div class="form-group" style="margin-bottom:15px;">
                 <label>Main Title</label>
                 <input type="text" id="gl-title" placeholder="e.g. All Bricks" style="font-size:1.2rem; padding:10px; width:100%;">
             </div>
-            
+
             <div class="form-group" style="margin-bottom:15px;">
                 <label>Subtitle / Price</label>
                 <input type="text" id="gl-subtitle" placeholder="e.g. $5.00 ea" style="font-size:1.2rem; padding:10px; width:100%;">
@@ -50,7 +51,7 @@ export function renderGenericLabelForm(templates) {
                 </label>
                 <select id="gl-template-loader" style="padding:10px; width:100%;">
                     <option value="">-- Default Layout --</option>
-                    ${(templates || []).map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
+                    ${(templates || []).map((t) => `<option value="${t.id}">${t.name}</option>`).join('')}
                 </select>
             </div>
 
@@ -61,11 +62,11 @@ export function renderGenericLabelForm(templates) {
 
         <!-- RIGHT: PREVIEW (Same as before) -->
         <div style="width:340px; background:#333; padding:20px; display:flex; flex-direction:column; align-items:center; border-left:1px solid #ddd;">
-            
+
             <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:10px; color:white;">
                 <label style="cursor:pointer;"><input type="checkbox" id="toggle-generic-edit"> Edit Layout</label>
             </div>
-            
+
             <div id="generic-toolbar" class="hidden" style="display:flex; gap:5px; margin-bottom:10px; flex-wrap:wrap;">
                 <button onclick="window.posAdd('text')" style="font-size:0.8rem;">+Txt</button>
                 <button onclick="window.posAdd('barcode')" style="font-size:0.8rem;">+Bar</button>
@@ -75,7 +76,7 @@ export function renderGenericLabelForm(templates) {
             </div>
 
             <div id="generic-preview-box" style="background:white; min-height:200px; width:100%; border-radius:4px;"></div>
-            
+
             <div id="editor-properties-panel" style="width:100%; background:#f4f4f4; margin-top:15px; padding:10px; border-radius:4px; min-height:80px;">
                 <small style="color:#666;">Select element to edit</small>
             </div>

@@ -1,37 +1,33 @@
+// ./src/js/pos/labelPrinter.js 
+
 import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
 import { TEMPLATES } from './labelTemplates.js';
 
 export async function printLabel(product, templateName = 'standard') {
-    
-    // 1. Generate Barcode Image (Base64)
-    const canvasBar = document.createElement('canvas');
-    JsBarcode(canvasBar, product.sku, { format: "CODE128", displayValue: false });
-    const barcodeUrl = canvasBar.toDataURL("image/png");
 
-    // 2. Generate QR Code Image (Base64)
-    // We make the QR code link to the product on your website!
-    const productLink = `https://www.tweedtrading.co.nz/?sku=${product.sku}`;
-    const qrUrl = await QRCode.toDataURL(productLink);
+  const canvasBar = document.createElement('canvas');
+  JsBarcode(canvasBar, product.sku, { format: "CODE128", displayValue: false });
+  const barcodeUrl = canvasBar.toDataURL("image/png");
 
-    // 3. Prepare Data
-    const labelData = {
-        name: product.name,
-        price: product.price,
-        sku: product.sku,
-        barcodeUrl: barcodeUrl,
-        qrUrl: qrUrl,
-        productImg: product.image_url // From Supabase
-    };
+  const productLink = `https://www.tweedtrading.co.nz/?sku=${product.sku}`;
+  const qrUrl = await QRCode.toDataURL(productLink);
 
-    // 4. Get HTML from Template Engine
-    const templateFn = TEMPLATES[templateName] || TEMPLATES['standard'];
-    const contentHtml = templateFn(labelData);
+  const labelData = {
+    name: product.name,
+    price: product.price,
+    sku: product.sku,
+    barcodeUrl: barcodeUrl,
+    qrUrl: qrUrl,
+    productImg: product.image_url
+  };
 
-    // 5. Open Print Window (Sized for Brother QL-1110NWB 62mm Tape)
-    const win = window.open('', '', 'width=400,height=600');
-    
-    win.document.write(`
+  const templateFn = TEMPLATES[templateName] || TEMPLATES['standard'];
+  const contentHtml = templateFn(labelData);
+
+  const win = window.open('', '', 'width=400,height=600');
+
+  win.document.write(`
         <html>
         <head>
             <style>
@@ -61,5 +57,5 @@ export async function printLabel(product, templateName = 'standard') {
         </body>
         </html>
     `);
-    win.document.close();
+  win.document.close();
 }

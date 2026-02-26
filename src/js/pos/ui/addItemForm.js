@@ -1,13 +1,14 @@
-// src/js/pos/ui/addItemForm.js
+// ./src/js/pos/ui/addItemForm.js 
+
 
 export function renderAddItemForm(categories, templates) {
-    return `
+  return `
     <div class="pos-mobile-stack" style="display:flex; height:100%; overflow:hidden;">
-        
+
         <!-- LEFT: INPUT FORM -->
         <div style="flex:1; padding:20px; overflow-y:auto; background:#f9f9f9;">
             <h2 style="margin-top:0; color:#2e7d32;">📦 Add Inventory</h2>
-            
+
             <form id="add-product-form" class="product-form">
                 <div class="form-group">
                     <label>Product Name</label>
@@ -19,7 +20,7 @@ export function renderAddItemForm(categories, templates) {
                         <label>Category <button type="button" id="btn-manage-cats" style="background:none; border:none; color:#2196f3; cursor:pointer; font-weight:bold;" title="Add/Edit Categories">[+]</button></label>
                         <select id="p-cat">
                             <option value="">-- Unlinked --</option>
-                            ${(categories || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                            ${(categories || []).map((c) => `<option value="${c.id}">${c.name}</option>`).join('')}
                         </select>
                     </div>
                     <div class="form-group" style="width:120px;">
@@ -43,7 +44,7 @@ export function renderAddItemForm(categories, templates) {
                          </select>
                     </div>
                 </div>
-                
+
 <div class="form-group" style="flex:1;">
     <label>
         Load Template 
@@ -51,7 +52,7 @@ export function renderAddItemForm(categories, templates) {
     </label>
     <select id="p-template-loader">
         <option value="">-- Default Layout --</option>
-        ${(templates || []).map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
+        ${(templates || []).map((t) => `<option value="${t.id}">${t.name}</option>`).join('')}
     </select>
 </div>
 
@@ -71,7 +72,7 @@ export function renderAddItemForm(categories, templates) {
              <div style="display:flex; gap:10px; margin-bottom:10px; color:white; align-items:center;">
                 <label style="cursor:pointer;"><input type="checkbox" id="toggle-edit-mode"> Edit Layout</label>
             </div>
-            
+
             <div id="editor-toolbar" class="hidden" style="display:flex; gap:5px; margin-bottom:10px; flex-wrap:wrap;">
                  <button class="pos-btn" onclick="window.posAdd('text')">+Txt</button>
                  <button class="pos-btn" onclick="window.posAdd('barcode')">+Bar</button>
@@ -81,7 +82,7 @@ export function renderAddItemForm(categories, templates) {
             </div>
 
             <div id="preview-box" style="background:white; min-height:200px; width:100%; border-radius:4px; box-shadow:0 0 15px rgba(0,0,0,0.5);"></div>
-            
+
             <!-- PROPERTIES PANEL -->
             <div id="editor-properties-panel" style="width:100%; background:#f4f4f4; margin-top:15px; padding:10px; border-radius:4px; min-height:80px;">
                 <small style="color:#666;">Select an element to edit</small>
