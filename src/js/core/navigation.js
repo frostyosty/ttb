@@ -10,7 +10,7 @@ export async function setupNavigation() {
   const navContainer = document.querySelector('.main-nav');
   if (!navContainer) return;
 
-  const pages = new Set(['home', 'products', 'contact', 'about']);
+  const pages = new Set(['home', 'products', 'contact']);
   state.items.forEach((i) => {if (i.page) pages.add(i.page);});
 
   let shopEnabled = false;
