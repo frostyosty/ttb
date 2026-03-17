@@ -1,4 +1,5 @@
-import { supabase } from '../../../db.js';
+import { supabase } from '../../db.js';
+
 import { learnCategoryPreference } from './smartFeatures.js';
 import { saveToOfflineQueue } from './offlineQueue.js'; // 👈 Import new queue
 import { showPosToast } from '../ui/posModals.js';
