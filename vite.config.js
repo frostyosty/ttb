@@ -42,29 +42,35 @@ export default defineConfig({
     }
   },
   includeAssets: [
-  'assets/icon.svg'],
+    'assets/icon.svg'],
 
   plugins: [
-  VitePWA({
-    registerType: 'autoUpdate',
-    injectRegister: 'auto',
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
 
-    workbox: {
-      cleanupOutdatedCaches: true,
-      skipWaiting: true,
-      clientsClaim: true,
+      workbox: {
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
+        navigateFallback: '/index.html',
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/oannlpewujcnmbzzvklu\.supabase\.co\/.*/i,
+            handler: 'CacheFirst',
+            options: { cacheName: 'supabase-images' }
+          }
+        ]
+      },
+      manifest: {
+        name: 'Tweed Trading CMS',
+        short_name: 'Tweed',
+        theme_color: '#2e7d32',
+        icons: [
+          { src: 'assets/icon.svg', sizes: '192x192', type: 'image/svg+xml' },
+          { src: 'assets/icon.svg', sizes: '512x512', type: 'image/svg+xml' }]
 
-      navigateFallback: null
-    },
-    manifest: {
-      name: 'Tweed Trading CMS',
-      short_name: 'Tweed',
-      theme_color: '#2e7d32',
-      icons: [
-      { src: 'assets/icon.svg', sizes: '192x192', type: 'image/svg+xml' },
-      { src: 'assets/icon.svg', sizes: '512x512', type: 'image/svg+xml' }]
-
-    }
-  })]
+      }
+    })]
 
 });
