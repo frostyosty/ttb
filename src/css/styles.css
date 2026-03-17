@@ -1017,3 +1017,44 @@ body.toast-active #app-container {
 
 
 
+/* Make CMS Toolbar Scrollable on Mobile */
+.toolbar-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    /* Force horizontal layout */
+    overflow-x: auto;
+    white-space: nowrap;
+    
+    /* Smooth touch scrolling for iOS/Android */
+    -webkit-overflow-scrolling: touch;
+    
+    /* Hide the ugly scrollbar but keep functionality */
+    scrollbar-width: none; /* Firefox */
+}
+
+/* Hide scrollbar for Chrome/Safari */
+.toolbar-actions::-webkit-scrollbar {
+    display: none; 
+}
+
+/* Prevent buttons from squishing when scrolling */
+.toolbar-actions button {
+    flex-shrink: 0; 
+}
+
+.toolbar-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    overflow-x: auto; /* Allows swiping left/right */
+    white-space: nowrap; /* Stops buttons from stacking */
+    -webkit-overflow-scrolling: touch; /* Smooth scroll on iPhones */
+    scrollbar-width: none; 
+}
+.toolbar-actions::-webkit-scrollbar {
+    display: none; /* Hides the ugly scrollbar line */
+}
+.toolbar-actions button {
+    flex-shrink: 0; /* Prevents buttons from shrinking */
+}

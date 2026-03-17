@@ -3,9 +3,11 @@
 
 export function renderGenericLabelForm(templates) {
   return `
+
+  <div class="pos-mobile-stack" style="display:flex; height:100%; overflow:hidden;">
     <div style="display:flex; height:100%; overflow:hidden;">
 
-        <!-- LEFT: CONTROLS -->
+<!-- LEFT: CONTROLS -->
         <div style="flex:1; padding:20px; overflow-y:auto; background:#f9f9f9;">
             <h2 style="margin-top:0; color:#d32f2f;">🏷️ Generic Label Maker</h2>
 

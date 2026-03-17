@@ -10,11 +10,13 @@ import { openImageManager } from './imageManager.js';
 let editingIndex = null;
 
 export function initToolbar() {
-
   const actionsDiv = document.querySelector('.toolbar-actions');
+  if (!actionsDiv) return;
+
   const oldSave = document.getElementById('btn-save');
   if (oldSave) oldSave.remove();
 
+  // 1. Sections Button
   if (!document.getElementById('btn-sections')) {
     const btn = document.createElement('button');
     btn.id = 'btn-sections';
@@ -23,11 +25,13 @@ export function initToolbar() {
     btn.addEventListener('click', openSectionsManager);
   }
 
+  // 2. Alert Button
   if (!document.getElementById('btn-emergency')) {
     const btn = document.createElement('button');
     btn.id = 'btn-emergency';
     btn.innerHTML = '<i class="fas fa-bullhorn"></i> Alert';
     btn.style.background = '#ff9800';
+    btn.style.color = 'white';
     actionsDiv.insertBefore(btn, document.getElementById('btn-restore'));
     btn.addEventListener('click', () => {
       document.getElementById('emergency-modal').classList.remove('hidden');
@@ -35,10 +39,50 @@ export function initToolbar() {
     });
   }
 
-  document.getElementById('btn-mass').addEventListener('click', () => {
-    document.getElementById('mass-panel').classList.toggle('hidden');
-  });
+  // 3. POS Button (NEW)
+  if (!document.getElementById('btn-launch-pos')) {
+      const posBtn = document.createElement('button');
+      posBtn.id = 'btn-launch-pos';
+      posBtn.innerHTML = '<i class="fas fa-cash-register"></i> POS';
+      posBtn.style.background = '#ff9800'; // Orange
+      posBtn.style.color = 'white';
+      posBtn.onclick = () => {
+          import('./pos/posMain.js').then(module => {
+              module.initPOS();
+          });
+      };
+      actionsDiv.appendChild(posBtn);
+  }
 
+  // 4. Exit God Mode Button (NEW)
+  if (!document.getElementById('btn-exit-admin')) {
+      const exitBtn = document.createElement('button');
+      exitBtn.id = 'btn-exit-admin';
+      exitBtn.innerHTML = '<i class="fas fa-power-off"></i> Exit';
+      exitBtn.style.background = '#d32f2f'; // Red
+      exitBtn.style.color = 'white';
+      exitBtn.style.marginLeft = 'auto'; // Pushes it to the far right side
+      exitBtn.onclick = () => {
+          if(confirm("Exit Admin Mode?")) {
+              localStorage.removeItem('tweed_admin_logged_in');
+              localStorage.removeItem('tweed_is_admin_device');
+              document.body.classList.remove('dev-active');
+              location.reload();
+          }
+      };
+      actionsDiv.appendChild(exitBtn);
+  }
+
+  // Mass Edit Toggle
+  const massBtn = document.getElementById('btn-mass');
+  if (massBtn && !massBtn.dataset.bound) {
+      massBtn.dataset.bound = "true";
+      massBtn.addEventListener('click', () => {
+          document.getElementById('mass-panel').classList.toggle('hidden');
+      });
+  }
+
+  // Sliders
   const padSlider = document.getElementById('global-padding');
   const radSlider = document.getElementById('global-radius');
   const textSlider = document.getElementById('global-text');
@@ -54,9 +98,10 @@ export function initToolbar() {
     render();
   };
 
-  if (padSlider) {padSlider.addEventListener('change', triggerUpdate);padSlider.addEventListener('input', applyMass);}
-  if (radSlider) {radSlider.addEventListener('change', triggerUpdate);radSlider.addEventListener('input', applyMass);}
-  if (textSlider) {textSlider.addEventListener('change', triggerUpdate);textSlider.addEventListener('input', applyMass);}
+  // Bind sliders safely
+  if (padSlider && !padSlider.dataset.bound) { padSlider.dataset.bound = "true"; padSlider.addEventListener('change', triggerUpdate); padSlider.addEventListener('input', applyMass); }
+  if (radSlider && !radSlider.dataset.bound) { radSlider.dataset.bound = "true"; radSlider.addEventListener('change', triggerUpdate); radSlider.addEventListener('input', applyMass); }
+  if (textSlider && !textSlider.dataset.bound) { textSlider.dataset.bound = "true"; textSlider.addEventListener('change', triggerUpdate); textSlider.addEventListener('input', applyMass); }
 
   setupHistory();
   setupModals();
