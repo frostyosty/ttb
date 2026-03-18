@@ -58,7 +58,7 @@ export function renderGenericLabelForm(templates) {
         </div>
 
         <!-- RIGHT: PREVIEW (Same as before) -->
-        <div style="width:340px; background:#333; padding:20px; display:flex; flex-direction:column; align-items:center; border-left:1px solid #ddd;">
+<div class="preview-panel" style="width:340px; background:#333; padding:20px; display:flex; flex-direction:column; align-items:center; border-left:1px solid #ddd;">
 
             <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:10px; color:white;">
                 <label style="cursor:pointer;"><input type="checkbox" id="toggle-generic-edit"> Edit Layout</label>
