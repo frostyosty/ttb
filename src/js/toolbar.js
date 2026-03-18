@@ -331,17 +331,3 @@ function setupHistory() {
   });
   document.getElementById('btn-close-modal').addEventListener('click', () => modal.classList.add('hidden'));
 }
-
-const actions = document.querySelector('.toolbar-actions');
-if (actions) {
-  const posBtn = document.createElement('button');
-  posBtn.innerHTML = '<i class="fas fa-cash-register"></i> POS Mode';
-  posBtn.style.background = "#ff9800";
-  posBtn.onclick = () => {
-
-    import('./pos/posMain.js').then((module) => {
-      module.initPOS();
-    });
-  };
-  actions.appendChild(posBtn);
-}
