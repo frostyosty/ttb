@@ -1,16 +1,14 @@
 // ./src/js/pos/ui/genericLabelForm.js 
 
 export function renderGenericLabelForm(templates) {
-  return `
+    return `
+    <!-- Removed the duplicate nested div that was breaking the layout -->
+    <div class="pos-mobile-stack" style="display:flex; height:100%; overflow:hidden;">
 
-  <div class="pos-mobile-stack" style="display:flex; height:100%; overflow:hidden;">
-    <div style="display:flex; height:100%; overflow:hidden;">
-
-<!-- LEFT: CONTROLS -->
+        <!-- LEFT: CONTROLS -->
         <div style="flex:1; padding:20px; overflow-y:auto; background:#f9f9f9;">
             <h2 style="margin-top:0; color:#d32f2f;">🏷️ Generic Label Maker</h2>
 
-            <!-- ... (Keep Title/Subtitle inputs) ... -->
             <div class="form-group" style="margin-bottom:15px;">
                 <label>Main Title</label>
                 <input type="text" id="gl-title" placeholder="e.g. All Bricks" style="font-size:1.2rem; padding:10px; width:100%;">
@@ -26,7 +24,6 @@ export function renderGenericLabelForm(templates) {
                 <input type="text" id="gl-code" placeholder="Optional data" style="font-family:monospace; width:100%;">
             </div>
 
-            <!-- 👇 NEW PHOTO INPUT -->
             <div class="form-group" style="margin-bottom:15px;">
                 <label>Photo / Logo (Optional)</label>
                 <input type="file" id="gl-image" accept="image/*" style="width:100%;">
@@ -34,7 +31,6 @@ export function renderGenericLabelForm(templates) {
 
             <hr style="border:0; border-top:1px solid #ddd; margin:20px 0;">
 
-            <!-- ... (Keep Size/Template dropdowns) ... -->
             <div class="form-group" style="margin-bottom:15px;">
                 <label>Paper Size</label>
                 <select id="gl-paper-size" style="padding:10px; width:100%;">
