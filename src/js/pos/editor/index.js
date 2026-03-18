@@ -70,30 +70,60 @@ export async function initLabelEditor(containerId, inputIds, imageInputId = null
       insert({ name, config: EditorState.get() }).select().single();
       return error ? null : data;
     },
-    refresh: updateData,
-    print: async (realData) => {
-      const win = window.open('', '', 'width=400,height=600');
-      win.document.write('<html><head><style>@page { size: 62mm auto; margin: 0; } body { margin: 0; }</style></head><body><div id="print-area"></div></body></html>');
-      const container = win.document.getElementById('print-area');
-      await renderLabel(container, EditorState.get(), realData, false, currentPaperSize);
-      setTimeout(() => {win.print();setTimeout(() => win.close(), 1000);}, 500);
-    }
-  };
+     refresh: updateData,
+        print: async (realData) => {
+            // 👇 ANDROID PWA FIX: Use hidden iframe instead of window.open
+            let printFrame = document.getElementById('pos-print-frame');
+            if (!printFrame) {
+                printFrame = document.createElement('iframe');
+                printFrame.id = 'pos-print-frame';
+                Object.assign(printFrame.style, {
+                    position: 'fixed', right: '0', bottom: '0', width: '0', height: '0', border: '0'
+                });
+                document.body.appendChild(printFrame);
+            }
+
+            const win = printFrame.contentWindow;
+            win.document.open();
+            win.document.write('<html><head><style>@page { size: 62mm auto; margin: 0; } body { margin: 0; }</style></head><body><div id="print-area"></div></body></html>');
+            win.document.close();
+
+            const container = win.document.getElementById('print-area');
+            await renderLabel(container, EditorState.get(), realData, false, currentPaperSize);
+
+            // Wait for images to render, then print from the iframe
+            setTimeout(() => {
+                win.focus();
+                win.print();
+            }, 500);
+        }
+    };
 }
 
+// 👇 ALSO UPDATE THE STANDALONE PRINTER AT THE BOTTOM OF THE FILE
 export async function printLabelData(data, config = null) {
+    const layout = config || EditorState.get();
+    
+    let printFrame = document.getElementById('pos-print-frame');
+    if (!printFrame) {
+        printFrame = document.createElement('iframe');
+        printFrame.id = 'pos-print-frame';
+        Object.assign(printFrame.style, {
+            position: 'fixed', right: '0', bottom: '0', width: '0', height: '0', border: '0'
+        });
+        document.body.appendChild(printFrame);
+    }
 
-  const layout = config || EditorState.get();
-
-  const win = window.open('', '', 'width=400,height=600');
-  win.document.write('<html><head><style>@page { size: 62mm auto; margin: 0; } body { margin: 0; }</style></head><body><div id="print-area"></div></body></html>');
-
-  const container = win.document.getElementById('print-area');
-
-  await renderLabel(container, layout, data, false);
-
-  setTimeout(() => {
-    win.print();
-    setTimeout(() => win.close(), 1000);
-  }, 500);
+    const win = printFrame.contentWindow;
+    win.document.open();
+    win.document.write('<html><head><style>@page { size: 62mm auto; margin: 0; } body { margin: 0; }</style></head><body><div id="print-area"></div></body></html>');
+    win.document.close();
+    
+    const container = win.document.getElementById('print-area');
+    await renderLabel(container, layout, data, false); // false = not editing
+    
+    setTimeout(() => { 
+        win.focus();
+        win.print(); 
+    }, 500);
 }

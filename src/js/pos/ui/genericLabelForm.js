@@ -1,6 +1,5 @@
 // ./src/js/pos/ui/genericLabelForm.js 
 
-
 export function renderGenericLabelForm(templates) {
   return `
 
