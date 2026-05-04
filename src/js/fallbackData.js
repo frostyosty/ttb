@@ -25,7 +25,7 @@ export const FALLBACK_ITEMS = [
 {
   type: 'product',
   page: 'products',
-  content: '<h4>Doors</h4><ul><li>Wooden Doors</li><li>Paneled Doors</li></ul>',
+  content: '<h4>Doors</h4><ul><li>Wooden Doors</li><li>Aluminium Doors</li></ul>',
   styles: { padding: "20px", margin: "10px auto", maxWidth: "600px", background: "white", borderLeft: "5px solid #2e7d32", borderRadius: "5px" }
 },
 {

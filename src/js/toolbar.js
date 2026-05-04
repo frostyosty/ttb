@@ -115,8 +115,6 @@ function setupModals() {
 
   document.getElementById('btn-add-page').addEventListener('click', addNewPage);
   document.getElementById('btn-add-section').addEventListener('click', addNewSection);
-  const noteBtn = document.getElementById('btn-add-notepad');
-  if (noteBtn) noteBtn.addEventListener('click', addNewNotepad);
 
   document.getElementById('close-emergency').addEventListener('click', () => document.getElementById('emergency-modal').classList.add('hidden'));
   document.getElementById('post-emergency').addEventListener('click', postAnnouncement);
@@ -205,7 +203,6 @@ function renderSectionsTable() {
     let text = tempDiv.innerText.substring(0, 30) + '...';
     if (item.type === 'carousel') text = '<b>[Carousel]</b>';
     if (item.type === 'map') text = '<b>[Map]</b>';
-    if (item.type === 'notepad') text = '<b>[Notepad]</b>';
     if (item.type === 'alert') text = '<b style="color:orange">[ALERT]</b> ' + text;
 
     let optionsHtml = '';
@@ -283,10 +280,7 @@ function addNewSection() {
   renderSectionsTable();triggerOptimisticUpdate();
 }
 
-function addNewNotepad() {
-  const newItem = { type: 'notepad', page: state.currentPage || 'home', position: 99, content: '', styles: { padding: "10px", margin: "20px auto", maxWidth: "600px", background: "transparent" } };
-  state.items.push(newItem);renderSectionsTable();triggerOptimisticUpdate();
-}
+
 
 function triggerOptimisticUpdate() {render();document.dispatchEvent(new Event('app-render-request'));}
 

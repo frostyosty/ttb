@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background: Dark Green with Rounded Corners -->
+  <rect width="512" height="512" rx="100" fill="#1b5e20" />
+  
+  <!-- Text: Red T with White Stroke -->
+  <!-- 'paint-order: stroke' ensures the white outline doesn't eat into the red letter -->
+  <text 
+    x="50%" 
+    y="55%" 
+    font-family="Arial, Helvetica, sans-serif" 
+    font-weight="900" 
+    font-size="400" 
+    fill="#d32f2f" 
+    stroke="#ffffff" 
+    stroke-width="15" 
+    paint-order="stroke"
+    text-anchor="middle" 
+    dominant-baseline="middle"
+  >T</text>
+</svg>

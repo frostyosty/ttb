@@ -45,10 +45,7 @@ export function render() {
   pageItems.forEach((item) => {
     const el = document.createElement('div');
 
-    if (item.type === 'notepad') {
-      el.className = 'content-block';
-      renderNotepad(el);
-    } else if (item.type === 'alert') {
+    if (item.type === 'alert') {
       el.className = 'content-block alert-box';
       el.innerHTML = item.content || '';
     } else {
@@ -82,30 +79,8 @@ function setupDevFeatures(el, item, index) {
     el.appendChild(delBtn);
   }
 
-  if (item.type !== 'notepad') {
-    el.classList.add('editable');
-    el.setAttribute('contenteditable', 'true');
-
-    el.onblur = (e) => {
-
-      const clone = el.cloneNode(true);
-      const btns = clone.querySelectorAll('.quick-delete-btn, .element-tools');
-      btns.forEach((b) => b.remove());
-
-      const newVal = clone.innerHTML;
-
-      if (state.items[index].content !== newVal) {
-        console.log("📝 Text Change Detected on Item", index);
-
-        state.items[index].content = newVal;
-
-        triggerRender();
-      }
-    };
-  } else {
-    el.classList.add('editable');
-    el.setAttribute('contenteditable', 'false');
-  }
+  el.classList.add('editable');
+  el.setAttribute('contenteditable', 'true');
 
   const tools = document.createElement('div');
   tools.className = 'element-tools';
@@ -181,19 +156,6 @@ function setupDevFeatures(el, item, index) {
   el.appendChild(tools);
 }
 
-function renderNotepad(el) {
-  el.innerHTML = `
-        <div class="notepad-container">
-            <div class="notepad-tape"></div>
-            <h3 class="notepad-title">My Measurements & Notes</h3>
-            <textarea class="notepad-textarea" placeholder="Type here... (Auto-saved)"></textarea>
-        </div>
-    `;
-  const textarea = el.querySelector('textarea');
-  const savedNote = localStorage.getItem('tweed_notepad_data');
-  if (savedNote) textarea.value = savedNote;
-  textarea.addEventListener('input', (e) => {localStorage.setItem('tweed_notepad_data', e.target.value);});
-}
 
 function changeScale(item, amount) {
   const current = item.styles.transform || 'scale(1)';
