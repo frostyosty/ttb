@@ -9,6 +9,7 @@ import { attachEmailListeners } from '../email.js';
 
 let saveTimer;
 
+
 export function initAutoSave(isOfflineMode) {
   document.addEventListener('app-render-request', () => {
 
