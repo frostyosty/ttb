@@ -1058,3 +1058,77 @@ body.toast-active #app-container {
 .toolbar-actions button {
     flex-shrink: 0; /* Prevents buttons from shrinking */
 }
+/* CMS toolbar: wrap onto extra rows instead of running off the sides.
+   (Centering + horizontal scroll left the first buttons unreachable.) */
+.toolbar-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow-x: visible;
+    white-space: normal;
+}
+.toolbar-actions #btn-exit-admin {
+    margin-left: 0 !important;
+}
+.dev-toolbar {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+}
+.mass-panel {
+    flex-wrap: wrap;
+}
+.mass-panel input[type="range"] {
+    width: 140px;
+    max-width: 100%;
+    margin-bottom: 0;
+}
+
+/* Toolbar height is measured in toolbar.js so content is never hidden behind it */
+body.dev-active {
+    padding-bottom: var(--toolbar-height, 120px) !important;
+}
+
+/* The global input rule stretches checkboxes/radios to full width */
+input[type="checkbox"],
+input[type="radio"] {
+    width: auto;
+    margin-bottom: 0;
+}
+
+/* Sections manager: keep the edit/delete column on-screen on phones */
+@media (max-width: 600px) {
+    #sections-modal .modal-content {
+        padding: 15px;
+    }
+    #sections-table th,
+    #sections-table td {
+        padding: 8px 4px !important;
+    }
+    #sections-table td:first-child {
+        word-break: break-word;
+        font-size: 0.8rem !important;
+    }
+    #sections-table .page-select {
+        width: 88px !important;
+        padding: 6px 2px !important;
+    }
+    #sections-table .pos-input {
+        width: 42px !important;
+        margin-bottom: 0;
+    }
+}
+
+/* Dev mode: keep each block's mini toolbar clickable (it was sliding under the
+   sticky nav, e.g. after zooming the top block) */
+body.dev-active #app-container {
+    padding-top: 25px;
+}
+.content-block.editable:hover,
+.content-block.editable:focus-within {
+    z-index: 101;
+}
+
+/* Zoomed/scaled blocks must not make the whole page scroll sideways */
+#app-container {
+    overflow-x: clip;
+}

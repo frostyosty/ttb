@@ -11,6 +11,7 @@ export async function initTransactions() {
   select(`*, items:tweed_trading_sale_items(count)`).
   order('created_at', { ascending: false }).
   limit(50);
+  const rows = sales || [];
 
   container.innerHTML = `
         <div style="padding:20px;">
@@ -27,12 +28,12 @@ export async function initTransactions() {
                         </tr>
                     </thead>
                     <tbody>
-                        ${sales.map((s) => `
+                        ${rows.map((s) => `
                             <tr style="border-bottom:1px solid #eee;">
                                 <td style="padding:15px;">${new Date(s.created_at).toLocaleString()}</td>
                                 <td style="padding:15px; font-family:monospace;">#${s.id}</td>
                                 <td style="padding:15px; text-transform:capitalize;">${s.payment_method}</td>
-                                <td style="padding:15px;">${s.items ? s.items.length : 1}</td>
+                                <td style="padding:15px;">${s.items?.[0]?.count ?? 1}</td>
                                 <td style="padding:15px; font-weight:bold;">$${s.total_amount}</td>
                             </tr>
                         `).join('')}

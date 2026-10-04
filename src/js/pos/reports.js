@@ -15,7 +15,7 @@ export async function initReports() {
 
   const today = new Date().toDateString();
 
-  sales.forEach((s) => {
+  (sales || []).forEach((s) => {
     totalRevenue += s.total_amount;
     if (s.payment_method === 'cash') cashTotal += s.total_amount;
     if (s.payment_method === 'card') cardTotal += s.total_amount;

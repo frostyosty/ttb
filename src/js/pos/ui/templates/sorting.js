@@ -8,22 +8,22 @@ export function bindSortingEvents(listContainer, refreshCallback) {
   const rows = listContainer.querySelectorAll('.tpl-row');
 
   listContainer.querySelectorAll('.tpl-up-btn').forEach((btn) => {
-    btn.onclick = (e) => {
+    btn.onclick = async (e) => {
       const row = e.target.closest('.tpl-row');
       if (row.previousElementSibling) {
         row.parentNode.insertBefore(row, row.previousElementSibling);
-        saveOrder(listContainer);
+        await saveOrder(listContainer);
         refreshCallback();
       }
     };
   });
 
   listContainer.querySelectorAll('.tpl-down-btn').forEach((btn) => {
-    btn.onclick = (e) => {
+    btn.onclick = async (e) => {
       const row = e.target.closest('.tpl-row');
       if (row.nextElementSibling) {
         row.parentNode.insertBefore(row.nextElementSibling, row);
-        saveOrder(listContainer);
+        await saveOrder(listContainer);
         refreshCallback();
       }
     };
@@ -31,7 +31,7 @@ export function bindSortingEvents(listContainer, refreshCallback) {
 
   rows.forEach((row) => {
 
-    const handle = row.querySelector('.drag-handle');
+    const handle = row.querySelector('.tpl-drag-handle');
     handle.addEventListener('mousedown', () => row.setAttribute('draggable', 'true'));
 
     row.addEventListener('dragstart', (e) => {
@@ -40,10 +40,10 @@ export function bindSortingEvents(listContainer, refreshCallback) {
       row.style.opacity = '0.5';
     });
 
-    row.addEventListener('dragend', () => {
+    row.addEventListener('dragend', async () => {
       draggedItem = null;
       row.style.opacity = '1';
-      saveOrder(listContainer);
+      await saveOrder(listContainer);
       refreshCallback();
     });
 

@@ -106,8 +106,11 @@
         flex-shrink: 0;
     }
 
-    .pos-btn {
+    .pos-sidebar .pos-btn {
         flex: 1;
+    }
+
+    .pos-btn {
         text-align: center;
         padding: 8px 15px;
         font-size: 0.9rem;
@@ -177,5 +180,56 @@
         width: 100% !important;
         border-left: none !important;
         border-top: 1px solid #ccc;
+    }
+}
+/* POS toast (showPosToast) */
+#pos-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 30px;
+    transform: translate(-50%, 20px);
+    max-width: 90vw;
+    padding: 12px 20px;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    z-index: 10030;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+}
+#pos-toast.visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+/* Layout-editor buttons sit on the dark preview panel */
+.preview-panel .pos-btn {
+    background: #f0f0f0;
+}
+
+@media (max-width: 768px) {
+    /* Inventory: let the search drop below the title and keep Actions on-screen */
+    #pos-content-area h2 {
+        font-size: 1.2rem;
+    }
+    #inv-search {
+        margin-bottom: 0;
+    }
+    #inv-list td,
+    #pos-content-area thead th {
+        padding: 8px 6px !important;
+    }
+    #inv-list .pos-btn {
+        padding: 6px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* The fixed 300px panel let the label preview and properties box spill out of it */
+    .preview-panel {
+        height: auto !important;
     }
 }

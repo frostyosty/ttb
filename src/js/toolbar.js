@@ -103,6 +103,14 @@ export function initToolbar() {
   if (radSlider && !radSlider.dataset.bound) { radSlider.dataset.bound = "true"; radSlider.addEventListener('change', triggerUpdate); radSlider.addEventListener('input', applyMass); }
   if (textSlider && !textSlider.dataset.bound) { textSlider.dataset.bound = "true"; textSlider.addEventListener('change', triggerUpdate); textSlider.addEventListener('input', applyMass); }
 
+  // Keep page content clear of the toolbar, whatever height it wraps to
+  const toolbarEl = document.getElementById('dev-toolbar');
+  if (toolbarEl && window.ResizeObserver) {
+    new ResizeObserver(() => {
+      document.body.style.setProperty('--toolbar-height', `${toolbarEl.offsetHeight + 20}px`);
+    }).observe(toolbarEl);
+  }
+
   setupHistory();
   setupModals();
   setupRichTextEditor();
@@ -282,7 +290,13 @@ function addNewSection() {
 
 
 
-function triggerOptimisticUpdate() {render();document.dispatchEvent(new Event('app-render-request'));}
+function triggerOptimisticUpdate() {
+  render();
+  document.dispatchEvent(new Event('app-render-request'));
+
+  // The render request re-sorts state.items, so row indexes in an open table are now stale
+  if (!document.getElementById('sections-modal').classList.contains('hidden')) renderSectionsTable();
+}
 
 function setupHistory() {
   const modal = document.getElementById('history-modal');

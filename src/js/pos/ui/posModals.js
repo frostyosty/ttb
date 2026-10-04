@@ -66,7 +66,7 @@ export function showPosInput(title, placeholder = "") {
     const overlay = document.createElement('div');
     Object.assign(overlay.style, {
       position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-      background: 'rgba(0,0,0,0.5)', zIndex: 10002,
+      background: 'rgba(0,0,0,0.5)', zIndex: 10020,
       display: 'flex', alignItems: 'center', justifyContent: 'center'
     });
 
@@ -142,7 +142,7 @@ function createModalBase(msg) {
   const overlay = document.createElement('div');
   Object.assign(overlay.style, {
     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-    background: 'rgba(0,0,0,0.5)', zIndex: 10000,
+    background: 'rgba(0,0,0,0.5)', zIndex: 10020,
     display: 'flex', alignItems: 'center', justifyContent: 'center'
   });
 

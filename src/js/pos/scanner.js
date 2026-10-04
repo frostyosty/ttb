@@ -3,10 +3,16 @@
 let buffer = '';
 let lastKeyTime = 0;
 
+let isListening = false;
+
 export function initScanner() {
+  if (isListening) return;
+  isListening = true;
   console.log("🔫 Scanner Listener Active");
 
   document.addEventListener('keydown', (e) => {
+    if (!document.getElementById('pos-view')) return;
+
     const currentTime = Date.now();
     const char = e.key;
 

@@ -52,7 +52,12 @@ export async function renderLabel(container, config, data = {}, isEditing = fals
       el.innerHTML = item.html || 'Text';
       if (!isEditing) {
         if (item.id === 'title') el.innerHTML = data.name || item.html;
-        if (item.id === 'price') el.innerHTML = `$${data.price}` || item.html;
+        if (item.id === 'price') {
+          // Only prefix "$" for plain numbers (generic labels pass free text like "$5 ea")
+          const price = data.price ?? '';
+          const isNumeric = price !== '' && !isNaN(price);
+          el.innerHTML = isNumeric ? `$${price}` : price || item.html;
+        }
         if (item.id === 'sku') el.innerHTML = data.sku || item.html;
       }
       el.style.fontSize = `${item.fontSize || 12}px`;

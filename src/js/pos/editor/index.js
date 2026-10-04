@@ -14,6 +14,10 @@ let currentPaperSize = '62mm';
 export async function initLabelEditor(containerId, inputIds, imageInputId = null) {
   activeContainer = document.getElementById(containerId);
 
+  // Each tab builds a fresh editor; don't inherit the last tab's edit mode / paper size
+  isEditing = false;
+  currentPaperSize = '62mm';
+
   const refresh = () => {
     renderLabel(activeContainer, EditorState.get(), activeData, isEditing, currentPaperSize);
   };
@@ -26,7 +30,7 @@ export async function initLabelEditor(containerId, inputIds, imageInputId = null
     activeData = {
       name: document.getElementById(inputIds.name)?.value || 'Product Name',
       price: document.getElementById(inputIds.price)?.value || '0.00',
-      sku: 'PREVIEW'
+      sku: document.getElementById(inputIds.sku)?.value || 'PREVIEW'
     };
 
     if (imageInputId) {

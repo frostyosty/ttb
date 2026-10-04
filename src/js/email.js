@@ -15,7 +15,15 @@ export function initEmailConfig() {
 }
 
 export function attachEmailListeners() {
-  const form = document.getElementById('embedded-email-form');
+  bindEmailForm(document.getElementById('embedded-email-form'));
+
+  const modal = document.getElementById('email-modal');
+  const closeBtn = document.getElementById('close-email');
+  if (modal && closeBtn) closeBtn.onclick = () => modal.classList.add('hidden');
+  bindEmailForm(document.getElementById('email-form'), () => modal.classList.add('hidden'));
+}
+
+function bindEmailForm(form, onSent) {
   if (!form) return;
   if (form.getAttribute('data-listening') === 'true') return;
   form.setAttribute('data-listening', 'true');
@@ -53,6 +61,7 @@ export function attachEmailListeners() {
       showPopup('Message successfully sent!');
       localStorage.setItem('lastEmailSubmit', Date.now().toString());
       form.reset();
+      if (onSent) onSent();
     }).
     catch((err) => {
       showPopup('Error sending email. Please try again later.');

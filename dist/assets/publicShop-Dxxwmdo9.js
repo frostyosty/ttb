@@ -1,4 +1,4 @@
-import{s as g}from"./index-DCTuYmvJ.js";let u={};async function v(){var o;const i=document.getElementById("app-container");i.innerHTML=`
+import{s as g}from"./index-DuNx7e9O.js";let u={};async function v(){var o;const i=document.getElementById("app-container");i.innerHTML=`
         <div style="display:flex; justify-content:center; align-items:center; height:300px; color:#666; font-size:1.2rem; flex-direction:column; gap:15px;">
             <div class="spinner"></div> 
             <div>Loading Stock...</div>

@@ -4,6 +4,7 @@ import { supabase } from '../db.js';
 import { showPosAlert, showPosConfirm } from './ui/posModals.js';
 
 let cart = [];
+let searchResults = [];
 
 export async function initCheckout() {
   const container = document.getElementById('pos-content-area');
@@ -47,13 +48,19 @@ export async function initCheckout() {
   document.getElementById('btn-pay-cash').addEventListener('click', () => processPayment('cash'));
   document.getElementById('btn-pay-card').addEventListener('click', () => processPayment('card'));
 
-  window.posAddToCart = (id, name, price) => {
-    cart.push({ id, name, price });
+  // Delegated click: names containing quotes broke the old inline onclick
+  document.getElementById('search-results').addEventListener('click', (e) => {
+    const row = e.target.closest('[data-result-idx]');
+    const item = row && searchResults[row.dataset.resultIdx];
+    if (!item) return;
+
+    cart.push({ id: item.id, name: item.name, price: Number(item.price) || 0 });
     renderCart();
     input.value = '';
+    searchResults = [];
     document.getElementById('search-results').innerHTML = '';
     input.focus();
-  };
+  });
 
   window.posRemoveFromCart = (idx) => {
     cart.splice(idx, 1);
@@ -67,8 +74,10 @@ async function handleSearch(val) {
   select('*').or(`sku.ilike.%${val}%,name.ilike.%${val}%`).limit(10);
 
   const box = document.getElementById('search-results');
-  box.innerHTML = (data || []).map((item) => `
-        <div onclick="window.posAddToCart('${item.id}', '${item.name}', ${item.price})" 
+  if (!box) return;
+  searchResults = data || [];
+  box.innerHTML = searchResults.map((item, idx) => `
+        <div data-result-idx="${idx}"
              style="padding:15px; border-bottom:1px solid #eee; cursor:pointer; display:flex; justify-content:space-between;">
             <div><strong>${item.name}</strong><div style="font-size:0.8rem; color:#666;">${item.sku} | Stock: ${item.stock_level}</div></div>
             <div style="font-weight:bold;">$${item.price}</div>

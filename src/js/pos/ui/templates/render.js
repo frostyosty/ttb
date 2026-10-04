@@ -38,7 +38,7 @@ export function renderTemplateList(items) {
         <div class="tpl-row" draggable="true" data-id="${t.id}" data-index="${index}" style="display:flex; align-items:center; gap:8px; padding:8px; border-bottom:1px solid #eee; background:white;">
 
             <!-- DRAG HANDLE (Desktop) -->
-            <div class="drag-handle" style="cursor:grab; color:#ccc; padding:0 5px; font-size:1.2rem; user-select:none;" title="Drag to reorder">
+            <div class="tpl-drag-handle" style="cursor:grab; color:#ccc; padding:0 5px; font-size:1.2rem; user-select:none;" title="Drag to reorder">
                 ✢
             </div>
 

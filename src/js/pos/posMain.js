@@ -8,21 +8,21 @@ import { initCustomerFacing } from './customerFacing.js';
 import { initGenericLabelMaker } from './genericLabelMaker.js';
 import { initTransactions } from './transactions.js';
 import { initReports } from './reports.js';
+import { supabase } from '../db.js';
+import { getOfflineQueue, deleteFromOfflineQueue } from './lib/offlineQueue.js';
+import { showPosToast } from './ui/posModals.js';
 
 
 export async function initPOS() {
   console.log("🏭 Loading Tweed ERP...");
-  checkOfflineQueue();
-  const app = document.getElementById('app-container');
-  const header = document.getElementById('super-header');
 
+  // Mounted on <body> (not #app-container) so site re-renders can't wipe the POS
+  let app = document.getElementById('pos-root');
   if (!app) {
-    console.error("CRITICAL: App container not found!");
-    return;
+    app = document.createElement('div');
+    app.id = 'pos-root';
+    document.body.appendChild(app);
   }
-
-  if (header) header.style.display = 'none';
-  if (document.querySelector('.main-nav')) document.querySelector('.main-nav').style.display = 'none';
 
   app.innerHTML = `
         <div id="pos-view">
@@ -55,7 +55,8 @@ export async function initPOS() {
     `;
 
   initScanner();
-  document.getElementById('exit-pos').addEventListener('click', () => location.reload());
+  checkOfflineQueue();
+  document.getElementById('exit-pos').addEventListener('click', () => app.remove());
 
   const tabs = document.querySelectorAll('.pos-btn[data-tab]');
   tabs.forEach((btn) => {
