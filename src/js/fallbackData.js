@@ -38,7 +38,7 @@ export const FALLBACK_ITEMS = [
 {
   type: 'contact',
   page: 'contact',
-  content: '<h3>Contact Us</h3><p><b>Email:</b> admin@tweedtrading.com</p><p><b>Address:</b> 40 Courtney Rd, Gate Pa, Tauranga</p>',
+  content: '<h3>Contact Us</h3><p><b>Email:</b> admin@tweedtrading.co.nz</p><p><b>Address:</b> 40 Courtney Rd, Gate Pa, Tauranga</p>',
   styles: { padding: "30px", maxWidth: "800px", margin: "20px auto", textAlign: "center", background: "#2e7d32", color: "white", borderRadius: "8px" }
 },
 

@@ -1,4 +1,4 @@
-import{g as Dr,s as _}from"./index-BqexESaP.js";let W="",pn=0;function Nr(){console.log("🔫 Scanner Listener Active"),document.addEventListener("keydown",t=>{const e=Date.now(),r=t.key;e-pn>100&&(W=""),pn=e,r==="Enter"?W.length>3&&(console.log("🔫 Scan Detected:",W),jr(W),W="",t.preventDefault()):r.length===1&&(W+=r)})}function jr(t){alert(`Scanned Item: ${t}`)}function Fr(t,e){return`
+import{g as Dr,s as _}from"./index-DCTuYmvJ.js";let W="",pn=0;function Nr(){console.log("🔫 Scanner Listener Active"),document.addEventListener("keydown",t=>{const e=Date.now(),r=t.key;e-pn>100&&(W=""),pn=e,r==="Enter"?W.length>3&&(console.log("🔫 Scan Detected:",W),jr(W),W="",t.preventDefault()):r.length===1&&(W+=r)})}function jr(t){alert(`Scanned Item: ${t}`)}function Fr(t,e){return`
     <div class="pos-mobile-stack" style="display:flex; height:100%; overflow:hidden;">
 
         <!-- LEFT: INPUT FORM -->
